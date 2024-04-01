@@ -30,13 +30,22 @@
         $(document).ready(function () {
             $.fn.dataTable.moment('DD-MMM-YY');
             $('table.display').DataTable({
-                dom: 'Bflrtip',
+                layout: {
+                    top2Start: 'pageLength',
+                    top2End: 'search',
+                    topStart: 'info',
+                    topEnd: 'paging',
+                    bottomStart: 'pageLength',
+                    bottomEnd: 'search',
+                    bottom2Start: 'info',
+                    bottom2End: 'paging',
+                },
                 order: [[0, 'desc']],
                 buttons: [
                     'csv', 'print'
                 ],
-				autoWidth: false,
-				scrollX: true
+                autoWidth: false,
+                scrollX: true
             });
         });
     </script>
@@ -44,12 +53,19 @@
         $(document).ready(function () {
             $.fn.dataTable.moment('DD-MMM-YY');
             $('table.display_nosearch').DataTable({
-                dom: 'Blrtip',
+                layout: {
+                    top2Start: 'pageLength',
+                    topStart: 'info',
+                    topEnd: 'paging',
+                    bottomStart: 'pageLength',
+                    bottom2Start: 'info',
+                    bottom2End: 'paging'
+                },
                 buttons: [
                     'csv', 'print'
                 ],
-				autoWidth: false,
-				scrollX: true
+                autoWidth: false,
+                scrollX: true
             });
         });
     </script>
@@ -58,20 +74,20 @@
 <body>
     <div class="top-button-container stickey-top">
         {% if last.enddate %}
-            <button type="button" class="btn btn-danger btn-lg btn-block">
-                <a class="nav-link" href="{% url 'caststart' %}">Start Cast</a>
-            </button>
+        <button type="button" class="btn btn-startcast">
+            <a class="button-link-startcast" href="{% url 'caststart' %}">Click here to Start Cast</a>
+        </button>
         {% else %}
-            <button type="button" class="btn btn-danger btn-lg btn-block">
-                <a class="nav-link" href="{% url 'cast_end' %}">End Cast</a>
-            </button>
+        <button type="button" class="btn btn-startcast ">
+            <a class="button-link-startcast" href="{% url 'cast_end' %}">Cast in progess - click here to End Cast</a>
+        </button>
         {% endif %}
     </div>
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="{% url 'home' %}">
             WWDB
         </a>
-		{% if user.is_superuser %}
+        {% if user.is_superuser %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -91,6 +107,7 @@
                         <a class="dropdown-item" href="{% url 'castlist' %}">Casts</a>
                         <a class="dropdown-item" href="{% url 'cruiselist' %}">Cruise</a>
                         <a class="dropdown-item" href="{% url 'safeworkingtensions' %}">Safe working tensions</a>
+                        <a class="dropdown-item" href="{% url 'unolswirereport' %}">UNOLS Wire Report</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -108,13 +125,11 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{% url 'wirelist' %}">Tension members</a>
-                        <a class="dropdown-item" href="{% url 'drumlist' %}">Drums</a>
-                        <a class="dropdown-item" href="{% url 'drumlocationlist' %}">Movements</a>
                     </div>
                 </li>
             </ul>
         </div>
-		{% endif %}
+        {% endif %}
     </nav>
     <div class="container mt-5 mb-5">
         {% block content %}
@@ -128,11 +143,17 @@
                 <div class="nav-item-bottom">
                     </li>
                     {% if user.is_authenticated %}
-						<span>Hi {{user.username}}!</span>
-						<span><a href="{% url 'logout' %}">Log out</a></span>
+                    <span>Hi {{user.username}}!</span>
+                    <button type="button" class="btn home-btn-login">
+                        <a class="button-link" href="{% url 'logout' %}">Log out</a>
+                    </button>
                     {% else %}
-						<span><a href="{% url 'login' %}">Log in</a></span>
-						<span><a href="{% url 'signup' %}">Sign up</a></span>
+                    <button type="button" class="btn home-btn-login">
+                        <a class="button-link" href="{% url 'login' %}">Log in</a>
+                    </button>
+                    <button type="button" class="btn home-btn-login">
+                        <a class="button-link" href="{% url 'signup' %}">Sign up</a>
+                    </button>
                     {% endif %}
                     </li>
                 </div>
