@@ -125,7 +125,7 @@
         </thead>
         {% for wire in active_wire %}
         <tr>
-            <td>{{wire.winch}}</td>
+            <td>{{wire.active_winch}}</td>
             <td><a href="{% url 'wireeditfactorofsafety' wire.pk %}">{{wire.factorofsafety}}</a></td>
         </tr>
         {% endfor %}
