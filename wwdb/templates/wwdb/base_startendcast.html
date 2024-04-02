@@ -73,7 +73,9 @@
 </head>
 <body>
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
-        <img src="/static/img/wire_log_logo_4.png" alt='Logo' class="logo" />
+        <a href="{% url 'home' %}">
+            <img src='/static/img/wire_log_logo_4.png' alt="Logo" class="logo" />
+        </a>
         {% if user.is_superuser %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
