@@ -570,7 +570,7 @@ Postings
 """
 
 def safeworkingtensions(request):
-    active_wire = Wire.objects.filter(status=True).order_by('-winch')
+    active_wire = Wire.objects.filter(status=True)
 
     context = {
         'active_wire': active_wire,

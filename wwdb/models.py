@@ -469,8 +469,7 @@ class OwnershipStatus(models.Model):
 
 class Wire(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
-    wirerope = models.ForeignKey(WireRopeData, models.DO_NOTHING, db_column='WireRopeId', blank=True, null=True, verbose_name='Wire rope data id')  
-    winch = models.ForeignKey(Winch, models.DO_NOTHING, db_column='WinchId', blank=True, null=True, verbose_name='Winch', related_name='reverse_wire')  
+    wirerope = models.ForeignKey(WireRopeData, models.DO_NOTHING, db_column='WireRopeId', blank=True, null=True, verbose_name='Wire rope data id')    
     manufacturerid = models.TextField(db_column='ManufacturerId', blank=True, null=True, verbose_name='Manufacturer id')  
     nsfid = models.TextField(db_column='NsfId', blank=True, null=True, verbose_name='NSF id')  
     dateacquired = models.DateField(db_column='DateAcquired', blank=True, null=True, verbose_name='Date Acquired', validators=[MaxValueValidator(limit_value=date.today)])  
@@ -494,7 +493,16 @@ class Wire(models.Model):
 
     @property
     def active_wire_location(self):
+        if not self.wirelocation_set:
+            return None
         d=self.wirelocation_set.order_by('date').last()
+        return d
+
+    @property
+    def active_winch(self):
+        if not self.active_wire_location:
+            return None
+        d=self.active_wire_location.winch
         return d
 
     @property 
@@ -579,7 +587,7 @@ class WireLocation(models.Model):
         verbose_name_plural = "WireLocation"
         
     def __str__(self):
-        return str(self.location) + '-' + str(self.drumid)
+        return str(self.location)
 
     @property
     def active_wire(self):
