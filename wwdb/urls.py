@@ -54,7 +54,7 @@ urlpatterns = [
     path('maintenance/cutbackreterminationadd/', views.cutbackreterminationadd, name='cutbackreterminationadd'),
     path('maintenance/breaktestadd/', views.breaktestadd, name='breaktestadd'),
     path('maintenance/breaktest/<int:id>/edit/', views.breaktestedit, name='breaktestedit'),
-    path('maintenance/breaktest', views.breaktestedit, name='breaktestedit'),
+    path('maintenance/breaktestlist', views.breaktestlist, name='breaktestlist'),
     path('maintenance/breaktest/<int:pk>/breaktestdetail', views.breaktestdetail, name='breaktestdetail'),
 
     #URLS related to reports
