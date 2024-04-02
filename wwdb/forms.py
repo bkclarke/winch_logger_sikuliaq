@@ -271,6 +271,38 @@ class WinchAddForm(ModelForm):
             'status',
         ]
 
+class BreaktestAddForm(ModelForm):
+
+    class Meta:
+        model = Breaktest
+        fields = [
+            'wire',
+            'date',
+            'testedbreakingload',
+            'notes',
+        ] 
+
+        widgets = {'date': DatePickerInput(
+            options={
+            "format": "YYYY-MM-DD"}
+            )}
+
+class BreaktestEditForm(ModelForm):
+
+    class Meta:
+        model = Breaktest
+        fields = [
+            'wire',
+            'date',
+            'testedbreakingload',
+            'notes',
+        ] 
+
+        widgets = {'date': DatePickerInput(
+            options={
+            "format": "YYYY-MM-DD"}
+            )}
+
 class UnolsWireReportForm(ModelForm):
 
     class Meta:

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
 
-<html>
+
 {% block content %}
 <h2>Breaktests</h2>
 </br>
@@ -18,12 +18,16 @@
     </thead>
     {% for breaktest in break_test %}
     <tr>
-        <td>{{breaktest.format_date}}</td>
+        <td><a href="{% url 'breaktestedit' breaktest.pk %}">{{breaktest.format_date}}</a></td>
         <td>{{breaktest.wire}}</td>
         <td>{{breaktest.testedbreakingload}}</td>
         <td>{{breaktest.notes}}</td>
     </tr>
     {% endfor %}
 </table>
+</br>
+</br>
+<button type="button" class="btn btn-outline-dark">
+    <a class="nav-link" href="{% url 'breaktestadd' %}">Add Breaktest</a>
+</button>
 {% endblock %}
-</html>

@@ -52,6 +52,10 @@ urlpatterns = [
     path('maintenance/cutbackretermination/<int:pk>/deploymentdetail', CutbackReterminationDetail.as_view(), name='cutbackreterminationdetail'),
     path('maintenance/cutbackretermination/<int:id>/edit/', views.cutbackreterminationedit, name='cutbackreterminationedit'),
     path('maintenance/cutbackreterminationadd/', views.cutbackreterminationadd, name='cutbackreterminationadd'),
+    path('maintenance/breaktestadd/', views.breaktestadd, name='breaktestadd'),
+    path('maintenance/breaktest/<int:id>/edit/', views.breaktestedit, name='breaktestedit'),
+    path('maintenance/breaktest', views.breaktestedit, name='breaktestedit'),
+    path('maintenance/breaktest/<int:pk>/breaktestdetail', views.breaktestdetail, name='breaktestdetail'),
 
     #URLS related to reports
     path('reports/castlist/', views.castlist, name='castlist'),

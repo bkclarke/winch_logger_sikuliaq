@@ -1,0 +1,13 @@
+﻿<!--templates/breaktestdetail.html-->
+{% extends "wwdb/base.html" %}
+
+{% block content %}
+<div class="winch-entry">
+    <h2>{{breaktest.id}}</h2>
+    <p>{{breaktest.wire}}</p>
+    <p>{{breaktest.date}}</p>
+    <p>{{breaktest.testedbreakingload}}</p>
+    <p>{{breaktest.notes}}</p>
+</div>
+<a href="{% url 'breaktestedit' breaktest.pk %}"> Edit Breaktest</a>
+{% endblock content %}
