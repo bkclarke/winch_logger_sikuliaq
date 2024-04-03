@@ -26,8 +26,13 @@ from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 import io
 from datetime import datetime
+from django.contrib.auth import logout
 
 logger = logging.getLogger(__name__)
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
 
 def home(request):
     template = loader.get_template('wwdb/home.html')

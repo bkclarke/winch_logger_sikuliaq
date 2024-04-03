@@ -26,7 +26,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*',]
 
-CSRF_TRUSTED_ORIGINS = ['*']
+CSRF_TRUSTED_ORIGINS = ['http://192.168.2.5:8081','http://192.168.1.90:8081','http://localhost:8000','http://10.3.0.51',]
 CSRF_COOKIE_SECURE = False
 
 # Application definition
@@ -48,26 +48,11 @@ INSTALLED_APPS = [
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 BOOTSTRAP_DATEPICKER_PLUS = {
-    # Options for all input widgets
-    # More options: https://getdatepicker.com/4/Options/
-	#
-    # Advanced: Choose where from static JS/CSS files are served.
-    # defaults: https://github.com/monim67/django-bootstrap-datepicker-plus/blob/5.0.0/src/bootstrap_datepicker_plus/settings.py#L16
-    # To serve from any other preferred CDN, just update the options below.
-    # You can also set them to None if you already have the following resources
-    # included into your template.
-    #
     "datetimepicker_js_url": None,
     "datetimepicker_css_url": None,
-    "momentjs_url": None,  # If you already have momentjs added into your template
-    "bootstrap_icon_css_url": None,  # If you don't need bootstrap icons
-    #
-    # If you want to serve static files yourself without CDN (from staticfiles) and
-    # you know how to serve django static files on production server (DEBUG=False)
-    # Then download the js/css files to any of your static directory, update the js/css
-    # urls above and set the following option
-    #
-     "app_static_url": "bootstrap_datepicker_plus/",
+    "momentjs_url": None,  
+    "bootstrap_icon_css_url": None,  
+    "app_static_url": "bootstrap_datepicker_plus/",
 }
 
 MIDDLEWARE = [
