@@ -6,7 +6,7 @@ from .views import *
 
 urlpatterns = [
     path('home/', views.home, name='home'),
-    path('logout/', views.logout_view, name='logout'),
+    path('logout_view/', views.logout_view, name='logout_view'),
 
     #URLS related to cast reporting
     path('casts/<int:pk>/', views.castdetail, name='castdetail'),
