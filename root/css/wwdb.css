@@ -38,13 +38,13 @@
 }
 
 .home-btn-startcast {
-    width: 50px;
+    width: auto;
     padding: 10px;
     background-color: #FFFFFF;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 48px;
+    font-size: 84px;
     opacity: 0.6;
 }
 
@@ -60,6 +60,17 @@
     padding: 20px;
     background-color: #000066;
     box-shadow: -5px 0 5px rgba(0, 0, 0, 10);
+}
+
+.home-container {
+    width: 100%;
+    height: 100vh;
+    float: right;
+    padding: 20px;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .button-link {
