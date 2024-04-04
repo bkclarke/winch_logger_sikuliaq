@@ -16,6 +16,7 @@
             <tr>
                 <th>Start time</th>
                 <th>Winch</th>
+                <th>Wire</th>
                 <th>Deployment type</th>
                 <th>Start operator</th>
                 <th>End operator</th>
@@ -36,6 +37,7 @@
         <tr>
             <td>{{cast.format_startdate}}</td>
             <td>{{cast.winch}}</td>
+            <td>{{cast.wire}}</td>
             <td>{{cast.deploymenttype}}</td>
             <td>{{cast.startoperator}}</td>
             <td>{{cast.endoperator}}</td>
@@ -57,7 +59,7 @@
     <p>There are no flagged casts</p>
     {% endif %}
     <br />
-    {% if cast_uricomplete %}
+    {% if cast_complete %}
     <h2>Completed casts</h2>
     <br />
     <form method="get">
@@ -71,6 +73,7 @@
             <tr>
                 <th>Start time</th>
                 <th>Winch</th>
+                <th>Wire</th>
                 <th>Deployment type</th>
                 <th>Start operator</th>
                 <th>End operator</th>
@@ -88,10 +91,11 @@
                 <th>Delete</th>
             </tr>
         </thead>
-        {% for cast in cast_uricomplete %}
+        {% for cast in cast_complete %}
         <tr>
             <td>{{cast.format_startdate}}</td>
             <td>{{cast.winch}}</td>
+            <td>{{cast.wire}}</td>
             <td>{{cast.deploymenttype}}</td>
             <td>{{cast.startoperator}}</td>
             <td>{{cast.endoperator}}</td>
@@ -111,7 +115,7 @@
         {% endfor %}
     </table>
     {% else %}
-    <p>There are no completed casts on URI tension members</p>
+    <p>There are no completed casts</p>
     {% endif %}
     <br />
 </div>

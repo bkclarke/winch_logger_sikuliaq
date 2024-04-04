@@ -4,7 +4,8 @@
 {{ form.media }}
 
 {% block content %}
-<h1>Manually edit Tension and Payout</h1>
+<h1>Manually edit Cast</h1>
+<p>Submitting this form will not automatically calculate values.  Only values absolutely necessary for logging are included.</p>
 <form action="" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}

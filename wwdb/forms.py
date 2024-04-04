@@ -112,6 +112,21 @@ class EditCastForm(ModelForm):
         widgets = {'startdate': DateTimePickerInput(), 
                    'enddate': DateTimePickerInput()}
 
+        def is_valid(self):
+            valid = super().is_valid()
+
+            if hasattr(self, 'cleaned_data') and valid:
+
+                start_date = self.cleaned_data.get('startdate')
+                end_date = self.cleaned_data.get('enddate')
+                if not end_date:
+                    self.add_error('enddate', 'Please enter end date')
+                    valid = False
+                elif end_date < start_date:
+                    self.add_error('enddate', 'End date must be greater than start date')
+                    valid = False
+            return valid  
+
 class EditFactorofSafetyForm(ModelForm):
   
     class Meta:

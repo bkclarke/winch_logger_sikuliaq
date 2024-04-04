@@ -126,6 +126,12 @@ class Cast(models.Model):
         return d
 
     @property
+    def active_wire(self):
+        if self.winch:
+            d=self.winch.active_wire.wireid
+        return d
+
+    @property
     def format_startdate(self):
         date=self.startdate
         formatdate=date.strftime("%Y-%m-%d, %H:%M:%S")
@@ -138,6 +144,11 @@ class Cast(models.Model):
         date=self.timemaxtension
         formatdate=date.strftime("%Y-%m-%d, %H:%M:%S")
         return formatdate
+
+    def get_active_wire(self):
+        if self.active_wire:
+            self.wire=self.active_wire
+        return
 
     def endcastcal(self):
         winch=(self.winch.name)
