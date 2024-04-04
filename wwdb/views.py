@@ -608,7 +608,7 @@ def safeworkingtensions_file(request):
     lines = []
     
     #wire objects where status=True, ordered by winch name in ascending order
-    active_wire = Wire.objects.filter(status=True).order_by('-winch')
+    active_wire = Wire.objects.filter(status=True)
     
     #Define stylesheet for headers
     stylesheet=getSampleStyleSheet()
@@ -619,8 +619,9 @@ def safeworkingtensions_file(request):
                            alignment=TA_LEFT,
                            spaceAfter=14)
 
+
     #Define header objects
-    header1=Paragraph('winch',HeaderStyle)
+    header1=Paragraph('Winch',HeaderStyle)
     header2=Paragraph('Wire ID',HeaderStyle)
     header3=Paragraph('Length',HeaderStyle)
     header4=Paragraph('Factor of Safety',HeaderStyle)
@@ -631,7 +632,7 @@ def safeworkingtensions_file(request):
     
     #append wire data to lines list
     for wire in active_wire:
-        lines.append((wire.winch.name, 
+        lines.append((wire.active_winch.name, 
                       wire.nsfid, 
                       wire.active_length, 
                       wire.factorofsafety, 
@@ -639,7 +640,7 @@ def safeworkingtensions_file(request):
     
     #Define table settings and styles, add lines list to table
     table = Table(lines,
-                  colWidths=[100,175,100,155,155],
+                  colWidths=[150,175,80,120,120],
                   rowHeights=[100,100,100,100])
 
     table.setStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
