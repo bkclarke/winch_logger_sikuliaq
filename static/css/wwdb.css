@@ -3,10 +3,7 @@
     float: right;
 }
 
-.top-button-container {
-    width: 100%;
-    float: right;
-}
++`5a
 
 .btn-startcast {
     width: 100%;
@@ -174,9 +171,41 @@
     font-size: 32px;
 }
 
-
-
 .table-safeworkingtensions thead th {
     vertical-align: bottom;
     border-bottom: 2px solid #dee2e6;
+
 }
+
+.cast-form-container {
+    width: 100%;
+    height: 200px;
+}
+
+.cast-form-container-inputs {
+    display: inline-block;
+    width: 30%;
+    height: 200px;
+}
+
+.btn-outline-wwdb {
+    color: #343a40;
+    border-color: #343a40;
+}
+
+.btn-outline-wwdb:hover {
+    color: #fff;
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.btn-link-wwdb {
+    color: black;
+    text-decoration: none;
+}
+
+.btn-link-wwdb:hover {
+    color: white;
+    text-decoration: none;
+}
+

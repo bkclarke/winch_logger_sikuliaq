@@ -4,8 +4,8 @@
 {% block content %}
 
 <div class="container p-5">
-    <button type="button" class="btn btn-outline-dark">
-        <a class="nav-link" href="{% url 'castmanualenter' %}">Manually enter cast</a>
+    <button type="button" class="btn btn-outline-wwdb">
+        <a class="btn-link-wwdb" href="{% url 'castmanualenter' %}">Manually enter cast</a>
     </button>
     </br>
     </br>
@@ -62,12 +62,6 @@
     {% if cast_complete %}
     <h2>Completed casts</h2>
     <br />
-    <form method="get">
-        {{castfilter.form}}
-        <button class="btn btn-primary" input type="submit">
-            Search
-        </button>
-    </form>
     <table id="" class="display_nosearch">
         <thead class="thead-light">
             <tr>

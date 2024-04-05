@@ -67,6 +67,7 @@ urlpatterns = [
     path('reports/cruiselist/', views.cruiselist, name='cruiselist'),
     path('<int:pk>/cruise_report_file', views.cruise_report_file, name='cruise_report_file'),
     path('reports/<int:pk>/wirereport/', views.wirereport, name='wirereport'),
-    path('reports/unolswirereport/', views.unolswirereport, name='unolswirereport'),
-    path('reports/unols_wire_report_file/', views.unols_wire_report_file, name='unols_wire_report_file'),
+    path('reports/castreport/', views.castreport, name='castreport'),
+    path('reports/unols_report_csv/', views.unols_report_csv, name='unols_report_csv'),
+    path('reports/cast_table_csv/', views.cast_table_csv, name='cast_table_csv'),
 ]

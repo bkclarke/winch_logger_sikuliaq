@@ -65,7 +65,7 @@ def caststart(request):
 
 def castlist(request):
     cast_complete = Cast.objects.filter(flagforreview=False, maxpayout__isnull=False, maxtension__isnull=False) 
-    cast_flag = Cast.objects.filter((Q(flagforreview=True) | Q(maxpayout__isnull=True) | Q(payoutmaxtension__isnull=True) | Q(maxtension__isnull=True)))
+    cast_flag = Cast.objects.filter((Q(flagforreview=True) | Q(maxpayout__isnull=True) | Q(maxtension__isnull=True)))
     
     castfilter = CastFilter(request.GET, queryset=cast_complete)
     cast_complete= castfilter.qs
@@ -245,10 +245,12 @@ def cruiselist(request):
 def is_valid_queryparam(param):
     return param != '' and param is not None
 
-def unols_form_filter(request):
+def cast_table_filter(request):
     
     qs = Cast.objects.all()
     wire = request.GET.get('wire_nsfid')
+    winch = request.GET.get('winch_id')
+    deployment = request.GET.get('deployment_id')
     date_min = request.GET.get('date_min')
     date_max = request.GET.get('date_max')
 
@@ -258,24 +260,82 @@ def unols_form_filter(request):
     if is_valid_queryparam(date_max):
         qs=qs.filter(enddate__lt=date_max)
 
+    if is_valid_queryparam(wire):
+        if wire!='Choose...':
+            wire_obj=Wire.objects.filter(nsfid=wire).last()
+            qs=qs.filter(wire=wire_obj)
+
+    if is_valid_queryparam(winch):
+        if winch!='Choose...':
+            winch_obj=Winch.objects.filter(name=winch).last()
+            qs=qs.filter(winch=winch_obj)
+
+    if is_valid_queryparam(deployment):
+        if deployment!='Choose...':
+            deployment_obj=DeploymentType.objects.filter(name=deployment).last()
+            qs=qs.filter(deployment=deployment_obj)
+
     return qs
 
-def unolswirereport(request):
+def castreport(request):
     wire=Wire.objects.all()
-    qs = unols_form_filter(request)
+    winch=Winch.objects.all()
+    deployment=DeploymentType.objects.all()
+    qs = cast_table_filter(request)
 
     context = {
         'qs':qs,
         'wire':wire,
+        'winch':winch,
+        'deployment':deployment,
         }
 
-    return render(request, "wwdb/reports/unolswirereport.html", context)
+    return render(request, "wwdb/reports/castreport.html", context)
 
-def unols_wire_report_file(request):
-    cast = unols_form_filter(request)
+def cast_table_csv(request):
+    cast = cast_table_filter(request)
 
     response = HttpResponse(content_type="text/plain")
-    response['Content-Disposition']='attachement; filename=cruise_reports.txt'
+    response['Content-Disposition']='attachement; filename=cast_table.csv'
+    
+    lines = []
+
+    date_min=cast.order_by('startdate').first()
+    date_max=cast.order_by('enddate').last()
+
+    lines.append('\n#Start date:' + str(date_min))
+    lines.append('\n#End Date:' + str(date_max))
+    lines.append('\n#\n#')
+    lines.append('\n#\nstarttime, endtime, winch, wire, deploymenttype, startoperator, endoperator, maxtension, maxpayout, payoutmaxtension, metermaxtension, timemaxtension, wetendtag, dryendtag, notes')
+
+    for c in cast:
+            lines.append('\n' + str(c.startdate) + ',' 
+            +  str(c.enddate) + ',' 
+            +  str(c.active_winch) + ',' 
+            +  str(c.wire) + ','
+            +  str(c.deploymenttype) + ',' 
+            +  str(c.startoperator) + ',' 
+            +  str(c.endoperator) + ',' 
+            +  str(c.maxtension) + ',' 
+            +  str(c.maxpayout) + ',' 
+            +  str(c.payoutmaxtension) + ',' 
+            +  str(c.metermaxtension) + ',' 
+            +  str(c.timemaxtension) + ','
+            +  str(c.wetendtag) + ',' 
+            +  str(c.dryendtag) + ',' 
+            +  str(c.notes) + ',' )
+
+
+    response.writelines(lines)
+
+
+    return response
+
+def unols_report_csv(request):
+    cast = cast_table_filter(request)
+
+    response = HttpResponse(content_type="text/plain")
+    response['Content-Disposition']='attachement; filename=cruise_reports.csv'
 
     #create dictionary of active winch keys and cast object list values
     cast_by_winch = {}
@@ -328,6 +388,10 @@ def unols_wire_report_file(request):
         else:
             maxpayout_by_winch[t]='None'
 
+    #find startdatetime and enddatetime
+    date_min=cast.order_by('startdate').first()
+    date_max=cast.order_by('enddate').last()
+
     #append data to list, write to file
     lines = []
 
@@ -344,12 +408,13 @@ def unols_wire_report_file(request):
     for t in maxpayout_by_winch:
         lines.append('\n#' + str(t) + ' Max payout: ' + str(maxpayout_by_winch[t]))
 
-    lines.append('\n#\nstarttime, endtime, winch, deploymenttype, startoperator, endoperator, maxtension, maxpayout, payoutmaxtension, metermaxtension, timemaxtension, wetendtag, dryendtag, notes')
+    lines.append('\n#\nstarttime, endtime, winch, wire, deploymenttype, startoperator, endoperator, maxtension, maxpayout, payoutmaxtension, metermaxtension, timemaxtension, wetendtag, dryendtag, notes')
 
     for c in cast:
             lines.append('\n' + str(c.startdate) + ',' 
             +  str(c.enddate) + ',' 
             +  str(c.active_winch) + ',' 
+            +  str(c.wire) + ',' 
             +  str(c.deploymenttype) + ',' 
             +  str(c.startoperator) + ',' 
             +  str(c.endoperator) + ',' 
@@ -367,6 +432,7 @@ def unols_wire_report_file(request):
 
 
     return response
+
 
 def cruisereport(request, pk):
     
