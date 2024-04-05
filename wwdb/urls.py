@@ -57,6 +57,11 @@ urlpatterns = [
     path('maintenance/breaktest/<int:id>/edit/', views.breaktestedit, name='breaktestedit'),
     path('maintenance/breaktestlist', views.breaktestlist, name='breaktestlist'),
     path('maintenance/breaktest/<int:pk>/breaktestdetail', views.breaktestdetail, name='breaktestdetail'),
+    path('maintenance/lubricationadd/', views.lubricationadd, name='lubricationadd'),
+    path('maintenance/lubrication/<int:id>/edit/', views.lubricationedit, name='lubricationedit'),
+    path('maintenance/lubricationlist', views.lubricationlist, name='lubricationlist'),
+    path('maintenance/lubrication/<int:pk>/lubricationdetail', views.lubricationdetail, name='lubricationdetail'),
+    path('maintenance/lubrication/<int:pk>/delete/', LubricationDelete.as_view(), name='lubricationdelete'),
 
     #URLS related to reports
     path('reports/castlist/', views.castlist, name='castlist'),

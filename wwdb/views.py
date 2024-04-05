@@ -939,6 +939,10 @@ def deploymentadd(request):
 
     return render(request, 'wwdb/configuration/deploymentadd.html', context)
 
+"""
+BREAKTESTS 
+Classes related to create, update, view Breaktest model
+"""
 
 def breaktestlist(request):
     break_test = Breaktest.objects.order_by('-date')
@@ -990,6 +994,66 @@ def breaktestedit(request, id):
 
     context["form"] = form
     return render(request, "wwdb/maintenance/breaktestedit.html", context)
+"""
+LUBRICATION
+Classes related to create, update, view Lubrication model
+"""
+
+def lubricationlist(request):
+    lubrication = Lubrication.objects.order_by('-date')
+
+    context = {
+        'lubrication': lubrication, 
+        }
+
+    return render(request, 'wwdb/maintenance/lubricationlist.html', context=context)
+
+def lubricationadd(request):
+    context ={}
+    form = LubricationAddForm(request.POST or None)
+    if request.method == "POST":
+        form = LubricationAddForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/maintenance/lubricationlist')
+    else:
+        form = LubricationAddForm
+        if 'submitted' in request.GET:
+            submitted = True
+            return render(request, 'wwdb/maintenance/lubricationadd.html', {'form':form, 'submitted':submitted, 'id':id})
+ 
+    context['form']= form
+
+    return render(request, "wwdb/maintenance/lubricationadd.html", context)
+
+def lubricationdetail(request, id):
+    context ={}
+    context["lubrication"] = Lubrication.objects.get(id = id)     
+    return render(request, "wwdb/maintenance/lubricationdetail.html", context)
+
+def lubricationedit(request, id):
+    context ={}
+    obj = get_object_or_404(Lubrication, id = id)
+
+    if request.method == 'POST':
+        form = LubricationEditForm(request.POST, instance = obj)
+        if form.is_valid():
+            form.save()
+            lubricationid=Lubrication.objects.get(id=id)
+            return HttpResponseRedirect("/wwdb/maintenance/lubricationlist")
+    else:
+        form = LubricationEditForm(instance = obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect("/wwdb/maintenance/lubrication/%i/edit" % lubricationid.pk)
+
+    context["form"] = form
+    return render(request, "wwdb/maintenance/lubricationedit.html", context)
+
+class LubricationDelete(DeleteView):
+    model = Lubrication
+    template_name="wwdb/maintenance/lubricationdelete.html"
+    success_url= reverse_lazy('lubricationlist')
 
 """
 CUTBACKRETERMINATION

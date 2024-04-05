@@ -318,6 +318,40 @@ class BreaktestEditForm(ModelForm):
             "format": "YYYY-MM-DD"}
             )}
 
+class LubricationAddForm(ModelForm):
+
+    class Meta:
+        model = Lubrication
+        fields = [
+            'date',
+            'wire',
+            'lubetype',
+            'lubelength',
+            'notes',
+        ] 
+
+        widgets = {'date': DatePickerInput(
+            options={
+            "format": "YYYY-MM-DD"}
+            )}
+
+class LubricationEditForm(ModelForm):
+
+    class Meta:
+        model = Lubrication
+        fields = [
+            'date',
+            'wire',
+            'lubetype',
+            'lubelength',
+            'notes',
+        ] 
+
+        widgets = {'date': DatePickerInput(
+            options={
+            "format": "YYYY-MM-DD"}
+            )}
+
 class UnolsWireReportForm(ModelForm):
 
     class Meta:

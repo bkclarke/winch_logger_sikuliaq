@@ -4,7 +4,7 @@
 
 
 {% block content %}
-<h2>Breaktests</h2>
+<h2>Lubrications</h2>
 </br>
 </br>
 <table id="" class="display table">
@@ -12,22 +12,30 @@
         <tr>
             <th>Date</th>
             <th>Wire</th>
-            <th>Tested Breaking Load</th>
+            <th>Lube type</th>
+            <th>Length lubed</th>
+            <th>Start lube mark</th>
+            <th>End lube mark</th>
             <th>Notes</th>
+            <th>Delete</th>
         </tr>
     </thead>
-    {% for breaktest in break_test %}
+    {% for lubrication in lubrication %}
     <tr>
-        <td><a href="{% url 'breaktestedit' breaktest.pk %}">{{breaktest.format_date}}</a></td>
-        <td>{{breaktest.wire}}</td>
-        <td>{{breaktest.testedbreakingload}}</td>
-        <td>{{breaktest.notes}}</td>
+        <td><a href="{% url 'lubricationedit' lubrication.pk %}">{{lubrication.format_date}}</a></td>
+        <td>{{lubrication.wire}}</td>
+        <td>{{lubrication.lubetype}}</td>
+        <td>{{lubrication.lubelength}}</td>
+        <td>{{lubrication.lubestartmetermark}}</td>
+        <td>{{lubrication.lubeendmetermark}}</td>
+        <td>{{lubrication.notes}}</td>
+        <td><a href="{%url 'lubricationdelete' lubrication.pk %}">Delete</a></td>
     </tr>
     {% endfor %}
 </table>
 </br>
 </br>
-<button type="button" class="btn btn-outline-dark">
-    <a class="nav-link" href="{% url 'breaktestadd' %}">Add Breaktest</a>
+<button type="button" class="btn btn-outline-wwdb">
+    <a class="btn-link-wwdb" href="{% url 'lubricationadd' %}">Add Lubrication</a>
 </button>
 {% endblock %}

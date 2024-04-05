@@ -1,10 +1,10 @@
-﻿<!--templates/breaktestadd.html-->
+﻿<!--templates/lubricationadd.html-->
 {% extends "wwdb/base.html" %}
 {% load bootstrap4 %}
 {{ form.media }}
 
 {% block content %}
-<h1>Add a Breaktest</h1>
+<h1>Add a lubrication event</h1>
 <form action="" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}
