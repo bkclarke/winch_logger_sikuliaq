@@ -223,12 +223,14 @@ def wirereport(request, pk):
     wire_object=wire.last()
     cutback_retermination=CutbackRetermination.objects.filter(wire=pk)
     break_test=Breaktest.objects.filter(wire=pk)
+    lubrication=Lubrication.objects.filter(wire=pk)
 
     context ={
         'wire':wire,
         'wire_object':wire_object,
         'cutback_retermination':cutback_retermination,
         'break_test':break_test,
+        'lubrication':lubrication,
         }
 
     return render(request, "wwdb/reports/wirereport.html", context)

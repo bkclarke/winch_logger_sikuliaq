@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container p-5">
     {% for w in wire %}
-        <h2>{{w.nsfid}} History</h2>
+    <h2>{{w.nsfid}} History</h2>
     {% endfor %}
     </br>
     <h4>Cutbacks and reterminations</h4>
@@ -45,6 +45,34 @@
             <td>{{break.format_date}}</td>
             <td>{{break.testedbreakingload}}</td>
             <td>{{break.notes}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </br>
+    </br>
+    <h4>Lubrications</h4>
+    </br>
+    <table id="" class="display">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Wire</th>
+                <th>Lube type</th>
+                <th>Length lubed</th>
+                <th>Start lube mark</th>
+                <th>End lube mark</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        {% for lubrication in lubrication %}
+        <tr>
+            <td>{{lubrication.format_date}}</a></td>
+            <td>{{lubrication.wire}}</td>
+            <td>{{lubrication.lubetype}}</td>
+            <td>{{lubrication.lubelength}}</td>
+            <td>{{lubrication.lubestartmetermark}}</td>
+            <td>{{lubrication.lubeendmetermark}}</td>
+            <td>{{lubrication.notes}}</td>
         </tr>
         {% endfor %}
     </table>
