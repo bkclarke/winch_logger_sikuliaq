@@ -5,6 +5,12 @@
 <html>
 {% block content %}
 <h1>Safe Working Tensions</h1>
+</br>
+<button type="button" class="btn btn-outline-wwdb">
+    <a class="btn-link-wwdb" href="{% url 'safeworkingtensions_file' %}">Download</a>
+</button>
+</br>
+</br>
 <table class="table-safeworkingtensions table-striped">
     <thead class="thead-light">
         <tr>
@@ -33,8 +39,5 @@
 </script>
 </br>
 </br>
-<button type="button" class="btn btn-outline-dark">
-    <a class="nav-link" href="{% url 'safeworkingtensions_file' %}">Download</a>
-</button>
 {% endblock %}
 </html>
