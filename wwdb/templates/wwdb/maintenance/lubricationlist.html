@@ -6,6 +6,10 @@
 {% block content %}
 <h2>Lubrications</h2>
 </br>
+<button type="button" class="btn btn-outline-wwdb">
+    <a class="btn-link-wwdb" href="{% url 'lubricationadd' %}">Add Lubrication</a>
+</button>
+</br>
 </br>
 <table id="" class="display table">
     <thead>
@@ -35,7 +39,4 @@
 </table>
 </br>
 </br>
-<button type="button" class="btn btn-outline-wwdb">
-    <a class="btn-link-wwdb" href="{% url 'lubricationadd' %}">Add Lubrication</a>
-</button>
 {% endblock %}
