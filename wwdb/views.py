@@ -51,8 +51,11 @@ def caststart(request):
         form = StartCastForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            castid=Cast.objects.last()
-            return HttpResponseRedirect("%i/castend" % castid.pk)
+            cast=Cast.objects.last()
+            cast.refresh_from_db()
+            cast.get_active_wire()
+            cast.save()
+            return HttpResponseRedirect("%i/castend" % cast.pk)
     else:
         form = StartCastForm 
         if 'submitted' in request.GET:
@@ -92,7 +95,6 @@ def castend(request, id):
             form.save()
             cast.refresh_from_db()
             cast.endcastcal()
-            cast.get_active_wire()
             cast.save()
             return HttpResponseRedirect("/wwdb/casts/%i/castenddetail" % cast.pk)
     context["form"] = form
@@ -105,8 +107,8 @@ def castedit(request, id):
         form = EditCastForm(request.POST, instance = obj)
         if form.is_valid():
             form.save()
-            obj.endcastcal()
             obj.get_active_wire()
+            obj.endcastcal()
             obj.save()
             return HttpResponseRedirect('/wwdb/reports/castlist')
     else:

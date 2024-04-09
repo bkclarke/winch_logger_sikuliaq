@@ -108,16 +108,13 @@ class Cast(models.Model):
 
     @property
     def dry_end_tag(self):
-        winch=self.winch
-        wire=winch.reverse_wire.last()
+        wire=self.wire
         dryend=wire.dryendtag
         return dryend
 
     @property
     def wet_end_tag(self):
-        winch=self.winch
-        wire=winch.reverse_wire.last()
-        wetend=wire.active_wetendtag
+        wetend=self.wire.active_wetendtag
         return wetend
 
     @property
@@ -152,59 +149,56 @@ class Cast(models.Model):
 
     def endcastcal(self):
         winch=(self.winch.name)
-        if winch=='winch1' or winch=='winch2' or winch=='winch3':
-            try:
-                conn = mysql.connector.connect(host='127.0.0.1',
-                    user='root',
-                    password='67Giffordstreet!',
-                    database='winch_data'
-                )
+        try:
+            conn = mysql.connector.connect(host='127.0.0.1',
+                user='root',
+                password='67Giffordstreet!',
+                database='winch_data'
+            )
 
-                winch=(self.winch.name)
-                startcal=str(self.startdate)
-                endcal=str(self.enddate)
-                df=pd.read_sql_query("SELECT * FROM " + winch + " WHERE DateTime BETWEEN '" + startcal + "' AND '" + endcal + "'", conn)
+            winch=(self.winch.name)
+            startcal=str(self.startdate)
+            endcal=str(self.enddate)
+            df=pd.read_sql_query("SELECT * FROM " + winch + " WHERE date_time BETWEEN '" + startcal + "' AND '" + endcal + "'", conn)
 
-                castmaxtensiondf=df[df.Tension==df.Tension.max()]
-                castmaxtension=castmaxtensiondf['Tension'].max()
-                castmaxpayout=df['Payout'].max()
-                castpayoutmaxtension=castmaxtensiondf['Payout'].max()
-                casttimemaxtension=castmaxtensiondf['DateTime'].max()
+            castmaxtensiondf=df[df.tension_load_cell==df.tension_load_cell.max()]
+            castmaxtension=castmaxtensiondf['tension_load_cell'].max()
+            castmaxpayout=df['payout'].max()
+            castpayoutmaxtension=castmaxtensiondf['payout'].max()
+            casttimemaxtension=castmaxtensiondf['date_time'].max()
 
-                conn.close()
+            conn.close()
 
-                wetend=int(self.wet_end_tag)
-                dryend=int(self.dry_end_tag)
+            wetend=int(self.wet_end_tag)
+            dryend=int(self.dry_end_tag)
 
-                if castpayoutmaxtension<0:
-                    payout=0
-                else:
-                    payout=castpayoutmaxtension
+            if castpayoutmaxtension<0:
+                payout=0
+            else:
+                payout=castpayoutmaxtension
 
-                if wetend>dryend:
-                    length=int(wetend)-int(payout)
-                    castmetermaxtension=length
-                else:
-                    length=int(wetend)+int(payout)
-                    castmetermaxtension=length
+            if wetend>dryend:
+                length=int(wetend)-int(payout)
+                castmetermaxtension=length
+            else:
+                length=int(wetend)+int(payout)
+                castmetermaxtension=length
 
-                self.maxtension=castmaxtension
-                self.maxpayout=castmaxpayout
-                self.payoutmaxtension=castpayoutmaxtension
-                self.timemaxtension=casttimemaxtension
-                self.metermaxtension=castmetermaxtension
-                self.wetendtag=wetend
-                self.dryendtag=dryend
+            self.maxtension=castmaxtension
+            self.maxpayout=castmaxpayout
+            self.payoutmaxtension=castpayoutmaxtension
+            self.timemaxtension=casttimemaxtension
+            self.metermaxtension=castmetermaxtension
+            self.wetendtag=wetend
+            self.dryendtag=dryend
 
-            except :
-                wetend=int(self.wet_end_tag)
-                dryend=int(self.dry_end_tag)
-                self.wetendtag=wetend
-                self.dryendtag=dryend
-                return
-
-        else:
+        except :
+            wetend=int(self.wet_end_tag)
+            dryend=int(self.dry_end_tag)
+            self.wetendtag=wetend
+            self.dryendtag=dryend
             return
+
 
 class Cruise(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)   
