@@ -44,6 +44,7 @@ class ManualCastForm(ModelForm):
             'enddate',
             'deploymenttype',
             'winch',
+            'wire',
             'notes',
             'maxtension',
             'maxpayout',
