@@ -5,14 +5,14 @@
 
 .top-button-container{
     width: 100%;
-    height: 20px;
+    height: 10px;
 }
 
 .btn-startcast {
     width: 100%;
     background-color: #001933;
     padding: 0.1rem 0.1rem;
-    font-size: 80vw;
+    font-size: 2vw;
     float: right;
 }
 
@@ -182,7 +182,6 @@
 
 .cast-form-container {
     width: 100%;
-    height: 200px;
 }
 
 .cast-form-container-inputs {

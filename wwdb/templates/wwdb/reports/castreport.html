@@ -5,48 +5,38 @@
 {% block content %}
 <div>
     <div class="cast-form-container">
-        <div class="cast-form-container-inputs">
-            <form method="GET" action=".">
-                <label for="publishDateMax">Start date</label>
-                <input type="date" class="form-control" id="startdate" name="date_min" placeholder="Start Date:">
-                </br>
-                <label for="publishDateMax">End date</label>
-                <input type="date" class="form-control" id="enddate" name="date_max" placeholder="End Date:">
-            </form>
-        </div>
-        <div class="cast-form-container-inputs">
-            <form method="GET" action=".">
-                <label for="category">Wire</label>
-                <select id="wire" class="form-control" name="wire_nsfid">
-                    <option selected>Choose...</option>
-                    {% for w in wire %}
-                    <option value="{{ w.nsfid }}">{{ w.nsfid }}</option>
-                    {% endfor %}
-                </select>
-                </br>
-                <label for="category">Winch</label>
-                <select id="winch" class="form-control" name="winch_id">
-                    <option selected>Choose...</option>
-                    {% for w in winch %}
-                    <option value="{{ w.name }}">{{ w.name }}</option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
-        <div class="cast-form-container-inputs">
-            <form method="GET" action=".">
-                <label for="category">Deployment</label>
-                <select id="deployment" class="form-control" name="deployment_id">
-                    <option selected>Choose...</option>
-                    {% for d in deployment %}
-                    <option value="{{ d.name }}">{{ d.name }}</option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
-    </div>
-    <div class="">
-        <button type="submit" class="btn btn-outline-dark">Search</button>
+        <form method="GET" action=".">
+            <label for="startdate">Start date:</label>
+            <input type="date" class="form-control" id="startdate" name="date_min" placeholder="Start Date:">
+            </br>
+            <label for="enddate">End date:</label>
+            <input type="date" class="form-control" id="enddate" name="date_max" placeholder="End Date:">
+            </br>
+            <select id="wire" class="form-control" name="wire_nsfid">
+                <option selected>Wire</option>
+                {% for w in wire %}
+                <option value="{{ w.nsfid }}">{{ w.nsfid }}</option>
+                {% endfor %}
+            </select>
+            </br>
+            <select id="winch" class="form-control" name="winch_id">
+                <option selected>Winch</option>
+                {% for w in winch %}
+                <option value="{{ w.name }}">{{ w.name }}</option>
+                {% endfor %}
+            </select>
+            </br>
+            <select id="deploymenttype" class="form-control" name="deployment_id">
+                <option selected>Deployment</option>
+                {% for d in deployment %}
+                <option value="{{ d.name }}">{{ d.name }}</option>
+                {% endfor %}
+            </select>
+            </br>
+            <div class="">
+                <button type="submit" class="btn btn-outline-dark">Search</button>
+            </div>
+        </form>
     </div>
     <div>
         <hr />

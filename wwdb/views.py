@@ -265,19 +265,19 @@ def cast_table_filter(request):
         qs=qs.filter(enddate__lt=date_max)
 
     if is_valid_queryparam(wire):
-        if wire!='Choose...':
+        if wire!='Wire':
             wire_obj=Wire.objects.filter(nsfid=wire).last()
             qs=qs.filter(wire=wire_obj)
 
     if is_valid_queryparam(winch):
-        if winch!='Choose...':
+        if winch!='Winch':
             winch_obj=Winch.objects.filter(name=winch).last()
             qs=qs.filter(winch=winch_obj)
 
     if is_valid_queryparam(deployment):
-        if deployment!='Choose...':
+        if deployment!='Deployment':
             deployment_obj=DeploymentType.objects.filter(name=deployment).last()
-            qs=qs.filter(deployment=deployment_obj)
+            qs=qs.filter(deploymenttype=deployment_obj)
 
     return qs
 
