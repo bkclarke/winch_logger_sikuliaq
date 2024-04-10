@@ -44,7 +44,6 @@
         <a href="{% url 'home' %}">
             <img src='/static/img/wire_logo.png' alt="Logo" class="logo" />
         </a>
-        {% if user.is_superuser %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -86,7 +85,6 @@
                 </li>
             </ul>
         </div>
-        {% else %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -99,7 +97,6 @@
                 </li>
             </ul>
         </div>
-        {% endif %}
     </nav>
     <div class="home-container">
         {% if last.enddate %}
@@ -112,28 +109,5 @@
         </button>
         {% endif %}
     </div>
-    <nav class="navbar fixed-bottom navbar-expand-sm navbar-light">
-        <div class="menu-right">
-            <ul class="navbar-nav login-control">
-                <div class="nav-item-bottom">
-                    </li>
-                    {% if user.is_authenticated %}
-                    <span>Hi {{user.username}}!</span>
-                    <button type="button" class="btn home-btn-login">
-                        <a class="button-link" href="{% url 'logout' %}">Log out</a>
-                    </button>
-                    {% else %}
-                    <button type="button" class="btn home-btn-login">
-                        <a class="button-link" href="{% url 'login' %}">Log in</a>
-                    </button>
-                    <button type="button" class="btn home-btn-login">
-                        <a class="button-link" href="{% url 'signup' %}">Sign up</a>
-                    </button>
-                    {% endif %}
-                    </li>
-                </div>
-            </ul>
-        </div>
-    </nav>
 </body>
 </html>
