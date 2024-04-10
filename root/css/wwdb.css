@@ -3,13 +3,16 @@
     float: right;
 }
 
-+`5a
+.top-button-container{
+    width: 100%;
+    height: 20px;
+}
 
 .btn-startcast {
     width: 100%;
     background-color: #001933;
     padding: 0.1rem 0.1rem;
-    font-size: 5vw;
+    font-size: 80vw;
     float: right;
 }
 
@@ -200,7 +203,7 @@
 }
 
 .btn-link-wwdb {
-    color: white;
+    color: black;
     text-decoration: none;
 }
 

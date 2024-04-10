@@ -72,7 +72,6 @@
     {{form.media}}
 </head>
 <body>
-    {% if not user.is_superuser %}
         <div class="top-button-container stickey-top">
             {% if last.enddate %}
             <button type="button" class="btn btn-startcast">
@@ -84,7 +83,6 @@
             </button>
             {% endif %}
         </div>
-    {% endif %}
         <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
             <a href="{% url 'home' %}">
                 <img src='/static/img/wire_logo.png' alt="Logo" class="logo" />
