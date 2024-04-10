@@ -67,7 +67,7 @@ def caststart(request):
     return render(request, "wwdb/casts/caststart.html", context)
 
 def castlist(request):
-    cast_complete = Cast.objects.filter(flagforreview=False, maxpayout__isnull=False, maxtension__isnull=False) 
+    cast_complete = Cast.objects.filter(maxpayout__isnull=False, maxtension__isnull=False) 
     cast_flag = Cast.objects.filter((Q(flagforreview=True) | Q(maxpayout__isnull=True) | Q(maxtension__isnull=True)))
     
     castfilter = CastFilter(request.GET, queryset=cast_complete)
