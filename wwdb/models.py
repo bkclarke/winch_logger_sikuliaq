@@ -394,6 +394,7 @@ class FactorOfSafety(models.Model):
         managed = True
         db_table = 'FactorOfSafety'
         verbose_name_plural = "FactorOfSafety"
+        ordering = ['factorofsafety']
         
     def __str__(self):
         return str(self.factorofsafety)
