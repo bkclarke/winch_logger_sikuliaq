@@ -1,6 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\templates",
+    "\\templates\\wwdb"
   ],
   "PreviewInSolutionExplorer": false
 }

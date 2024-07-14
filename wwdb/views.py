@@ -775,6 +775,103 @@ class WireAdd(CreateView):
 WINCHES
 Classes related to create, update, view Winch model
 """
+def swttablelistget(request):
+    context = {}
+    context['wire'] = Wire.objects.filter(status=True)
+    return render(request, 'wwdb/configuration/swttablelist.html', context)
+
+def swttableadd(request):
+    context = {'form': SWTTableForm()}
+    return render(request, 'wwdb/configuration/swttableadd.html', context)
+
+def swttableaddsubmit(request):
+    context = {}
+    form = SWTTableForm(request.POST)
+    context['form'] = form
+    if form.is_valid():
+        context['wire'] = form.save()
+    else:
+        return render(request, 'wwdb/configuration/swttableadd.html', context)
+    return render(request, 'wwdb/configuration/swttablerow.html', context)
+
+def swttableaddcancel(request):
+    return HttpResponse()
+
+def swttabledelete(request, wire_pk):
+    wire = Wire.objects.get(pk=wire_pk)
+    wire.delete()
+    return HttpResponse()
+
+def swttableedit(request, wire_pk):
+    wire = Wire.objects.get(pk=wire_pk)
+    context = {}
+    context['wire'] = wire
+    context['form'] = SWTTableForm(initial={
+        'winch':wire.winch,
+        'factorofsafety': wire.factorofsafety,
+    })
+    return render(request, 'wwdb/configuration/swttableedit.html', context)
+
+def swttableeditsubmit(request, wire_pk):
+    wire = Wire.objects.get(pk=wire_pk)
+    context = {}
+    context['wire'] = wire
+    if request.method == 'POST':
+        form = SWTTableForm(request.POST, instance=wire)
+        if form.is_valid():
+            form.save()
+        else:
+            return render(request, 'wwdb/configuration/swttableedit.html', context)
+    return render(request, 'wwdb/configuration/swttablerow.html', context)
+
+def winchtablelistget(request):
+    context = {}
+    context['winch'] = Winch.objects.all()
+    return render(request, 'wwdb/configuration/winchtablelist.html', context)
+
+def winchtableadd(request):
+    context = {'form': WinchTableForm()}
+    return render(request, 'wwdb/configuration/winchtableadd.html', context)
+
+def winchtableaddsubmit(request):
+    context = {}
+    form = WinchTableForm(request.POST)
+    context['form'] = form
+    if form.is_valid():
+        context['winch'] = form.save()
+    else:
+        return render(request, 'wwdb/configuration/winchtableadd.html', context)
+    return render(request, 'wwdb/configuration/winchtablerow.html', context)
+
+def winchtableaddcancel(request):
+    return HttpResponse()
+
+def winchtabledelete(request, winch_pk):
+    winch = Winch.objects.get(pk=winch_pk)
+    winch.delete()
+    return HttpResponse()
+
+def winchtableedit(request, winch_pk):
+    winch = Winch.objects.get(pk=winch_pk)
+    context = {}
+    context['winch'] = winch
+    context['form'] = WinchTableForm(initial={
+        'name':winch.name,
+        'status': winch.status,
+    })
+    return render(request, 'wwdb/configuration/winchtableedit.html', context)
+
+def winchtableeditsubmit(request, winch_pk):
+    context = {}
+    winch= Winch.objects.get(pk=winch_pk)
+    context['winch'] = winch
+    if request.method == 'POST':
+        form = WinchTableForm(request.POST, instance=winch)
+        if form.is_valid():
+            form.save()
+        else:
+            return render(request, 'wwdb/configuration/winchtablerow.html', context)
+    return render(request, 'wwdb/configuration/winchtablerow.html', context)
 
 class WinchList(ListView):
     model = Winch
@@ -830,6 +927,58 @@ def winchadd(request):
 WINCH OPERATORS
 Classes related to create, update, view WinchOperators model
 """
+
+def operatortablelistget(request):
+    context = {}
+    context['winchoperator'] = WinchOperator.objects.all()
+    return render(request, 'wwdb/configuration/operatortablelist.html', context)
+
+def operatortableadd(request):
+    context = {'form': WinchOperatorTableForm()}
+    return render(request, 'wwdb/configuration/operatortableadd.html', context)
+
+def operatortableaddsubmit(request):
+    context = {}
+    form = WinchOperatorTableForm(request.POST)
+    context['form'] = form
+    if form.is_valid():
+        context['winchoperator'] = form.save()
+    else:
+        return render(request, 'wwdb/configuration/operatortableadd.html', context)
+    return render(request, 'wwdb/configuration/operatortablerow.html', context)
+
+def operatortableaddcancel(request):
+    return HttpResponse()
+
+def operatortabledelete(request, winchoperator_pk):
+    winchoperator = WinchOperator.objects.get(pk=winchoperator_pk)
+    winchoperator.delete()
+    return HttpResponse()
+
+def operatortableedit(request, winchoperator_pk):
+    winchoperator = WinchOperator.objects.get(pk=winchoperator_pk)
+    context = {}
+    context['winchoperator'] = winchoperator
+    context['form'] = WinchOperatorTableForm(initial={
+        'firstname':winchoperator.firstname,
+        'lastname': winchoperator.lastname,
+        'status': winchoperator.status,
+        'username': winchoperator.username,
+    })
+    return render(request, 'wwdb/configuration/operatortableedit.html', context)
+
+def operatortableeditsubmit(request, winchoperator_pk):
+    context = {}
+    winchoperator = WinchOperator.objects.get(pk=winchoperator_pk)
+    context['winchoperator'] = winchoperator
+    if request.method == 'POST':
+        form = WinchOperatorTableForm(request.POST, instance=winchoperator)
+        if form.is_valid():
+            form.save()
+        else:
+            return render(request, 'wwdb/configuration/operatortableedit.html', context)
+    return render(request, 'wwdb/configuration/operatortablerow.html', context)
+
 
 class OperatorList(ListView):
     model = WinchOperator
@@ -891,6 +1040,56 @@ def operatoradd(request):
 DEPLOYMENTS 
 Classes related to create, update, view DeploymentType model
 """
+def deploymenttablelistget(request):
+    context = {}
+    context['deployment'] = DeploymentType.objects.all()
+    return render(request, 'wwdb/configuration/deploymenttablelist.html', context)
+
+def deploymenttableadd(request):
+    context = {'form': DeploymentTableForm()}
+    return render(request, 'wwdb/configuration/deploymenttableadd.html', context)
+
+def deploymenttableaddsubmit(request):
+    context = {}
+    form = DeploymentTableForm(request.POST)
+    context['form'] = form
+    if form.is_valid():
+        context['deployment'] = form.save()
+    else:
+        return render(request, 'wwdb/configuration/deploymenttableadd.html', context)
+    return render(request, 'wwdb/configuration/deploymenttablerow.html', context)
+
+def deploymenttableaddcancel(request):
+    return HttpResponse()
+
+def deploymenttabledelete(request, deployment_pk):
+    deployment = DeploymentType.objects.get(pk=deployment_pk)
+    deployment.delete()
+    return HttpResponse()
+
+def deploymenttableedit(request, deployment_pk):
+    deployment = DeploymentType.objects.get(pk=deployment_pk)
+    context = {}
+    context['deployment'] = deployment
+    context['form'] = DeploymentTableForm(initial={
+        'status':deployment.status,
+        'name': deployment.name,
+        'equipment': deployment.equipment,
+        'notes': deployment.notes,
+    })
+    return render(request, 'wwdb/configuration/deploymenttableedit.html', context)
+
+def deploymenttableeditsubmit(request, deployment_pk):
+    context = {}
+    deployment = DeploymentType.objects.get(pk=deployment_pk)
+    context['deployment'] = deployment
+    if request.method == 'POST':
+        form = DeploymentTableForm(request.POST, instance=deployment)
+        if form.is_valid():
+            form.save()
+        else:
+            return render(request, 'wwdb/configuration/deploymenttableedit.html', context)
+    return render(request, 'wwdb/configuration/deploymenttablerow.html', context)
 
 class DeploymentList(ListView):
     model = DeploymentType
@@ -1131,6 +1330,56 @@ def cutbackreterminationadd(request):
 Cruises
 Classes related to create, update, view Cruise model
 """
+
+def cruisetablelistget(request):
+    context = {}
+    context['cruise'] = Cruise.objects.all()
+    return render(request, 'wwdb/configuration/cruisetablelist.html', context)
+
+def cruisetableadd(request):
+    context = {'form': CruiseTableForm()}
+    return render(request, 'wwdb/configuration/cruisetableadd.html', context)
+
+def cruisetableaddsubmit(request):
+    context = {}
+    form = CruiseTableForm(request.POST)
+    context['form'] = form
+    if form.is_valid():
+        context['cruise'] = form.save()
+    else:
+        return render(request, 'wwdb/configuration/cruisetableadd.html', context)
+    return render(request, 'wwdb/configuration/cruisetablerow.html', context)
+
+def cruisetableaddcancel(request):
+    return HttpResponse()
+
+def cruisetabledelete(request, cruise_pk):
+    cruise = Cruise.objects.get(pk=cruise_pk)
+    cruise.delete()
+    return HttpResponse()
+
+def cruisetableedit(request, cruise_pk):
+    cruise = Cruise.objects.get(pk=cruise_pk)
+    context = {}
+    context['cruise'] = cruise
+    context['form'] = CruiseTableForm(initial={
+        'number':cruise.number,
+        'startdate': cruise.startdate,
+        'enddate': cruise.enddate,
+    })
+    return render(request, 'wwdb/configuration/cruisetableedit.html', context)
+
+def cruisetableeditsubmit(request, cruise_pk):
+    context = {}
+    cruise = Cruise.objects.get(pk=cruise_pk)
+    context['cruise'] = cruise
+    if request.method == 'POST':
+        form = CruiseTableForm(request.POST, instance=cruise)
+        if form.is_valid():
+            form.save()
+        else:
+            return render(request, 'wwdb/configuration/cruisetablerow.html', context)
+    return render(request, 'wwdb/configuration/cruisetablerow.html', context)
 
 def cruiseedit(request, id):
     context ={}

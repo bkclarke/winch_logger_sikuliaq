@@ -20,7 +20,16 @@ class StartCastForm(ModelForm):
             'flagforreview',
         ]
 
-        widgets = {'startdate': DateTimePickerInput()}
+        widgets = {            
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'startdate': DateTimePickerInput()
+            }
 
 
     def __init__(self, *args, **kwargs):
@@ -50,11 +59,21 @@ class ManualCastForm(ModelForm):
             'maxpayout',
         ]
 
-        widgets = {'startdate': DateTimePickerInput(), 
-                   'enddate': DateTimePickerInput()}
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'startdate': DateTimePickerInput(), 
+            'enddate': DateTimePickerInput()
+            }
 
 class EndCastForm(ModelForm):
     flagforreview = forms.BooleanField(required=False)
+    wirerinse = forms.BooleanField(required=False)
   
     class Meta:
         model = Cast
@@ -64,12 +83,22 @@ class EndCastForm(ModelForm):
             'startdate',
             'enddate',
             'notes',
+            'wirerinse',
             'flagforreview',
         ]
 
-        widgets = {'startdate': DateTimePickerInput(), 
-                    'enddate': DateTimePickerInput(),
-                    'startdate': forms.HiddenInput(),}
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'startdate': DateTimePickerInput(), 
+            'enddate': DateTimePickerInput(),
+            'startdate': forms.HiddenInput(),
+            }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -110,8 +139,17 @@ class EditCastForm(ModelForm):
             'flagforreview',
         ]
 
-        widgets = {'startdate': DateTimePickerInput(), 
-                   'enddate': DateTimePickerInput()}
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'startdate': DateTimePickerInput(), 
+            'enddate': DateTimePickerInput()
+            }
 
         def is_valid(self):
             valid = super().is_valid()
@@ -209,7 +247,15 @@ class AddCutbackReterminationForm(ModelForm):
             'notes',
         ]
 
-        widgets = {'date': DatePickerInput(
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'date': DatePickerInput(
                     options={
                     "format": "YYYY-MM-DD"}
         )}
@@ -225,10 +271,18 @@ class EditCutbackReterminationForm(ModelForm):
             'notes',
         ]
 
-        widgets = {'date': DatePickerInput(
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'date': DatePickerInput(
                     options={
-                    "format": "YYYY-MM-DD"}
-                    )}
+                    "format": "YYYY-MM-DD"})
+            }
 
 
 class CruiseAddForm(ModelForm):
@@ -298,7 +352,15 @@ class BreaktestAddForm(ModelForm):
             'notes',
         ] 
 
-        widgets = {'date': DatePickerInput(
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'date': DatePickerInput(
             options={
             "format": "YYYY-MM-DD"}
             )}
@@ -314,7 +376,15 @@ class BreaktestEditForm(ModelForm):
             'notes',
         ] 
 
-        widgets = {'date': DatePickerInput(
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'date': DatePickerInput(
             options={
             "format": "YYYY-MM-DD"}
             )}
@@ -331,7 +401,22 @@ class LubricationAddForm(ModelForm):
             'notes',
         ] 
 
-        widgets = {'date': DatePickerInput(
+        widgets = {
+            "lubetype": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Lube type",
+                }
+            ),
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'date': DatePickerInput(
             options={
             "format": "YYYY-MM-DD"}
             )}
@@ -348,7 +433,22 @@ class LubricationEditForm(ModelForm):
             'notes',
         ] 
 
-        widgets = {'date': DatePickerInput(
+        widgets = {
+            "lubetype": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Lube type",
+                }
+            ),
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'date': DatePickerInput(
             options={
             "format": "YYYY-MM-DD"}
             )}
@@ -364,3 +464,98 @@ class UnolsWireReportForm(ModelForm):
 
         widgets = {'startdate': DateTimePickerInput(), 
                    'enddate': DateTimePickerInput()}
+
+class WinchOperatorTableForm(forms.ModelForm):
+    status = forms.BooleanField(required=False)
+
+    class Meta:
+        model = WinchOperator
+        exclude = []
+
+        widgets = {
+            "firstname": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "Title",
+                }
+            ),
+            "lastname": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "Title",
+                }
+            ),
+            "username": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "Title",
+                }
+            ),
+        }
+
+class CruiseTableForm(forms.ModelForm):
+    class Meta:
+        model = Cruise
+        exclude = []
+
+        widgets = {
+            "number": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "cruise number",
+                }),
+        }
+
+class DeploymentTableForm(forms.ModelForm):
+    status = forms.BooleanField(required=False)
+
+    class Meta:
+        model = DeploymentType
+        exclude = []
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "name",
+                }),
+            "equipment": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "equipment details",
+                }),
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "notes",
+                }),
+        }
+
+class WinchTableForm(forms.ModelForm):
+    status = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Winch
+        exclude = []
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "name",
+                }),
+        }
+
+class SWTTableForm(forms.ModelForm):
+    class Meta:
+        model = Wire
+        exclude = []
+

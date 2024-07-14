@@ -1,0 +1,21 @@
+﻿<!--wwdb/templates/configuration/cruisetablelist.html-->
+{% load static %}
+<!DOCTYPE html>
+<div>
+    <table class="display" data-paging="false">
+        <thead>
+        <th>Number</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th> </th>
+        <th> </th>
+        </thead>
+        <tbody>
+            {% for cruise in cruise %}
+            {% include 'wwdb/configuration/cruisetablerow.html' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
