@@ -559,3 +559,159 @@ class SWTTableForm(forms.ModelForm):
         model = Wire
         exclude = []
 
+class WireEditForm(ModelForm):
+
+    class Meta:
+        model = Wire
+        fields = [
+            'nsfid',
+            'wirerope',
+            'dateacquired',
+            'notes',
+            'status',
+            'ownershipstatus',
+            'factorofsafety',
+            'dryendtag',
+
+        ]
+
+        widgets = {
+            'dateacquired': DatePickerInput(
+                    options={
+                    "format": "YYYY-MM-DD"}
+                    ),
+            "nsfid": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "name",
+                }),
+            "manufacturerid": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "name",
+                }),
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "name",
+                }),
+        }
+
+class WireAddForm(ModelForm):
+
+    class Meta:
+        model = Wire
+        fields = [
+            'nsfid',
+            'wirerope',
+            'dateacquired',
+            'status',
+            'ownershipstatus',
+            'factorofsafety',
+            'dryendtag',
+            'notes',
+        ]
+
+        widgets = {
+            'dateacquired': DatePickerInput(
+                    options={
+                    "format": "YYYY-MM-DD"}
+                    ),
+            "nsfid": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "nsf id",
+                }),
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "notes",
+                }),
+        }
+
+class WireRopeDataEditForm(ModelForm):
+
+    class Meta:
+        model = WireRopeData
+        fields = [
+            'name',
+            'manufacturer',
+            'manufacturerpartnumber',
+            'cabletype',
+            'nominalbreakingload',
+            'weightperfoot',
+
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "name",
+                }),
+            "manufacturer": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "name",
+                }),
+            "manufacturerpartnumber": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "name",
+                }),
+            "cabletype": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "name",
+                }),
+        }
+
+class WireRopeDataAddForm(ModelForm):
+
+    class Meta:
+        model = WireRopeData
+        fields = [
+            'name',
+            'manufacturer',
+            'manufacturerpartnumber',
+            'cabletype',
+            'nominalbreakingload',
+            'weightperfoot',
+
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "name",
+                }),
+            "manufacturer": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "manufacturer",
+                }),
+            "manufacturerpartnumber": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "manufacturer part number",
+                }),
+            "cabletype": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "cable type",
+                }),
+        }

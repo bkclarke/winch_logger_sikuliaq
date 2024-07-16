@@ -72,15 +72,23 @@ urlpatterns = [
 
     #URLS related to inventories 
     path('inventories/wire/<int:pk>/wiredetail', WireDetail.as_view(), name='wiredetail'),
-    path('inventories/wire/<int:pk>/edit/', WireEdit.as_view(), name='wireedit'),
+    path('inventories/wire/<int:id>/edit/', views.wireedit, name='wireedit'),
     path('inventories/wire/<int:id>/editfactorofsafety/', views.wireeditfactorofsafety, name='wireeditfactorofsafety'),
-    path('inventories/wireadd/', WireAdd.as_view(), name='wireadd'),
+    path('inventories/wireadd/', views.wireadd, name='wireadd'),
+    path('inventories/<int:id>/wiredelete', views.wiredelete, name='wiredelete'),
     path('inventories/wirelist/', views.wirelist, name='wirelist'),
     path('inventories/winch/<int:pk>/winchdetail', WinchDetail.as_view(), name='winchdetail'),
     path('inventories/winch/<int:pk>/edit/', WinchEdit.as_view(), name='winchedit'),
     path('inventories/winch/<int:id>/editstatus/', views.wincheditstatus, name='wincheditstatus'),
     path('inventories/winchadd/', views.winchadd, name='winchadd'),
     path('inventories/winchlist/', WinchList.as_view(), name='winchlist'),
+    path('inventories/wireropedatalist/', views.wireropedatalist, name='wireropedatalist'),
+    path('inventories/wireropedata/<int:id>/edit/', views.wireropedataedit, name='wireropedataedit'),
+    path('inventories/wireropedataadd/', views.wireropedataadd, name='wireropedataadd'),
+    path('inventories/<int:id>/wireropedatadelete', views.wireropedatadelete, name='wireropedatadelete'),
+
+
+
 
     #URLS related to maintenance
     path('maintenance/breaktestlist/', views.breaktestlist, name='breaktestlist'),

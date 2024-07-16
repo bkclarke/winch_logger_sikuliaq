@@ -1,0 +1,46 @@
+<!--template/wireropedatalist.html-->
+<!DOCTYPE html>
+{% extends "wwdb/base.html" %}
+
+<html>
+{% block content %}
+<h2>Tension member metadata</h2>
+</br>
+<button type="button" class="btn btn-outline-wwdb">
+    <a class="btn-link-wwdb" href="{% url 'wireropedataadd' %}">Add tension member type</a>
+</button>
+    </br>
+    </br>
+<table class="display_nosearch table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Manufacturer</th>
+            <th>Manufacturer part number</th>
+            <th>Cable type</th>
+            <th>Nominal breaking load</th>
+            <th>Weight per foot</th>
+            <th> </th>
+        </tr>
+    </thead>
+    {% for wire in wireropes %}
+    <tr>
+        <td><a href="{% url 'wireropedataedit' wire.pk %}">{{wire.name}}</a></td>
+        <td>{{wire.manufacturer}}</td>
+        <td>{{wire.manufacturerpartnumber}}</td>
+        <td>{{wire.cabletype}}</td>
+        <td>{{wire.nominalbreakingload}}</td>
+        <td>{{wire.weightperfoot}}</td>
+        <td>
+            <button class='btn'
+                    hx-confirm='Are you sure?'
+                    hx-target="closest tr"
+                    hx-swap="outerHTML swap:1s"
+                    hx-delete="{% url 'wireropedatadelete' wire.pk %}">
+                Delete
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock content %}

@@ -477,12 +477,12 @@ class OwnershipStatus(models.Model):
 
 class Wire(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
-    wirerope = models.ForeignKey(WireRopeData, models.DO_NOTHING, db_column='WireRopeId', blank=True, null=True, verbose_name='Wire rope data id')    
+    wirerope = models.ForeignKey(WireRopeData, models.DO_NOTHING, db_column='WireRopeId', blank=True, null=True, verbose_name='Wire type')    
     manufacturerid = models.TextField(db_column='ManufacturerId', blank=True, null=True, verbose_name='Manufacturer id', validators=[validate_commas])  
     nsfid = models.TextField(db_column='NsfId', blank=True, null=True, verbose_name='NSF id', validators=[validate_commas])  
-    dateacquired = models.DateField(db_column='DateAcquired', blank=True, null=True, verbose_name='Date Acquired', validators=[MaxValueValidator(limit_value=date.today)])  
+    dateacquired = models.DateField(db_column='DateAcquired', blank=True, null=True, verbose_name='Date acquired', validators=[MaxValueValidator(limit_value=date.today)])  
     notes = models.TextField(db_column='Notes', blank=True, null=True, verbose_name='notes', validators=[validate_commas])  
-    status = models.BooleanField(db_column='Status', blank=True, null=True, verbose_name='Status')
+    status = models.BooleanField(db_column='Status', blank=True, null=True, verbose_name='Active status')
     ownershipstatus = models.ForeignKey(OwnershipStatus, models.DO_NOTHING, db_column='OwnershipStatusId', blank=True, null=True, verbose_name='Ownership status')  
     factorofsafety = models.ForeignKey(FactorOfSafety, models.DO_NOTHING, db_column='FactorofSafety', blank=True, null=True, related_name='wirefactorofsafety', verbose_name='Factor of safety')  
     dryendtag = models.IntegerField(db_column='DryEndTag', blank=True, null=True, verbose_name='Dry end tag value (m)')  

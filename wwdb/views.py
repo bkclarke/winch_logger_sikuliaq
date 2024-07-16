@@ -747,6 +747,56 @@ def wirelist(request):
 
     return render(request, 'wwdb/inventories/wirelist.html', context=context)
 
+def wireropedatalist(request):
+    wireropes = WireRopeData.objects.all()
+    
+    context = {
+        'wireropes': wireropes,
+        }
+
+    return render(request, 'wwdb/inventories/wireropedatalist.html', context=context)
+
+def wireropedataedit(request, id):
+    context ={}
+    obj = get_object_or_404(WireRopeData, id = id)
+
+    if request.method == 'POST':
+        form = WireRopeDataEditForm(request.POST, instance = obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect("/wwdb/inventories/wireropedatalist")
+    else:
+        form = WireRopeDataEditForm(instance = obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect("/wwdb/inventories/wireropedata/%i/edit" % obj.pk)
+
+    context["form"] = form
+    return render(request, "wwdb/inventories/wireropedataedit.html", context)
+
+def wireropedataadd(request):
+    context ={}
+    form = WireRopeDataAddForm(request.POST or None)
+    if request.method == "POST":
+        form = WireRopeDataAddForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/wireropedatalist')
+    else:
+        form = WireRopeDataAddForm 
+        if 'submitted' in request.GET:
+            submitted = True
+            return render(request, 'wwdb/inventories/wireropedataadd.html', {'form':form, 'submitted':submitted, 'id':id})
+ 
+    context['form']= form
+
+    return render(request, "wwdb/inventories/wireropedataadd.html", context)
+
+def wireropedatadelete(request, id):
+    wireropedata = WireRopeData.objects.get(pk=id)
+    wireropedata.delete()
+    return HttpResponse()
+
 """
 WIRES
 Classes related to create, update, view Wire model
@@ -766,10 +816,46 @@ class WireEdit(UpdateView):
         form.fields['dateacquired'].widget = DateTimePickerInput()
         return form
 
-class WireAdd(CreateView):
-    model = Wire
-    template_name="wwdb/inventories/wireadd.html"
-    fields=['wireropeid','manufacturerid','nsfid','dateacquired','notes','length','status']
+def wireedit(request, id):
+    context ={}
+    obj = Wire.objects.get(id=id)
+    if request.method == 'POST':
+        form = WireEditForm(request.POST, instance = obj)
+        if form.is_valid():
+            form.save()
+            obj.save()
+            return HttpResponseRedirect('/wwdb/inventories/wirelist')
+    else:
+        form = WireEditForm(instance = obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/%i/wireedit' % obj.pk)
+
+    context["form"] = form
+    return render(request, "wwdb/inventories/wireedit.html", context)
+
+def wireadd(request):
+    context ={}
+    form = WireAddForm(request.POST or None)
+    if request.method == "POST":
+        form = WireAddForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/wirelist')
+    else:
+        form = WireAddForm 
+        if 'submitted' in request.GET:
+            submitted = True
+            return render(request, 'wwdb/inventories/wireadd.html', {'form':form, 'submitted':submitted, 'id':id})
+ 
+    context['form']= form
+
+    return render(request, "wwdb/inventories/wireadd.html", context)
+
+def wiredelete(request, id):
+    wire = Wire.objects.get(pk=id)
+    wire.delete()
+    return HttpResponse()
 
 """
 WINCHES

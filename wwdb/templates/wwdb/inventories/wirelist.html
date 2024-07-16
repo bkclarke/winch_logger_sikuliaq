@@ -3,38 +3,50 @@
 {% extends "wwdb/base.html" %}
 
 <html>
-{% block content %}
-<h2>Tension Member Inventory</h2>
-<table class="display_nosearch table">
-    <thead>
+    {% block content %}
+    <h2>Tension member inventory</h2>
+    </br>
+    <button type="button" class="btn btn-outline-wwdb">
+        <a class="btn-link-wwdb" href="{% url 'wireadd' %}">Add a tension member</a>
+    </button>
+        </br>
+        </br>
+    <table class="display_nosearch table">
+        <thead>
+            <tr>
+                <th>NSF-ID</th>
+                <th>Wire Type</th>
+                <th>Dry End Tag</th>
+                <th>Wet End Tag</th>
+                <th>Length</th>
+                <th>Nominal Breaking Load</th>
+                <th>Tested Breaking Load</th>
+                <th>Absolute Breaking Load</th>
+                <th>Winch</th>
+                <th> </th>
+            </tr>
+        </thead>
+        {% for wire in wires %}
         <tr>
-            <th>NSF-ID</th>
-            <th>Wire Type</th>
-            <th>Manufacturer id</th>
-            <th>Dry End Tag</th>
-            <th>Wet End Tag</th>
-            <th>Length</th>
-            <th>Nominal Breaking Load</th>
-            <th>Tested Breaking Load</th>
-            <th>Absolute Breaking Load</th>
-            <th>Location</th>
-            <th>Winch</th>
+            <td><a href="{% url 'wireedit' wire.pk %}">{{wire.nsfid}}</a></td>
+            <td>{{wire.wirerope}}</td>
+            <td>{{wire.dryendtag}}</td>
+            <td>{{wire.active_wetendtag}}</td>
+            <td>{{wire.active_length}}</td>
+            <td>{{wire.nominal_breaking_load}}</td>
+            <td>{{wire.tested_breaking_load}}</td>
+            <td>{{wire.absolute_breaking_load}}</td>
+            <td>{{wire.active_winch}}</td>
+            <td>
+                <button class='btn'
+                        hx-confirm='Are you sure?'
+                        hx-target="closest tr"
+                        hx-swap="outerHTML swap:1s"
+                        hx-delete="{% url 'wiredelete' wire.pk %}">
+                    Delete
+                </button>
+            </td>
         </tr>
-    </thead>
-    {% for wire in wires %}
-    <tr>
-        <td><a href="{% url 'wirereport' wire.pk %}">{{wire.nsfid}}</a></td>
-        <td>{{wire.wirerope}}</td>
-        <td>{{wire.manufacturerid}}</td>
-        <td>{{wire.dryendtag}}</td>
-        <td>{{wire.active_wetendtag}}</td>
-        <td>{{wire.active_length}}</td>
-        <td>{{wire.nominal_breaking_load}}</td>
-        <td>{{wire.tested_breaking_load}}</td>
-        <td>{{wire.absolute_breaking_load}}</td>
-        <td>{{wire.active_location}}</td>
-        <td>{{wire.active_winch}}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endblock content %}
+        {% endfor %}
+    </table>
+    {% endblock content %}
