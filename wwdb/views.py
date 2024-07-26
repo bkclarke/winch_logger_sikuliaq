@@ -54,6 +54,8 @@ def caststart(request):
             cast=Cast.objects.last()
             cast.refresh_from_db()
             cast.get_active_wire()
+            if cast.startdate == None:
+                cast.startcast_get_datetime()
             cast.save()
             return HttpResponseRedirect("%i/castend" % cast.pk)
     else:
@@ -62,7 +64,11 @@ def caststart(request):
             submitted = True
             return render(request, 'wwdb/casts/caststart.html', {'form':form, 'submitted':submitted, 'id':id})
 
-    context['form']= form
+    template_name = 'caststart.html'
+
+    context = {
+        'form':form,
+        'template_name':template_name}
 
     return render(request, "wwdb/casts/caststart.html", context)
 
@@ -76,7 +82,6 @@ def castlist(request):
     context = {
         'cast_complete': cast_complete,
         'cast_flag': cast_flag,
-        'castfilter':castfilter,
        }
 
     return render(request, 'wwdb/reports/castlist.html', context=context)
@@ -95,9 +100,22 @@ def castend(request, id):
             form.save()
             cast.refresh_from_db()
             cast.endcastcal()
+            cast.get_active_length()
+            cast.get_active_safeworkingtension()
+            cast.get_active_factorofsafety()
+            if cast.enddate == None:
+                cast.endcast_get_datetime()
             cast.save()
             return HttpResponseRedirect("/wwdb/casts/%i/castenddetail" % cast.pk)
+
     context["form"] = form
+        
+    template_name = 'castend.html'
+
+    context = {
+        'form':form,
+        'template_name':template_name}
+
     return render(request, "wwdb/casts/castend.html", context)
 
 def castedit(request, id):
@@ -246,197 +264,43 @@ def cruiselist(request):
 
     return render(request, 'wwdb/reports/cruiselist.html', context=context)
 
-def is_valid_queryparam(param):
-    return param != '' and param is not None
-
-def cast_table_filter(request):
-    
-    qs = Cast.objects.all()
-    wire = request.GET.get('wire_nsfid')
-    winch = request.GET.get('winch_id')
-    deployment = request.GET.get('deployment_id')
-    date_min = request.GET.get('date_min')
-    date_max = request.GET.get('date_max')
-
-    if is_valid_queryparam(date_min):
-        qs=qs.filter(startdate__gte=date_min)
-
-    if is_valid_queryparam(date_max):
-        qs=qs.filter(enddate__lt=date_max)
-
-    if is_valid_queryparam(wire):
-        if wire!='Wire':
-            wire_obj=Wire.objects.filter(nsfid=wire).last()
-            qs=qs.filter(wire=wire_obj)
-
-    if is_valid_queryparam(winch):
-        if winch!='Winch':
-            winch_obj=Winch.objects.filter(name=winch).last()
-            qs=qs.filter(winch=winch_obj)
-
-    if is_valid_queryparam(deployment):
-        if deployment!='Deployment':
-            deployment_obj=DeploymentType.objects.filter(name=deployment).last()
-            qs=qs.filter(deploymenttype=deployment_obj)
-
-    return qs
-
 def castreport(request):
-    wire=Wire.objects.all()
-    winch=Winch.objects.all()
-    deployment=DeploymentType.objects.all()
-    qs = cast_table_filter(request)
+    # Initialize form with data from GET request (if any)
+    form = CastFilterForm(request.GET)
+    casts = Cast.objects.all()
+    cast_complete = Cast.objects.filter(maxpayout__isnull=False, maxtension__isnull=False) 
+    cast_flag = Cast.objects.filter((Q(flagforreview=True) | Q(maxpayout__isnull=True) | Q(maxtension__isnull=True)))
 
-    context = {
-        'qs':qs,
-        'wire':wire,
-        'winch':winch,
-        'deployment':deployment,
-        }
+    # Handle form submission and filtering
+    if form.is_valid():
+        casts = Cast.objects.all()
+        deploymenttype = form.cleaned_data.get('deploymenttype')
+        winch = form.cleaned_data.get('winch')
+        startdate = form.cleaned_data.get('startdate')
+        enddate = form.cleaned_data.get('enddate')
+        wire = form.cleaned_data.get('wire')
+        operator = form.cleaned_data.get('operator')
+        if deploymenttype:
+            casts = casts.filter(deploymenttype=deploymenttype)
+        if winch:
+            casts = casts.filter(winch=winch)
+        if startdate:    
+            casts = casts.filter(startdate__gte=date_min)
+        if enddate:
+            casts = casts.filter(enddate__gte=date_max)
+        if wire:
+            casts = casts.filter(wire=wire)
+        if operator:
+            casts = casts.filter(Q(startoperator=operator) | Q(endoperator=operator))
 
-    return render(request, "wwdb/reports/castreport.html", context)
-
-def cast_table_csv(request):
-    cast = cast_table_filter(request)
-
-    response = HttpResponse(content_type="text/plain")
-    response['Content-Disposition']='attachement; filename=cast_table.csv'
-    
-    lines = []
-
-    date_min=cast.order_by('startdate').first()
-    date_max=cast.order_by('enddate').last()
-
-    lines.append('\n#Start date:' + str(date_min))
-    lines.append('\n#End Date:' + str(date_max))
-    lines.append('\n#\n#')
-    lines.append('\n#\nstarttime, endtime, winch, wire, deploymenttype, startoperator, endoperator, maxtension, maxpayout, payoutmaxtension, metermaxtension, timemaxtension, wetendtag, dryendtag, notes')
-
-    for c in cast:
-            lines.append('\n' + str(c.startdate) + ',' 
-            +  str(c.enddate) + ',' 
-            +  str(c.active_winch) + ',' 
-            +  str(c.wire) + ','
-            +  str(c.deploymenttype) + ',' 
-            +  str(c.startoperator) + ',' 
-            +  str(c.endoperator) + ',' 
-            +  str(c.maxtension) + ',' 
-            +  str(c.maxpayout) + ',' 
-            +  str(c.payoutmaxtension) + ',' 
-            +  str(c.metermaxtension) + ',' 
-            +  str(c.timemaxtension) + ','
-            +  str(c.wetendtag) + ',' 
-            +  str(c.dryendtag) + ',' 
-            +  str(c.notes) + ',' )
-
-
-    response.writelines(lines)
-
-
-    return response
-
-def unols_report_csv(request):
-    cast = cast_table_filter(request)
-
-    response = HttpResponse(content_type="text/plain")
-    response['Content-Disposition']='attachement; filename=cruise_reports.csv'
-
-    #create dictionary of active winch keys and cast object list values
-    cast_by_winch = {}
-    for c in cast:
-        if c.active_winch not in cast_by_winch:
-            cast_by_winch[c.active_winch] = []
-
-        cast_by_winch[c.active_winch].append(c)
-        
-    #create dictionary of active winch keys and integer value of casts completed values
-    cast_by_winch_count = {}
-    for c in cast_by_winch:
-        cast_by_winch_count[c]=len(cast_by_winch[c])
-
-    #create dictionary of active winch keys and maxtension list values of casts completed
-    tension_by_winch = {}
-    for c in cast:
-        if c.active_winch not in tension_by_winch:
-            tension_by_winch[c.active_winch] = []
-        tension_by_winch[c.active_winch].append(c.maxtension)
-
-    # filter none values from key value lists
-    for t in tension_by_winch:
-        tension_by_winch[t]=list(filter(lambda item: item is not None,tension_by_winch[t]))
-
-    #Create dictionary of active winch keys and max tension per winch values
-    maxtension_by_winch={}
-    for t in tension_by_winch:
-        if tension_by_winch[t]:
-            maxtension_by_winch[t]=max(tension_by_winch[t])
-        else:
-            maxtension_by_winch[t]='None'
-
-    #create dictionary of active winch keys and max payout list values of casts completed
-    payout_by_winch = {}
-    for c in cast:
-        if c.active_winch not in payout_by_winch:
-            payout_by_winch[c.active_winch] = []
-        payout_by_winch[c.active_winch].append(c.maxpayout)
-
-    #Create dictionary of active winch keys and max payout per winch values
-    for t in payout_by_winch:
-        payout_by_winch[t]=list(filter(lambda item: item is not None,payout_by_winch[t]))
-
-    #Create dictionary of active winch keys and max payout per winch values
-    maxpayout_by_winch={}
-    for t in payout_by_winch:
-        if payout_by_winch[t]:
-            maxpayout_by_winch[t]=max(payout_by_winch[t])
-        else:
-            maxpayout_by_winch[t]='None'
-
-    #find startdatetime and enddatetime
-    date_min=cast.order_by('startdate').first()
-    date_max=cast.order_by('enddate').last()
-
-    #append data to list, write to file
-    lines = []
-
-    lines.append('\n#Start date:' + str(date_min))
-    lines.append('\n#End Date:' + str(date_max))
-
-    lines.append('\n#\n#')
-
-    for t in maxtension_by_winch:
-        lines.append('\n#' + str(t) + ' Max tension: ' + str(maxtension_by_winch[t]))
-
-    lines.append('\n#\n#')
-
-    for t in maxpayout_by_winch:
-        lines.append('\n#' + str(t) + ' Max payout: ' + str(maxpayout_by_winch[t]))
-
-    lines.append('\n#\nstarttime, endtime, winch, wire, deploymenttype, startoperator, endoperator, maxtension, maxpayout, payoutmaxtension, metermaxtension, timemaxtension, wetendtag, dryendtag, notes')
-
-    for c in cast:
-            lines.append('\n' + str(c.startdate) + ',' 
-            +  str(c.enddate) + ',' 
-            +  str(c.active_winch) + ',' 
-            +  str(c.wire) + ',' 
-            +  str(c.deploymenttype) + ',' 
-            +  str(c.startoperator) + ',' 
-            +  str(c.endoperator) + ',' 
-            +  str(c.maxtension) + ',' 
-            +  str(c.maxpayout) + ',' 
-            +  str(c.payoutmaxtension) + ',' 
-            +  str(c.metermaxtension) + ',' 
-            +  str(c.timemaxtension) + ','
-            +  str(c.wetendtag) + ',' 
-            +  str(c.dryendtag) + ',' 
-            +  str(c.notes) + ',' )
-
-
-    response.writelines(lines)
-
-
-    return response
-
+        context = {
+            'cast_complete': cast_complete,
+            'cast_flag': cast_flag,
+            'form': form,
+            'casts': casts,
+           }
+    # Render the template with form and filtered products
+    return render(request, 'wwdb/reports/castreport.html', context)
 
 def cruisereport(request, pk):
     

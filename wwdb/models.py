@@ -79,7 +79,7 @@ class Cast(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
     startoperator = models.ForeignKey('WinchOperator', models.DO_NOTHING, db_column='StartOperatorId', null=True, related_name='startoperatorid', verbose_name="Start operator")  
     endoperator = models.ForeignKey('WinchOperator', models.DO_NOTHING, db_column='EndOperatorId', null=True, related_name='endoperatorid', verbose_name='End operator')  
-    startdate = models.DateTimeField(db_column='StartDate', null=False, verbose_name='Start date and time', validators=[MaxValueValidator(limit_value=datetime.today)])  
+    startdate = models.DateTimeField(db_column='StartDate', blank=True, null=True, verbose_name='Start date and time', validators=[MaxValueValidator(limit_value=datetime.today)])  
     enddate = models.DateTimeField(db_column='EndDate', blank=True, null=True, verbose_name='End date and time', validators=[MaxValueValidator(limit_value=datetime.today)])  
     deploymenttype = models.ForeignKey('Deploymenttype', models.DO_NOTHING, db_column='DeploymentTypeId', null=True, verbose_name='Deployment type')  
     wire = models.ForeignKey('Wire', models.DO_NOTHING, db_column='WireId', blank=True, null=True, verbose_name='Wire')  
@@ -94,6 +94,10 @@ class Cast(models.Model):
     dryendtag = models.IntegerField(db_column='DryEndTag', blank=True, null=True, verbose_name='Dry end tag')  
     wetendtag = models.IntegerField(db_column='WetEndTag', blank=True, null=True, verbose_name='Wet end tag')  
     wirerinse = models.BooleanField(db_column='Wirerinse', blank=True, null=True, verbose_name='Wire rinse')  
+    wirelength = models.IntegerField(db_column='WireLength', blank=True, null=True, verbose_name='Wire length')  
+    factorofsafety = models.FloatField(db_column='FactorofSafety', blank=False, null=True, verbose_name='Factor of safety')  
+    safeworkingtension = models.FloatField(db_column='SafeWorkingTension', blank=False, null=True, verbose_name='Safe Working tension')  
+
 
     class Meta:
         managed = True
@@ -114,7 +118,8 @@ class Cast(models.Model):
 
     @property
     def wet_end_tag(self):
-        wetend=self.wire.active_wetendtag
+        if self.wire.active_wetendtag:
+            wetend=self.wire.active_wetendtag
         return wetend
 
     @property
@@ -126,6 +131,24 @@ class Cast(models.Model):
     def active_wire(self):
         if self.winch:
             d=self.winch.active_wire.wireid
+        return d
+    
+    @property
+    def active_wire_length(self):
+        if self.active_wire:
+            d=self.active_wire.active_length
+        return d
+
+    @property
+    def active_wire_safeworkingtension(self):
+        if self.active_wire:
+            d=self.active_wire.safe_working_tension
+        return d
+
+    @property
+    def active_wire_factorofsafety(self):
+        if self.active_wire:
+            d=self.active_wire.factorofsafety 
         return d
 
     @property
@@ -145,6 +168,21 @@ class Cast(models.Model):
     def get_active_wire(self):
         if self.active_wire:
             self.wire=self.active_wire
+        return
+
+    def get_active_length(self):
+        if self.active_wire_length:
+            self.wirelength=self.active_wire_length
+        return
+
+    def get_active_factorofsafety(self):
+        if self.active_wire_factorofsafety:
+            self.factorofsafety=self.active_wire_factorofsafety.factorofsafety
+        return
+
+    def get_active_safeworkingtension(self):
+        if self.active_wire_safeworkingtension:
+            self.safeworkingtension=self.active_wire_safeworkingtension
         return
 
     def endcastcal(self):
@@ -199,6 +237,15 @@ class Cast(models.Model):
             self.dryendtag=dryend
             return
 
+    def startcast_get_datetime(self):
+        if self.startdate is None:
+            current_datetime = datetime.now()
+            self.startdate = current_datetime
+
+    def endcast_get_datetime(self):
+        if self.enddate is None:
+            current_datetime = datetime.now()
+            self.enddate = current_datetime
 
 class Cruise(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)   

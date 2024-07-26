@@ -10,13 +10,21 @@
         {{ form.status.errors }}
     </td>
     <td>
+        {{ form.ship }}
+        {{ form.ship.errors }}
+    </td>
+    <td>
+        {{ form.institution }}
+        {{ form.institution.errors }}
+    </td>
+    <td>
         <a href="#"
            hx-post="{% url 'winchtableeditsubmit' winch.pk %}"
            hx-target="closest tr"
            hx-swap="outerHTML"
            hx-include="closest tr"
            class="text-secondary">
-        Submit
+            Submit
     </td>
     <td>
         <a href="#"
@@ -24,7 +32,7 @@
            hx-target="closest tr"
            hx-swap="outerHTML"
            class="text-secondary">
-        Cancel
+            Cancel
         </a>
     </td>
 </tr>

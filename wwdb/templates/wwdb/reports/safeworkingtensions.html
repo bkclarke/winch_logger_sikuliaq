@@ -2,16 +2,14 @@
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
 
-<html>
+
 {% block content %}
 <h1>Safe Working Tensions</h1>
 </br>
-<button type="button" class="btn btn-outline-wwdb">
-    <a class="btn-link-wwdb" href="{% url 'safeworkingtensions_file' %}">Download</a>
-</button>
+<button id="safeworkingtensions_file" class="btn btn-outline-wwdb">Download</button>
 </br>
 </br>
-<table class="table-safeworkingtensions table-striped">
+<table id="table" class="display nowrap" style="width:100%">
     <thead class="thead-light">
         <tr>
             <th>Winch</th>
@@ -32,7 +30,27 @@
     {% endfor %}
 </table>
 <p>Date posted: <span id="datetime"></span></p>
+<script>
+    $(document).ready(function () {
+        // Initialize DataTables
+        $('#table').DataTable({
+            responsive: true,
+            scrollX: true,
+            order: [[0, "desc"]]
+            // Add more options as needed
+        });
 
+        // Initialize tooltips (assuming you're using Bootstrap tooltips)
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#safeworkingtensions_file').click(function () {
+            window.location.href = "{% url 'safeworkingtensions_file' %}";
+        });
+    });
+</script>
 <script>
     var dt = new Date();
     document.getElementById("datetime").innerHTML = dt.toLocaleDateString();
@@ -40,4 +58,3 @@
 </br>
 </br>
 {% endblock %}
-</html>

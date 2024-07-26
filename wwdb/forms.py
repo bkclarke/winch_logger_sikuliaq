@@ -8,6 +8,10 @@ from datetime import datetime
 
 class StartCastForm(ModelForm):
     flagforreview = forms.BooleanField(required=False)
+    deploymenttype = forms.ModelChoiceField(DeploymentType.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+    winch = forms.ModelChoiceField(Winch.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+    startoperator = forms.ModelChoiceField(WinchOperator.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+
 
     class Meta:
         model = Cast
@@ -20,15 +24,14 @@ class StartCastForm(ModelForm):
             'flagforreview',
         ]
 
-        widgets = {            
+        widgets = {
+            'startdate': DateTimePickerInput(),
             "notes": forms.TextInput(
                 attrs={
                     "class": "form-control",
                     "style": "max-width: 100%; align: center;",
                     "placeholder": "Notes",
-                }
-            ),
-            'startdate': DateTimePickerInput()
+                }),
             }
 
 
@@ -74,13 +77,14 @@ class ManualCastForm(ModelForm):
 class EndCastForm(ModelForm):
     flagforreview = forms.BooleanField(required=False)
     wirerinse = forms.BooleanField(required=False)
+    endoperator = forms.ModelChoiceField(WinchOperator.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+
   
     class Meta:
         model = Cast
   
         fields = [
             'endoperator',
-            'startdate',
             'enddate',
             'notes',
             'wirerinse',
@@ -88,24 +92,23 @@ class EndCastForm(ModelForm):
         ]
 
         widgets = {
+            'enddate': DateTimePickerInput(),
             "notes": forms.TextInput(
                 attrs={
                     "class": "form-control",
                     "style": "max-width: 100%; align: center;",
                     "placeholder": "Notes",
-                }
-            ),
-            'startdate': DateTimePickerInput(), 
-            'enddate': DateTimePickerInput(),
-            'startdate': forms.HiddenInput(),
+                }),
             }
 
+"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         active_operators = WinchOperator.objects.filter(status=True)
         self.fields['endoperator'].queryset  = active_operators
+"""
 
-        
+"""       
     def is_valid(self):
         valid = super().is_valid()
 
@@ -120,7 +123,7 @@ class EndCastForm(ModelForm):
                 self.add_error('enddate', 'End date must be greater than start date')
                 valid = False
         return valid     
-
+""" 
 
 class EditCastForm(ModelForm):
     flagforreview = forms.BooleanField(required=False)
@@ -337,6 +340,7 @@ class WinchAddForm(ModelForm):
         model = Winch
         fields = [
             'name',
+            'ship',
             'institution',
             'status',
         ]
@@ -552,6 +556,18 @@ class WinchTableForm(forms.ModelForm):
                     "style": "max-width: 450px; align: center;",
                     "placeholder": "name",
                 }),
+            "ship": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "name",
+                }),
+            "institution": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 450px; align: center;",
+                    "placeholder": "name",
+                }),
         }
 
 class SWTTableForm(forms.ModelForm):
@@ -715,3 +731,11 @@ class WireRopeDataAddForm(ModelForm):
                     "placeholder": "cable type",
                 }),
         }
+
+class CastFilterForm(forms.Form):
+    winch = forms.ModelChoiceField(queryset=Winch.objects.all(), empty_label='All winches', required=False)
+    deploymenttype = forms.ModelChoiceField(queryset=DeploymentType.objects.all(), empty_label='All deployments', required=False)
+    operator = forms.ModelChoiceField(queryset=WinchOperator.objects.all(), empty_label='All operators', required=False)
+    wire = forms.ModelChoiceField(queryset=Wire.objects.all(), empty_label='All wires', required=False)
+    startdate = forms.DateTimeField(required=False, widget=forms.DateTimeInput())
+    enddate = forms.DateTimeField(required=False, widget=forms.DateTimeInput())
