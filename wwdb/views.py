@@ -98,6 +98,7 @@ def castend(request, id):
         cast=Cast.objects.last()
         if form.is_valid():
             form.save()
+
             cast.refresh_from_db()
             cast.endcastcal()
             cast.get_active_length()
@@ -106,6 +107,11 @@ def castend(request, id):
             if cast.enddate == None:
                 cast.endcast_get_datetime()
             cast.save()
+
+            cast.refresh_from_db()
+            cast.get_cast_duration()
+            cast.save()
+
             return HttpResponseRedirect("/wwdb/casts/%i/castenddetail" % cast.pk)
 
     context["form"] = form
@@ -127,8 +133,9 @@ def castedit(request, id):
             form.save()
             obj.get_active_wire()
             obj.endcastcal()
+            obj.get_cast_duration()
             obj.save()
-            return HttpResponseRedirect('/wwdb/reports/castlist')
+            return HttpResponseRedirect('/wwdb/reports/castreport')
     else:
         form = EditCastForm(instance = obj)
         if form.is_valid():
@@ -165,7 +172,7 @@ def castmanualedit(request, id):
         if form.is_valid():
             form.save()
             obj.save()
-            return HttpResponseRedirect('/wwdb/reports/castlist')
+            return HttpResponseRedirect('/wwdb/reports/castreport')
     else:
         form = ManualCastForm(instance = obj)
         if form.is_valid():
@@ -184,7 +191,7 @@ def castdetail(request, id):
 class CastDelete(DeleteView):
     model = Cast
     template_name="wwdb/casts/castdelete.html"
-    success_url= reverse_lazy('castlist')
+    success_url= reverse_lazy('castreport')
 
 def castenddetail(request, id):
     context ={}
@@ -757,9 +764,9 @@ def swttableedit(request, wire_pk):
     context = {}
     context['wire'] = wire
     context['form'] = SWTTableForm(initial={
-        'winch':wire.winch,
         'factorofsafety': wire.factorofsafety,
     })
+
     return render(request, 'wwdb/configuration/swttableedit.html', context)
 
 def swttableeditsubmit(request, wire_pk):
