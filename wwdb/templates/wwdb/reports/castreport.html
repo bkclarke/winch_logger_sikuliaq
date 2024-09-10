@@ -69,7 +69,7 @@
     </br>
     </br>
 </form>
-<table id="table3" class="display nowrap">
+<table id="table2" class="display nowrap">
     <thead>
         <tr>
             <th>Start time</th>
@@ -147,7 +147,7 @@
 <script>
     $(document).ready(function () {
         // Initialize DataTables
-        $('#table2').DataTable({
+        $('#table1').DataTable({
             responsive: true,
             scrollX: true,
             order: [[0, "desc"]]
@@ -167,7 +167,7 @@
 </script>
 <script>
     $(document).ready(function () {
-        var table = $('#table3').DataTable({
+        var table = $('#table2').DataTable({
             responsive: true,
             scrollX: true,
             order: [[0, "desc"]]
@@ -232,7 +232,7 @@
         // Button click handler
         $('#unolsButton').on('click', function () {
             // Check if DataTable is initialized
-            if ($.fn.DataTable.isDataTable('#table')) {
+            if ($.fn.DataTable.isDataTable('#table2')) {
                 var uniqueCount = verifyCountUniqueValues(3);
                 var uniqueValues3 = getUniqueValues(3);
                 var uniqueValues14 = getUniqueValues(14);
@@ -316,7 +316,7 @@
         // Button click handler
         $('#tableButton').on('click', function () {
             // Check if DataTable is initialized
-            if ($.fn.DataTable.isDataTable('#table')) {
+            if ($.fn.DataTable.isDataTable('#table2')) {
 
                 // Proceed with CSV download logic
                 var data = table.rows({ search: 'applied' }).data();

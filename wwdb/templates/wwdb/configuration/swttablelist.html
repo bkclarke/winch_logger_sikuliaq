@@ -4,11 +4,12 @@
     <table class="display" data-paging="false">
         <thead>
             <th>Winch</th>
+            <th>Wire</th>
             <th>Factor of safety</th>
             <th> </th>
         </thead>
         <tbody>
-            {% for wire in wire %}
+            {% for wire in wires %}
             {% include 'wwdb/configuration/swttablerow.html' %}
             {% endfor %}
         </tbody>

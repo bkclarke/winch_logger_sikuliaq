@@ -518,13 +518,15 @@ Postings
 """
 
 def safeworkingtensions(request):
-    active_wire = Wire.objects.filter(status=True)
-
+    wires = Wire.objects.all()
+    # Filter in Python based on the active_winch property
+    wires_with_active_winch = [wire for wire in wires if wire.active_winch is not None]
+    
     context = {
-        'active_wire': active_wire,
-        }
-
-    return render(request, 'wwdb/reports/safeworkingtensions.html', context=context)
+        'wires': wires_with_active_winch
+    }
+    
+    return render(request, 'wwdb/reports/safeworkingtensions.html', context)
 
 def safeworkingtensions_file(request):
 
@@ -834,7 +836,14 @@ Classes related to create, update, view Winch model
 """
 def swttablelistget(request):
     context = {}
-    context['wire'] = Wire.objects.filter(status=True)
+    wires = Wire.objects.all()
+    # Filter in Python based on the active_winch property
+    wires_with_active_winch = [wire for wire in wires if wire.active_winch is not None]
+    
+    context = {
+        'wires': wires_with_active_winch
+    }
+    
     return render(request, 'wwdb/configuration/swttablelist.html', context)
 
 def swttableadd(request):

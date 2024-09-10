@@ -263,6 +263,20 @@ class AddCutbackReterminationForm(ModelForm):
                     "format": "YYYY-MM-DD"}
         )}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize choices for 'wire' field
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch is not None:
+                choice_label = f"{wire} - {wire.active_winch}"
+                choices.append((wire.id, choice_label))
+            else:
+                choice_label = f"{wire}"
+                choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
+
 class EditCutbackReterminationForm(ModelForm):
   
     class Meta:
@@ -768,12 +782,6 @@ class WireLocationForm(ModelForm):
                     options={
                     "format": "YYYY-MM-DD"}
                     ),
-            "enteredby": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "max-width: ;100% align: center;",
-                    "placeholder": "name",
-                }),
             "notes": forms.TextInput(
                 attrs={
                     "class": "form-control",
