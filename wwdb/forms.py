@@ -573,8 +573,18 @@ class WinchTableForm(forms.ModelForm):
 class SWTTableForm(forms.ModelForm):
     class Meta:
         model = Wire
-        exclude = []
-
+        exclude = [
+            'wirerope',
+            'manufacturerid',
+            'nsfid',
+            'dateacquired',
+            'notes',
+            'status',
+            'ownershipstatus',
+            'factorofsafety',
+            'dryendtag',
+            ]
+ 
 class WireEditForm(ModelForm):
 
     class Meta:
