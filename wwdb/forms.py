@@ -749,3 +749,52 @@ class CastFilterForm(forms.Form):
     wire = forms.ModelChoiceField(queryset=Wire.objects.all(), empty_label='All wires', required=False)
     startdate = forms.DateTimeField(required=False, widget=forms.DateTimeInput())
     enddate = forms.DateTimeField(required=False, widget=forms.DateTimeInput())
+
+class WireLocationForm(ModelForm):
+
+    class Meta:
+        model = WireLocation
+        fields = [
+            'date',
+            'wireid',
+            'winch',
+            'location',
+            'enteredby',
+            'notes',
+        ]
+
+        widgets = {
+            'date': DatePickerInput(
+                    options={
+                    "format": "YYYY-MM-DD"}
+                    ),
+            "enteredby": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: ;100% align: center;",
+                    "placeholder": "name",
+                }),
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "notes",
+                }),
+        }
+
+class LocationForm(ModelForm):
+
+    class Meta:
+        model = Location
+        fields = [
+            'location',
+        ]
+     
+        widgets = {
+            "location": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "location",
+                }),
+        }

@@ -14,6 +14,7 @@
     <thead>
         <tr>
             <th>Start time</th>
+            <th>Duration (min)</th>
             <th>Winch</th>
             <th>Wire</th>
             <th>Deployment type</th>
@@ -34,6 +35,7 @@
     {% for cast in cast_flag %}
     <tr>
         <td>{{cast.format_startdate}}</td>
+        <td>{{cast.duration}}</td>
         <td>{{cast.winch}}</td>
         <td>{{cast.wire}}</td>
         <td>{{cast.deploymenttype}}</td>
@@ -71,6 +73,7 @@
     <thead>
         <tr>
             <th>Start time</th>
+            <th>Duration (min)</th>
             <th>Winch</th>
             <th>Wire</th>
             <th>Deployment type</th>
@@ -98,6 +101,7 @@
     {% for cast in casts %}
     <tr>
         <td>{{cast.format_startdate}}</td>
+        <td>{{cast.duration}}</td>
         <td>{{cast.winch.name}}</td>
         <td>{{cast.wire}}</td>
         <td>{{cast.deploymenttype}}</td>
@@ -229,14 +233,14 @@
         $('#unolsButton').on('click', function () {
             // Check if DataTable is initialized
             if ($.fn.DataTable.isDataTable('#table')) {
-                var uniqueCount = verifyCountUniqueValues(2);
-                var uniqueValues2 = getUniqueValues(2);
-                var uniqueValues13 = getUniqueValues(13);
+                var uniqueCount = verifyCountUniqueValues(3);
+                var uniqueValues3 = getUniqueValues(3);
                 var uniqueValues14 = getUniqueValues(14);
-                var uniqueValueCounts = countUniqueValues(3);
+                var uniqueValues15 = getUniqueValues(15);
+                var uniqueValueCounts = countUniqueValues(4);
                 var uniqueForeignKeyValues = getUniqueForeignKeyValues(1);
-                var getMaxValsTension = getMaxValues(6);
-                var getMaxValsPayout = getMaxValues(7);
+                var getMaxValsTension = getMaxValues(7);
+                var getMaxValsPayout = getMaxValues(8);
 
                 // Calculate min and max date from DataTable
                 var minDate = null;
@@ -266,10 +270,10 @@
                     //add metadata
                     csv.push('#UNOLS TENSION MEMBER REPORT')
                     csv.push('#Dates ' + (minDate ? minDate.toLocaleDateString() : '') + ' Through ' + (maxDate ? maxDate.toLocaleDateString() : ''))
-                    csv.push('#Vessel: ' + uniqueValues13)
-                    csv.push('#Institution: ' + uniqueValues14)
+                    csv.push('#Vessel: ' + uniqueValues14)
+                    csv.push('#Institution: ' + uniqueValues15)
                     csv.push('#')
-                    csv.push('#nsfid: ' + uniqueValues2)
+                    csv.push('#nsfid: ' + uniqueValues3)
                     csv.push('#number of casts: ' + totalRows);
                     csv.push('#max tension: ' + getMaxValsTension);
                     csv.push('#max payout: ' + getMaxValsPayout);
@@ -299,7 +303,7 @@
                     var link = document.createElement('a');
                     var url = URL.createObjectURL(blob);
                     link.setAttribute('href', url);
-                    link.setAttribute('download', uniqueValues2 + "-" + (minDate ? minDate.toLocaleDateString() : '') + '-' + (maxDate ? maxDate.toLocaleDateString() : '') + '.csv');
+                    link.setAttribute('download', uniqueValues3 + "-" + (minDate ? minDate.toLocaleDateString() : '') + '-' + (maxDate ? maxDate.toLocaleDateString() : '') + '.csv');
                     link.style.visibility = 'hidden';
                     document.body.appendChild(link);
                     link.click();

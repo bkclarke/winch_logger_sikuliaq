@@ -1,0 +1,64 @@
+<!--template/wirelocationlist.html-->
+<!DOCTYPE html>
+{% extends "wwdb/base.html" %}
+
+{% block content %}
+<h2>Wire location changes</h2>
+</br>
+<button id="wirelocationadd" class="btn btn-outline-wwdb">Add wire location change</button>
+</br>
+</br>
+<table id="table" class="display nowrap" style="width:100%">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>NSF-id</th>
+            <th>location</th>
+            <th>winch</th>
+            <th>entered by</th>
+            <th>notes</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for wirelocation in wirelocations %}
+    <tr>
+        <td><a href="{% url 'wirelocationedit' wirelocation.pk %}">{{wirelocation.date}}</a></td>
+        <td>{{wirelocation.wireid}}</td>
+        <td>{{wirelocation.location}}</td>
+        <td>{{wirelocation.winch}}</td>
+        <td>{{wirelocation.enteredby}}</td>
+        <td>{{wirelocation.notes}}</td>
+        <td>
+            <button class='btn'
+                    hx-confirm='Are you sure?'
+                    hx-target="closest tr"
+                    hx-swap="outerHTML swap:1s"
+                    hx-delete="{% url 'wirelocationdelete' wirelocation.pk %}">
+                Delete
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<script>
+    $(document).ready(function () {
+        // Initialize DataTables
+        $('#table').DataTable({
+            responsive: true,
+            scrollX: true,
+            order: [[0, "desc"]]
+            // Add more options as needed
+        });
+
+        // Initialize tooltips (assuming you're using Bootstrap tooltips)
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#wirelocationadd').click(function () {
+            window.location.href = "{% url 'wirelocationadd' %}";
+        });
+    });
+</script>
+{% endblock content %}

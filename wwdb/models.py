@@ -565,6 +565,13 @@ class Wire(models.Model):
         return d
 
     @property
+    def active_location(self):
+        if not self.active_wire_location:
+            return None
+        d=self.active_wire_location.location
+        return d
+
+    @property
     def active_winch(self):
         if not self.active_wire_location:
             return None
@@ -585,7 +592,7 @@ class Wire(models.Model):
 
     @property 
     def active_length(self):
-        if not self.active_wire_cutback:
+        if not self.active_wire_cutback or not self.dryendtag or not self.wetend:
             return None
         dryend=self.dryendtag
         wetend=self.active_wire_cutback.wetendtag

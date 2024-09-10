@@ -605,6 +605,106 @@ def safeworkingtensions_file(request):
 Maintenance
 """
 
+def wirelocationlist(request):
+    wirelocations = WireLocation.objects.all()
+    
+    context = {
+        'wirelocations': wirelocations,
+        }
+
+    return render(request, 'wwdb/inventories/wirelocationlist.html', context=context)
+
+def wirelocationadd(request):
+    context ={}
+    form = WireLocationForm(request.POST or None)
+    if request.method == "POST":
+        form = WireLocationForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/wirelocationlist')
+    else:
+        form = WireLocationForm 
+        if 'submitted' in request.GET:
+            submitted = True
+            return render(request, 'wwdb/inventories/wirelocationadd.html', {'form':form, 'submitted':submitted, 'id':id})
+ 
+    context['form']= form
+
+    return render(request, "wwdb/inventories/wirelocationadd.html", context)
+
+def wirelocationedit(request, id):
+    context ={}
+    obj = WireLocation.objects.get(id=id)
+    if request.method == 'POST':
+        form = WireLocationForm(request.POST, instance = obj)
+        if form.is_valid():
+            form.save()
+            obj.save()
+            return HttpResponseRedirect('/wwdb/inventories/wirelocationlist')
+    else:
+        form = WireLocationForm(instance = obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/%i/wirelocationedit' % obj.pk)
+
+    context["form"] = form
+    return render(request, "wwdb/inventories/wirelocationedit.html", context)
+
+def wirelocationdelete(request, id):
+    wirelocation = WireLocation.objects.get(pk=id)
+    wirelocation.delete()
+    return HttpResponse()
+
+def locationlist(request):
+    locations = Location.objects.all()
+    
+    context = {
+        'locations': locations,
+        }
+
+    return render(request, 'wwdb/inventories/locationlist.html', context=context)
+
+def locationadd(request):
+    context ={}
+    form = LocationForm(request.POST or None)
+    if request.method == "POST":
+        form = LocationForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/locationlist')
+    else:
+        form = LocationForm 
+        if 'submitted' in request.GET:
+            submitted = True
+            return render(request, 'wwdb/inventories/locationadd.html', {'form':form, 'submitted':submitted, 'id':id})
+ 
+    context['form']= form
+
+    return render(request, "wwdb/inventories/locationadd.html", context)
+
+def locationedit(request, id):
+    context ={}
+    obj = Location.objects.get(id=id)
+    if request.method == 'POST':
+        form = LocationForm(request.POST, instance = obj)
+        if form.is_valid():
+            form.save()
+            obj.save()
+            return HttpResponseRedirect('/wwdb/inventories/locationlist')
+    else:
+        form = LocationForm(instance = obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/wwdb/inventories/%i/locationedit' % obj.pk)
+
+    context["form"] = form
+    return render(request, "wwdb/inventories/locationedit.html", context)
+
+def locationdelete(request, id):
+    location = Location.objects.get(pk=id)
+    location.delete()
+    return HttpResponse()
+
 def wirelist(request):
     wires_in_use = Wire.objects.filter(status=True)
     wires_in_storage = Wire.objects.filter(status=False)

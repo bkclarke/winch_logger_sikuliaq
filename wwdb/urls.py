@@ -86,6 +86,14 @@ urlpatterns = [
     path('inventories/wireropedata/<int:id>/edit/', views.wireropedataedit, name='wireropedataedit'),
     path('inventories/wireropedataadd/', views.wireropedataadd, name='wireropedataadd'),
     path('inventories/<int:id>/wireropedatadelete', views.wireropedatadelete, name='wireropedatadelete'),
+    path('inventories/wirelocationadd/', views.wirelocationadd, name='wirelocationadd'),
+    path('inventories/wirelocation/<int:id>/edit/', views.wirelocationedit, name='wirelocationedit'),
+    path('inventories/<int:id>/wirelocationdelete', views.wirelocationdelete, name='wirelocationdelete'),
+    path('inventories/wirelocationlist/', views.wirelocationlist, name='wirelocationlist'),
+    path('inventories/locationadd/', views.locationadd, name='locationadd'),
+    path('inventories/location/<int:id>/edit/', views.locationedit, name='locationedit'),
+    path('inventories/<int:id>/locationdelete', views.locationdelete, name='locationdelete'),
+    path('inventories/locationlist/', views.locationlist, name='locationlist'),
 
 
 

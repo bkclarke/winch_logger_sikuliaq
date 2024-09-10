@@ -1,0 +1,54 @@
+<!--template/locationlist.html-->
+<!DOCTYPE html>
+{% extends "wwdb/base.html" %}
+
+
+{% block content %}
+<h2>Locations</h2>
+</br>
+<button id="locationadd" class="btn btn-outline-wwdb">Add a location</button>
+</br>
+</br>
+<table id="table" class="display nowrap">
+    <thead>
+        <tr>
+            <th>Location</th>
+        </tr>
+    </thead>
+    {% for location in locations %}
+    <tr>
+        <td><a href="{% url 'location' wire.pk %}">{{location.location}}</a></td>
+        <td>
+            <button class='btn'
+                    hx-confirm='Are you sure?'
+                    hx-target="closest tr"
+                    hx-swap="outerHTML swap:1s"
+                    hx-delete="{% url 'locationdelete' location.pk %}">
+                Delete
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<script>
+    $(document).ready(function () {
+        // Initialize DataTables
+        $('#table').DataTable({
+            responsive: true,
+            scrollX: true,
+            order: [[0, "desc"]]
+            // Add more options as needed
+        });
+
+        // Initialize tooltips (assuming you're using Bootstrap tooltips)
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#locationadd').click(function () {
+            window.location.href = "{% url 'locationadd' %}";
+        });
+    });
+</script>
+{% endblock content %}

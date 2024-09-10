@@ -9,6 +9,9 @@
 <button id="wireadd" class="btn btn-outline-wwdb">Add tension member</button>
 </br>
 </br>
+<button id="wirelocationlist" class="btn btn-outline-wwdb">Edit location of wires</button>
+</br>
+</br>
 <table id="table" class="display nowrap">
     <thead>
         <tr>
@@ -20,6 +23,7 @@
             <th>Nominal Breaking Load</th>
             <th>Tested Breaking Load</th>
             <th>Absolute Breaking Load</th>
+            <th>Location</th>
             <th>Winch</th>
             <th> </th>
         </tr>
@@ -34,6 +38,7 @@
         <td>{{wire.nominal_breaking_load}}</td>
         <td>{{wire.tested_breaking_load}}</td>
         <td>{{wire.absolute_breaking_load}}</td>
+        <td>{{wire.active_location}}</td>
         <td>{{wire.active_winch}}</td>
         <td>
             <button class='btn'
@@ -65,6 +70,13 @@
     $(document).ready(function () {
         $('#wireadd').click(function () {
             window.location.href = "{% url 'wireadd' %}";
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#wirelocationlist').click(function () {
+            window.location.href = "{% url 'wirelocationlist' %}";
         });
     });
 </script>
