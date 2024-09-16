@@ -4,12 +4,9 @@
 
 
 <html>
-<h1>Form configuration</h1>
-<h3>Add a cruise to summarize casts by cruise dates in cruise reports.</h3>
-<h3>To select what appear on the dropdowns in the cast form, only set active operators, winches, or deployments to status=True</h3>
-<h3></h3>
 
 {% block content %}
+<h1>Configuration</h1>
 <div class="container mt-5 mb-5">
     <div class="container">
         <!-- Nav tabs -->
@@ -109,7 +106,7 @@
             </div>
             <div class="tab-pane container fade" id="wires">
                 <div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                    <h1>Safe working tensions</h1>
+                    <h1>Factors of Safety</h1>
                     </br>
                     <div id="query_result"
                          hx-target="this"
