@@ -924,6 +924,8 @@ def winchtableedit(request, winch_pk):
     context['form'] = WinchTableForm(initial={
         'name':winch.name,
         'status': winch.status,
+        'ship':winch.ship,
+        'institution':winch.institution,
     })
     return render(request, 'wwdb/configuration/winchtableedit.html', context)
 

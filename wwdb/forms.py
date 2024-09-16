@@ -574,13 +574,13 @@ class WinchTableForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "style": "max-width: 450px; align: center;",
-                    "placeholder": "name",
+                    "placeholder": "ship",
                 }),
             "institution": forms.TextInput(
                 attrs={
                     "class": "form-control",
                     "style": "max-width: 450px; align: center;",
-                    "placeholder": "name",
+                    "placeholder": "institution",
                 }),
         }
 
