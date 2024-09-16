@@ -592,13 +592,18 @@ class Wire(models.Model):
 
     @property 
     def active_length(self):
-        if not self.active_wire_cutback or not self.dryendtag or not self.wetend:
-            return None
-        dryend=self.dryendtag
-        wetend=self.active_wire_cutback.wetendtag
-        length=(wetend-dryend)
-        abslength=abs(length)
-        return abslength
+        if not self.active_wire_cutback:
+           return None
+        elif not self.dryendtag:
+           return None
+        elif not self.wetend:
+           return None
+        else:
+            dryend=self.dryendtag
+            wetend=self.active_wire_cutback.wetendtag
+            length=(wetend-dryend)
+            abslength=abs(length)
+            return abslength
 
     @property
     def active_break_test(self):
