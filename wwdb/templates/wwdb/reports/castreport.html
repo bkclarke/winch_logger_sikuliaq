@@ -146,20 +146,6 @@
 </script>
 <script>
     $(document).ready(function () {
-        // Initialize DataTables
-        $('#table1').DataTable({
-            responsive: true,
-            scrollX: true,
-            order: [[0, "desc"]]
-            // Add more options as needed
-        });
-
-        // Initialize tooltips (assuming you're using Bootstrap tooltips)
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-</script>
-<script>
-    $(document).ready(function () {
         $('#castmanualenter').click(function () {
             window.location.href = "{% url 'castmanualenter' %}";
         });
