@@ -131,8 +131,8 @@ class Cast(models.Model):
 
     @property
     def active_wire(self):
-        if self.winch:
-            d=self.winch.active_wire.wireid
+        if self.winch and self.winch.active_wire:
+            d=self.winch.active_wire
         return d
     
     @property
@@ -155,9 +155,10 @@ class Cast(models.Model):
 
     @property
     def format_startdate(self):
-        date=self.startdate
-        formatdate=date.strftime("%Y-%m-%d, %H:%M:%S")
-        return formatdate
+        if self.startdate:
+            date=self.startdate
+            formatdate=date.strftime("%Y-%m-%d, %H:%M:%S")
+            return formatdate
 
     @property
     def format_timemaxtension(self):
@@ -479,8 +480,13 @@ class Winch(models.Model):
 
     @property
     def active_wire(self):
-        d=self.wirelocation_set.order_by('date').last()
-        return d
+        lastlocation=self.wirelocation_set.order_by('date').last()
+        lastwire=lastlocation.active_wire
+        active_wire_winch=lastwire.active_winch
+        if active_wire_winch == self:
+            return lastwire
+        else:
+            return None
         
 
 class WinchOperator(models.Model):
