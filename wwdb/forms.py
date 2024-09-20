@@ -74,6 +74,41 @@ class ManualCastForm(ModelForm):
             'enddate': DateTimePickerInput()
             }
 
+class StartEndCastForm(ModelForm):
+    flagforreview = forms.BooleanField(required=False)
+    wirerinse = forms.BooleanField(required=False)
+    deploymenttype = forms.ModelChoiceField(DeploymentType.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+    winch = forms.ModelChoiceField(Winch.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+    startoperator = forms.ModelChoiceField(WinchOperator.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+    endoperator = forms.ModelChoiceField(WinchOperator.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Cast
+        fields = [
+            'startoperator',
+            'endoperator',
+            'startdate',
+            'enddate',
+            'deploymenttype',
+            'winch',
+            'wire',
+            'notes',
+            'maxtension',
+            'maxpayout',
+        ]
+
+        widgets = {
+            "notes": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Notes",
+                }
+            ),
+            'startdate': DateTimePickerInput(), 
+            'enddate': DateTimePickerInput()
+            }
+
 class EndCastForm(ModelForm):
     flagforreview = forms.BooleanField(required=False)
     wirerinse = forms.BooleanField(required=False)

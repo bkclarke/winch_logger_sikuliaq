@@ -74,6 +74,36 @@ def caststart(request):
 
     return render(request, "wwdb/casts/caststart.html", context)
 
+def caststartend(request):
+    form = StartEndCastForm(request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            cast = form.save()
+            cast.refresh_from_db()
+            cast.get_active_wire()
+            cast.endcastcal()
+            cast.get_active_length()
+            cast.get_active_safeworkingtension()
+            cast.get_active_factorofsafety()
+            cast.save()
+            cast.refresh_from_db()
+            cast.get_cast_duration()
+            cast.save()
+            return HttpResponseRedirect('/wwdb/reports/castreport')  # This should redirect to the cast report
+        else:
+            print(form.errors)
+
+    # No need to redefine form if it's already defined
+    submitted = 'submitted' in request.GET
+
+    context = {
+        'form': form,
+        'submitted': submitted,
+    }
+
+    return render(request, "wwdb/casts/caststartend.html", context)
+
 def castlist(request):
     cast_complete = Cast.objects.filter(maxpayout__isnull=False, maxtension__isnull=False) 
     cast_flag = Cast.objects.filter((Q(flagforreview=True) | Q(maxpayout__isnull=True) | Q(maxtension__isnull=True)))

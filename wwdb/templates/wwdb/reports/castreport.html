@@ -4,6 +4,7 @@
 
 {% block content %}
 <button id="castmanualenter" class="btn btn-outline-wwdb">Manually enter cast</button>
+<button id="caststartend" class="btn btn-outline-wwdb">Enter Past Cast</button>
 <img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use only if payout and tension need to be manually entered">
 </br>
 </br>
@@ -148,6 +149,13 @@
     $(document).ready(function () {
         $('#castmanualenter').click(function () {
             window.location.href = "{% url 'castmanualenter' %}";
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#caststartend').click(function () {
+            window.location.href = "{% url 'caststartend' %}";
         });
     });
 </script>
