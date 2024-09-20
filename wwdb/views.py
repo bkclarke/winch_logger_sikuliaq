@@ -36,7 +36,9 @@ def logout_view(request):
 
 def home(request):
     template = loader.get_template('wwdb/home.html')
-    context = {}
+    context = {
+        'template_name': 'home.html'
+        }
     return HttpResponse(template.render(context, request))
 
 """
