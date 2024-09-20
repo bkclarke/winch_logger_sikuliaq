@@ -596,8 +596,6 @@ class Wire(models.Model):
            return None
         elif not self.dryendtag:
            return None
-        elif not self.wetend:
-           return None
         else:
             dryend=self.dryendtag
             wetend=self.active_wire_cutback.wetendtag
