@@ -1411,8 +1411,8 @@ def cutbackreterminationadd(request):
         if form.is_valid():
             form.save()
             obj=CutbackRetermination.objects.last()
-            obj.submit_length()
             obj.submit_dry_end_tag()
+            obj.submit_length()
             obj.save()
             return HttpResponseRedirect("/wwdb/maintenance/cutbackreterminationlist")
     else:

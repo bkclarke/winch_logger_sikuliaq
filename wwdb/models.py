@@ -326,7 +326,8 @@ class CutbackRetermination(models.Model):
         return formatdate
 
     def submit_length(self):
-        if not self.wire_dry_end_tag and self.wetendtag:
+        if not self.wire_dry_end_tag and not self.wetendtag:
+            print(self.wire_dry_end_tag, self.wetendtag)
             return
         else:
             dryendlength=self.wire_dry_end_tag
@@ -336,18 +337,15 @@ class CutbackRetermination(models.Model):
             return
 
     def submit_dry_end_tag(self):
-        if not self.wire_dry_end_tag:
-            return
-        else:
-            dryendtag=self.wire_dry_end_tag
-            self.dryendtag=dryendtag
-            return
+        dryendtag=self.wire_dry_end_tag
+        self.dryendtag=dryendtag
+        return
 
     def edit_length(self):
-        if not self.dryendtag and self.wetendtag:
+        if not self.wire_dry_end_tag and self.wetendtag:
             return
         else:
-            dryendlength=self.dryendtag
+            dryendlength=self.wire_dry_end_tag
             wetendlength=self.wetendtag
             length=wetendlength-dryendlength
             self.lengthaftercutback=abs(int(length))
@@ -600,15 +598,16 @@ class Wire(models.Model):
     def active_length(self):
         if not self.active_wire_cutback:
            return None
-        elif not self.dryendtag:
-           return None
         else:
-            dryend=self.dryendtag
-            wetend=self.active_wire_cutback.wetendtag
-            length=(wetend-dryend)
-            abslength=abs(length)
-            return abslength
-
+            if self.dryendtag is not None:
+                dryend=self.dryendtag
+                wetend=self.active_wire_cutback.wetendtag
+                length=(wetend-dryend)
+                abslength=abs(length)
+                print(abslength)
+                return abslength
+            else:
+                None
     @property
     def active_break_test(self):
         b=self.wire_break_test.order_by('date').last()
