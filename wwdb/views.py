@@ -90,7 +90,7 @@ def charts(request):
         winch = Winch.objects.last()  # Handle case when no winch is provided
         winch = winch.id if winch else None
 
-    winch_obj = Winch.objects.filter(id=winch).first()
+    winch_obj = Winch.objects.filter(id=winch.id).first()
     winch = winch_obj.name if winch_obj else None
 
     print(f"Start Date: {start_date}, End Date: {end_date}, Winch: {winch}")
