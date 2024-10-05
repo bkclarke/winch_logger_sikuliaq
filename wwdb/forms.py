@@ -843,16 +843,12 @@ class LocationForm(ModelForm):
         }
 
 class DataFilterForm(forms.Form):
-    start_date = forms.DateField(
-        input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(attrs={'type': 'date'})
+    start_date = forms.DateTimeField(
+        input_formats=['%Y-%m-%d %H:%M:%S'],  # Adjust as necessary
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
     )
-    end_date = forms.DateField(
-        input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(attrs={'type': 'date'})
+    end_date = forms.DateTimeField(
+        input_formats=['%Y-%m-%d %H:%M:%S'],  # Adjust as necessary
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
     )
-    winch = forms.ChoiceField(choices=[])
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['winch'].choices = [(winch.id, winch.name) for winch in Winch.objects.all()]
+    winch = forms.ModelChoiceField(queryset=Winch.objects.all())
