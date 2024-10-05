@@ -107,6 +107,13 @@ def charts(request):
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
+    # Recreate the form with cleaned data to preserve the input
+    form = DataFilterForm(initial={
+        'start_date': start_date,
+        'end_date': end_date - timedelta(days=1),  # Adjust for the +1 day offset
+        'winch': winch
+    })
+
     return render(request, 'wwdb/reports/charts.html', {
         'form': form,
         'data_json_tension': data_json_tension,
