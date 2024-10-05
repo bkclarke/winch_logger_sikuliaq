@@ -32,10 +32,11 @@ import json
 logger = logging.getLogger(__name__)
 
 def get_data_from_external_db(start_date, end_date, winch):
-    print(start_date, end_date, winch)
+    print("Fetching data from external DB...")  # Added context to the print statement
 
     try:
-        conn_str = mysql.connector.connect(host='127.0.0.1',
+        conn = mysql.connector.connect(
+            host='127.0.0.1',
             user='root',
             password='b1uz00!!2SQ',
             database='winch_data'
@@ -45,15 +46,17 @@ def get_data_from_external_db(start_date, end_date, winch):
             SELECT date_time, tension_load_cell, payout
             FROM {winch}
             WHERE date_time BETWEEN '{start_date}' AND '{end_date}'
-            """
+        """
 
-        with pyodbc.connect(conn_str) as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                rows = cursor.fetchall()
+        cursor = conn.cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()  # Close connection properly
 
         if len(rows) > 1000:
-            print(rows)
+            print("Data rows fetched:", rows)
             binned_data = {}
             for row in rows:
                 dt = row[0]
@@ -62,60 +65,53 @@ def get_data_from_external_db(start_date, end_date, winch):
                 else:
                     binned_data[dt]['max_tension'] = max(binned_data[dt]['max_tension'], row[1])
                     binned_data[dt]['max_payout'] = max(binned_data[dt]['max_payout'], row[2])
-            rows = sorted(binned_data.items())
+            return sorted(binned_data.items())
         else:
-            print(rows)
-            # For the non-binned case, directly use rows as is.
-            rows = [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
-
-        return rows
-    except:
-        None
+            print("Data rows fetched (less than 1000):", rows)
+            return [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
+    
+    except Exception as e:
+        print(f"Error fetching data: {e}")  # Print error for debugging
+        return []
 
 def charts(request):
     form = DataFilterForm(request.GET or None)
     data_tension = []
     data_payout = []
-    print('start_date')
-
-    
-    if not form.is_valid():
-        print('form is not valid')
-        end_date_initial = datetime.utcnow().date()
-        end_date = end_date_initial + timedelta(days=1)
-        start_date = end_date_initial - timedelta(days=1)
-    else:
-        print('form is valid')
-        start_date = form.cleaned_data['start_date']
-        end_date = form.cleaned_data['end_date']
-        end_date = end_date + timedelta(days=1)
 
     if form.is_valid():
+        start_date = form.cleaned_data['start_date']
+        end_date = form.cleaned_data['end_date'] + timedelta(days=1)
         winch = form.cleaned_data['winch']
-        print('winch')
     else:
-        winch = Winch.objects.last()  # Get the first winch or handle as appropriate
-        winch = winch.id 
+        print('Form is not valid, using default dates')
+        end_date = datetime.utcnow().date() + timedelta(days=1)
+        start_date = end_date - timedelta(days=1)
+        winch = Winch.objects.last()  # Handle case when no winch is provided
+        winch = winch.id if winch else None
 
     winch_obj = Winch.objects.filter(id=winch).first()
-    if winch_obj:
-        winch = winch_obj.name
+    winch = winch_obj.name if winch_obj else None
 
-    print(start_date, end_date, winch)
+    print(f"Start Date: {start_date}, End Date: {end_date}, Winch: {winch}")
     data_points = get_data_from_external_db(start_date, end_date, winch)
-    
-    print(data_points)
+
+    print("Data points retrieved:", data_points)
 
     if data_points:
         for dt, values in data_points:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_tension']})
             data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_payout']})
+
     # Serialize the data to JSON
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
-    return render(request, 'wwdb/reports/charts.html', {'form': form, 'data_json_tension': data_json_tension, 'data_json_payout': data_json_payout })
-
+    return render(request, 'wwdb/reports/charts.html', {
+        'form': form,
+        'data_json_tension': data_json_tension,
+        'data_json_payout': data_json_payout
+    })
 
 def logout_view(request):
     logout(request)
