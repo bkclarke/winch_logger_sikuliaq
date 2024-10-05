@@ -25,10 +25,97 @@ from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth import logout
+import json
 
 logger = logging.getLogger(__name__)
+
+def get_data_from_external_db(start_date, end_date, winch):
+    print(start_date, end_date, winch)
+
+    try:
+        conn_str = mysql.connector.connect(host='127.0.0.1',
+            user='root',
+            password='b1uz00!!2SQ',
+            database='winch_data'
+        )
+
+        query = f"""
+            SELECT date_time, tension_load_cell, payout
+            FROM {winch}
+            WHERE date_time BETWEEN '{start_date}' AND '{end_date}'
+            """
+
+        with pyodbc.connect(conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+
+        if len(rows) > 1000:
+            print(rows)
+            binned_data = {}
+            for row in rows:
+                dt = row[0]
+                if dt not in binned_data:
+                    binned_data[dt] = {'max_tension': row[1], 'max_payout': row[2]}
+                else:
+                    binned_data[dt]['max_tension'] = max(binned_data[dt]['max_tension'], row[6])
+                    binned_data[dt]['max_payout'] = max(binned_data[dt]['max_payout'], row[3])
+            rows = sorted(binned_data.items())
+        else:
+            print(rows)
+            # For the non-binned case, directly use rows as is.
+            rows = [(row[1], {'max_tension': row[6], 'max_payout': row[3]}) for row in rows]
+
+        return rows
+    except:
+        None
+
+def charts(request):
+    form = DataFilterForm(request.GET or None)
+    data_tension = []
+    data_payout = []
+    print('start_date')
+
+    
+    if not form.is_valid():
+        print('form is not valid')
+        end_date_initial = datetime.utcnow().date()
+        end_date = end_date_initial + timedelta(days=1)
+        start_date = end_date_initial - timedelta(days=1)
+    else:
+        print('form is valid')
+        start_date = form.cleaned_data['start_date']
+        end_date = form.cleaned_data['end_date']
+        end_date = end_date + timedelta(days=1)
+
+    if form.is_valid():
+        winch = form.cleaned_data['winch']
+        print('winch')
+    else:
+        winch = Winch.objects.last()  # Get the first winch or handle as appropriate
+        winch = winch.id 
+
+    winch_obj = Winch.objects.filter(id=winch).first()
+    if winch_obj:
+        winch = winch_obj.name
+
+    print(start_date, end_date, winch)
+    data_points = get_data_from_external_db(start_date, end_date, winch)
+    
+    print(data_points)
+
+    if data_points:
+        for dt, values in data_points:
+            data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_tension']})
+            data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_payout']})
+    # Serialize the data to JSON
+    data_json_tension = json.dumps(data_tension)
+    data_json_payout = json.dumps(data_payout)
+
+    return render(request, 'wwdb/reports/charts.html', {'form': form, 'data_json_tension': data_json_tension, 'data_json_payout': data_json_payout })
+
 
 def logout_view(request):
     logout(request)

@@ -125,4 +125,5 @@ urlpatterns = [
     path('<int:pk>/cruise_report_file', views.cruise_report_file, name='cruise_report_file'),
     path('reports/<int:pk>/wirereport/', views.wirereport, name='wirereport'),
     path('reports/castreport/', views.castreport, name='castreport'),
+    path('reports/charts/', charts, name='charts'),
 ]
