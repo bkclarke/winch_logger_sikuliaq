@@ -56,9 +56,9 @@ def get_data_from_external_db(start_date, end_date, winch):
             print(rows)
             binned_data = {}
             for row in rows:
-                dt = row[0]
+                dt = row[1]
                 if dt not in binned_data:
-                    binned_data[dt] = {'max_tension': row[1], 'max_payout': row[2]}
+                    binned_data[dt] = {'max_tension': row[6], 'max_payout': row[3]}
                 else:
                     binned_data[dt]['max_tension'] = max(binned_data[dt]['max_tension'], row[6])
                     binned_data[dt]['max_payout'] = max(binned_data[dt]['max_payout'], row[3])
