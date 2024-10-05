@@ -56,17 +56,17 @@ def get_data_from_external_db(start_date, end_date, winch):
             print(rows)
             binned_data = {}
             for row in rows:
-                dt = row[1]
+                dt = row[0]
                 if dt not in binned_data:
-                    binned_data[dt] = {'max_tension': row[6], 'max_payout': row[3]}
+                    binned_data[dt] = {'max_tension': row[1], 'max_payout': row[2]}
                 else:
-                    binned_data[dt]['max_tension'] = max(binned_data[dt]['max_tension'], row[6])
-                    binned_data[dt]['max_payout'] = max(binned_data[dt]['max_payout'], row[3])
+                    binned_data[dt]['max_tension'] = max(binned_data[dt]['max_tension'], row[1])
+                    binned_data[dt]['max_payout'] = max(binned_data[dt]['max_payout'], row[2])
             rows = sorted(binned_data.items())
         else:
             print(rows)
             # For the non-binned case, directly use rows as is.
-            rows = [(row[1], {'max_tension': row[6], 'max_payout': row[3]}) for row in rows]
+            rows = [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
 
         return rows
     except:
