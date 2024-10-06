@@ -630,7 +630,6 @@ class SWTTableForm(forms.ModelForm):
             'notes',
             'status',
             'ownershipstatus',
-            'factorofsafety',
             'dryendtag',
             ]
  

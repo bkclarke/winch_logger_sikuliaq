@@ -5,6 +5,9 @@
         {{ wire.active_winch }}
     </td>
     <td>
+        {{ wire.nsfid }}
+    </td>
+    <td>
         {{ form.factorofsafety }}
         {{ form.factorofsafety.errors }}
     </td>
@@ -15,14 +18,14 @@
            hx-swap="outerHTML"
            hx-include="closest tr"
            class="text-secondary">
-        Submit
-</br>
-        <a href="#"
-           hx-get="{% url 'swttableeditsubmit' wire.pk %}"
-           hx-target="closest tr"
-           hx-swap="outerHTML"
-           class="text-secondary">
-        Cancel
-        </a>
+            Submit
+            </br>
+            <a href="#"
+               hx-get="{% url 'swttableeditsubmit' wire.pk %}"
+               hx-target="closest tr"
+               hx-swap="outerHTML"
+               class="text-secondary">
+                Cancel
+            </a>
     </td>
 </tr>
