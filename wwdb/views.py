@@ -224,16 +224,14 @@ def castend(request, id):
         cast=Cast.objects.last()
         if form.is_valid():
             form.save()
-
+            if cast.enddate == None:
+                cast.endcast_get_datetime()
+            cast.save()
             cast.refresh_from_db()
             cast.endcastcal()
             cast.get_active_length()
             cast.get_active_safeworkingtension()
             cast.get_active_factorofsafety()
-            if cast.enddate == None:
-                cast.endcast_get_datetime()
-            cast.save()
-
             cast.refresh_from_db()
             cast.get_cast_duration()
             cast.save()
