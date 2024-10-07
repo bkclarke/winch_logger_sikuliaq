@@ -70,7 +70,7 @@
                 <div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                     <h1>Operators</h1>
                     </br>
-                    <button type="button" class="btn btn-outline-wwdb"
+                    <button type="button" class="btn btn-secondary btn-sm"
                             hx-get="{% url 'operatortableadd' %}"
                             hx-target="next tbody"
                             hx-swap="afterbegin">
@@ -88,7 +88,7 @@
                 <div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                     <h1>Deployments</h1>
                     </br>
-                    <button type="button" class="btn btn-outline-wwdb"
+                    <button type="button" class="btn btn-secondary btn-sm"
                             hx-get="{% url 'deploymenttableadd' %}"
                             hx-target="next tbody"
                             hx-swap="afterbegin">
@@ -106,7 +106,7 @@
                 <div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                     <h1>Winches</h1>
                     </br>
-                    <button type="button" class="btn btn-outline-wwdb"
+                    <button type="button" class="btn btn-secondary btn-sm"
                             hx-get="{% url 'winchtableadd' %}"
                             hx-target="next tbody"
                             hx-swap="afterbegin">

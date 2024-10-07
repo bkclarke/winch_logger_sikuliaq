@@ -10,13 +10,21 @@
         {{ form.status.errors }}
     </td>
     <td>
+        {{ form.ship }}
+        {{ form.ship.errors }}
+    </td>
+    <td>
+        {{ form.institution }}
+        {{ form.institution.errors }}
+    </td>
+    <td>
         <a href="#"
            hx-post="{% url 'winchtableaddsubmit' %}"
            hx-target="closest tr"
            hx-swap="outerHTML"
            hx-include="closest tr"
-           class="text-secondary">
-        Submit
+           class="btn btn-success btn-sm">
+            Submit
         </a>
     </td>
     <td>
@@ -24,8 +32,8 @@
            hx-get="{% url 'cruisetableaddcancel' %}"
            hx-target="closest tr"
            hx-swap="outerHTML"
-           class="text-secondary">
-        Cancel
+           class="btn btn-danger btn-sm">
+            Cancel
         </a>
     </td>
 </tr>

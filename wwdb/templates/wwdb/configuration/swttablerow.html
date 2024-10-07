@@ -5,7 +5,7 @@
     <td>{{ wire.nsfid }}</td>
     <td>{{ wire.factorofsafety }}</td>
     <td>
-        <button class='btn'
+        <button class='btn btn-primary btn-sm'
                 hx-get="{% url 'swttableedit' wire.pk %}"
                 hx-target="closest tr"
                 hx-swap="outerHTML">
