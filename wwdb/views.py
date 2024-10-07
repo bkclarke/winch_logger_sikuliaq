@@ -88,7 +88,6 @@ def charts(request):
         end_date = datetime.utcnow().date() + timedelta(days=1)
         start_date = end_date - timedelta(days=1)
         winch = Winch.objects.last()  # Handle case when no winch is provided
-        winch = winch.id if winch else None
 
     winch_obj = Winch.objects.filter(id=winch.id).first()
     winch = winch_obj.name if winch_obj else None
