@@ -28,6 +28,7 @@
                 <th>Edit cast<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Edit a cast and automatically calculate max payout and tension."></th>
                 <th>Manually enter payout/tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use only if payout and tension need to be manually entered"></th>
                 <th>Delete</th>
+                <th>View Plot</th>
             </tr>
         </thead>
         {% for cast in cast_flag %}
@@ -48,6 +49,11 @@
             <td><a href="{%url 'castedit' cast.pk %}">Edit</a></td>
             <td><a href="{%url 'castmanualedit' cast.pk %}">Manual edit</a></td>
             <td><a href="{%url 'castdelete' cast.pk %}">Delete</a></td>
+            <td>
+                <a href="{% url 'castplot' %}?start_date={{ cast.start_date }}&end_date={{ cast.end_date }}&winch={{ cast.winch.id }}">
+                    View Plot
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </table>
@@ -77,6 +83,7 @@
                 <th>Edit cast<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Edit a cast and automatically calculate max payout and tension."></th>
                 <th>Manually enter payout/tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use only if payout and tension need to be manually entered"></th>
                 <th>Delete</th>
+                <th>View Plot</th>
             </tr>
         </thead>
         {% for cast in cast_complete %}
@@ -97,6 +104,11 @@
             <td><a href="{%url 'castedit' cast.pk %}">Edit</a></td>
             <td><a href="{%url 'castmanualedit' cast.pk %}">Manual edit</a></td>
             <td><a href="{%url 'castdelete' cast.pk %}">Delete</a></td>
+            <td>
+                <a href="{% url 'castplot' %}?start_date={{ cast.start_date }}&end_date={{ cast.end_date }}&winch={{ cast.winch.id }}">
+                    View Plot
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </table>
