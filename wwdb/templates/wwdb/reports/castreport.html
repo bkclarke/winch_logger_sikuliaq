@@ -55,7 +55,7 @@
         <td><a href="{%url 'castmanualedit' cast.pk %}">Manual edit</a></td>
         <td><a href="{%url 'castdelete' cast.pk %}">Delete</a></td>
         <td>
-            <a href="{% url 'charts' %}?start_date={{ cast.start_date }}&end_date={{ cast.end_date }}&winch={{ cast.winch.id }}">
+            <a href="{% url 'charts' %}?start_date={{ cast.format_startdate_url }}&end_date={{ cast.format_enddate_url }}&winch={{ cast.winch.id }}">
                 View Plot
             </a>
         </td>
@@ -134,7 +134,7 @@
         <td><a href="{%url 'castmanualedit' cast.pk %}">Manual edit</a></td>
         <td><a href="{%url 'castdelete' cast.pk %}">Delete</a></td>
         <td>
-            <a href="{% url 'charts' %}?start_date={{ cast.startdate }}&end_date={{ cast.enddate }}&winch={{ cast.winch.id }}">
+            <a href="{% url 'charts' %}?start_date={{ cast.format_startdate_url }}&end_date={{ cast.format_enddate_url }}&winch={{ cast.winch.id }}">
                 View Plot
             </a>
         </td>

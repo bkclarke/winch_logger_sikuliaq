@@ -75,28 +75,40 @@ def get_data_from_external_db(start_date, end_date, winch):
         return []
 
 def charts(request):
-    form = DataFilterForm(request.GET or None)
+    # Default values for filtering
+    start_date = request.GET.get('start_date')
+    print(start_date)
+    end_date = request.GET.get('end_date')
+    print(end_date)
+    winch_id = request.GET.get('winch')
+    print(winch_id)
+
+    # Initialize empty data lists
     data_tension = []
     data_payout = []
 
-    if form.is_valid():
-        start_date = form.cleaned_data['start_date']
-        end_date = form.cleaned_data['end_date'] + timedelta(days=1)
-        winch = form.cleaned_data['winch']
+    # Validate and parse the dates and winch
+    if start_date and end_date and winch_id:
+        print('attempting to parse:', start_date, end_date, winch_id)
+        try:
+            # Convert the string dates to date objects
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date() + timedelta(days=1)
+            winch = Winch.objects.get(id=winch_id)  # Fetch the winch object
+        except (ValueError, Winch.DoesNotExist):
+            # Handle parsing errors or winch not found
+            start_date = end_date = None
+            winch = None
     else:
-        print('Form is not valid, using default dates')
+        # Set default values if parameters are missing
         end_date = datetime.utcnow().date() + timedelta(days=1)
         start_date = end_date - timedelta(days=1)
-        winch = Winch.objects.last()  # Handle case when no winch is provided
+        winch = Winch.objects.last()  # Default to the last winch if none provided
 
-    winch_obj = Winch.objects.filter(id=winch.id).first()
-    winch = winch_obj.name if winch_obj else None
-
-    print(f"Start Date: {start_date}, End Date: {end_date}, Winch: {winch}")
+    # Fetch data using the retrieved parameters
     data_points = get_data_from_external_db(start_date, end_date, winch)
 
-    print("Data points retrieved:", data_points)
-
+    # Process the data points
     if data_points:
         for dt, values in data_points:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_tension']})
@@ -106,17 +118,12 @@ def charts(request):
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
-    if not form.is_valid():
-        # Keep the user's input in case the form is invalid
-        start_date_initial = request.GET.get('start_date', start_date)
-        end_date_initial = request.GET.get('end_date', end_date - timedelta(days=1))
-        winch_initial = request.GET.get('winch', winch)
-
-        form = DataFilterForm(initial={
-            'start_date': start_date_initial,
-            'end_date': end_date_initial,
-            'winch': winch_initial
-        })
+    # Create an instance of the form with the initial values for rendering
+    form = DataFilterForm(initial={
+        'start_date': start_date,
+        'end_date': end_date - timedelta(days=1) if end_date else None,
+        'winch': winch,
+    })
 
     return render(request, 'wwdb/reports/charts.html', {
         'form': form,
