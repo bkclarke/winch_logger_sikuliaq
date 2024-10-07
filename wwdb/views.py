@@ -230,6 +230,9 @@ def castend(request, id):
             obj.get_active_wire()
             obj.endcastcal()
             obj.get_cast_duration()
+            obj.get_active_length()
+            obj.get_active_safeworkingtension()
+            obj.get_active_factorofsafety()
             obj.save()
 
             return HttpResponseRedirect("/wwdb/casts/%i/castenddetail" % obj.pk)
