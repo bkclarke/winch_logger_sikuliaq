@@ -337,14 +337,14 @@ def cruiseconfigurehome(request):
     deployments = DeploymentType.objects.all()
     active_wire = Wire.objects.filter(status=True)
     winches = Winch.objects.all()
-    cruise = Cruise.objects.all()
+    cruises = Cruise.objects.all()
 
     context = {
         'operators': operators,
         'deployments': deployments,
         'active_wire': active_wire,
         'winches': winches,
-        'cruise' : cruise,
+        'cruises' : cruises,
        }
 
     return render(request, 'wwdb/configuration/cruiseconfiguration.html', context=context)
@@ -1579,22 +1579,19 @@ def cruisetableeditsubmit(request, cruise_pk):
     return render(request, 'wwdb/configuration/cruisetablerow.html', context)
 
 def cruiseedit(request, id):
-    context ={}
-    obj = get_object_or_404(Cruise, id = id)
+    obj = get_object_or_404(Cruise, id=id)
 
     if request.method == 'POST':
-        form = EditCruiseForm(request.POST, instance = obj)
+        form = EditCruiseForm(request.POST, instance=obj)
         if form.is_valid():
             form.save()
-            cruiseid=Cruise.objects.get(id=id)
-            return HttpResponseRedirect("/wwdb/configuration/cruiseconfiguration")
+            return redirect('/wwdb/configuration/cruiseconfiguration')  
     else:
-        form = EditCruiseForm(instance = obj)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect("/wwdb/configuration/cruise/%i/edit" % cruiseid.pk)
+        form = EditCruiseForm(instance=obj)
 
-    context["form"] = form
+    context = {
+        "form": form
+    }
     return render(request, "wwdb/configuration/cruiseedit.html", context)
 
 def cruiseadd(request):

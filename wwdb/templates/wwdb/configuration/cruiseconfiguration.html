@@ -32,23 +32,24 @@
         <div class="tab-content">
             </br>
             <div class="tab-pane container fade show active" id="cruise">
-                <div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                    <h1>Cruises</h1>
-                    </br>
-                    <button type="button" class="btn btn-outline-wwdb"
-                            hx-get="{% url 'cruisetableadd' %}"
-                            hx-target="next tbody"
-                            hx-swap="afterbegin">
-                        Add cruise
-                    </button>
-                    <div id="query_result"
-                         hx-target="this"
-                         hx-swap="innerHTML"
-                         hx-get="{% url 'cruisetablelistget' %}"
-                         hx-trigger="load delay:0.5s">
-                    </div>
-                </div>
-                <div id="table-content" hx-get="{% url 'cruisetablelistget' %}"></div>
+                <h1>Cruises</h1>
+                <br />
+                <table id="table" class="display nowrap" style="width:100%">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Cruise number</th>
+                            <th>Start date</th>
+                            <th>End date</th>
+                        </tr>
+                    </thead>
+                    {% for cruise in cruises %}
+                    <tr>
+                        <td><a class="edit-link" href="{% url 'cruiseedit' cruise.pk %}">{{ cruise.number }}</a></td>
+                        <td>{{cruise.format_startdate}}</td>
+                        <td>{{cruise.format_enddate}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
             </div>
             <div class="tab-pane container fade" id="operators">
                 <div hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
@@ -122,8 +123,11 @@
 <script>
     $(document).ready(function () {
         $('#cruise a').on('click', function (e) {
-            e.preventDefault();
-            $(this).tab('show');
+            // Check if the clicked element is a link to edit
+            if (!$(this).hasClass('edit-link')) {
+                e.preventDefault();
+                $(this).tab('show');
+            }
         });
 
         // Trigger the click on the active tab on page load
