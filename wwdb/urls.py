@@ -23,6 +23,7 @@ urlpatterns = [
 
     #URLS related to configuration
     path('configuration/cruiseadd/', views.cruiseadd, name='cruiseadd'),
+    path('configuration/<int:pk>/delete/', CruiseDelete.as_view(), name='cruisedelete'),
     path('configuration/cruise/<int:id>/edit/', views.cruiseedit, name='cruiseedit'),
     path('configuration/cruiseconfiguration/', views.cruiseconfigurehome, name='cruiseconfigurehome'),
     path('configuration/cruisetablelistget', cruisetablelistget, name='cruisetablelistget'),

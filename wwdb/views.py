@@ -1612,3 +1612,7 @@ def cruiseadd(request):
 
     return render(request, 'wwdb/configuration/cruiseadd.html', context)
 
+class CruiseDelete(DeleteView):
+    model = Cruise
+    template_name="wwdb/cruiseconfiguration/cruisedelete.html"
+    success_url= reverse_lazy('cruiseconfigurehome')

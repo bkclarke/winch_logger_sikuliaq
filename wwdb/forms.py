@@ -355,7 +355,15 @@ class CruiseAddForm(ModelForm):
             'enddate',
         ]
 
-        widgets = {'startdate': DatePickerInput(
+        widgets = {
+                    "number": forms.TextInput(
+                    attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%; align: center;",
+                    "placeholder": "Cruise number",
+                        }
+                    ),
+                    'startdate': DatePickerInput(
                     options={
                     "format": "YYYY-MM-DD"}
                     ),
