@@ -10,12 +10,12 @@
 <form method="get">
     <div>
         <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" value="{{ form.start_date.value|default_if_none:'' }}" required>
+        <input type="date" id="start_date" name="start_date" value="{{ form.start_date.value|date:'Y-m-d'|default_if_none:'' }}" required>
     </div>
 
     <div>
         <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" value="{{ form.end_date.value|default_if_none:'' }}" required>
+        <input type="date" id="end_date" name="end_date" value="{{ form.end_date.value|date:'Y-m-d'|default_if_none:'' }}" required>
     </div>
     {{ form.winch }}
     <button type="submit">Filter Data</button>
