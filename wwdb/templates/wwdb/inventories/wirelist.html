@@ -15,6 +15,7 @@
 <table id="table" class="display nowrap">
     <thead>
         <tr>
+            <th>Edit</th>
             <th>NSF-ID</th>
             <th>Wire Type</th>
             <th>Dry End Tag</th>
@@ -33,6 +34,7 @@
         <td>
             <a href="{% url 'wireedit' wire.pk %}" class="btn btn-primary btn-sm">Edit</a>
         </td>
+        <td>{{wire.nsfid}}</td>
         <td>{{wire.wirerope}}</td>
         <td>{{wire.dryendtag}}</td>
         <td>{{wire.active_wetendtag}}</td>
