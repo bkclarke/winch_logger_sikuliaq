@@ -1441,6 +1441,11 @@ BREAKTESTS
 Classes related to create, update, view Breaktest model
 """
 
+class BreaktestDelete(DeleteView):
+    model = Breaktest
+    template_name="wwdb/maintenance/breaktestdelete.html"
+    success_url= reverse_lazy('breaktestlist')
+
 def breaktestlist(request):
     break_test = Breaktest.objects.order_by('-date')
 
@@ -1492,10 +1497,7 @@ def breaktestedit(request, id):
     context["form"] = form
     return render(request, "wwdb/maintenance/breaktestedit.html", context)
 
-class BreaktestDelete(DeleteView):
-    model = Breaktest
-    template_name="wwdb/maintenance/breaktestdelete.html"
-    success_url= reverse_lazy('breaktestlist')
+
 """
 LUBRICATION
 Classes related to create, update, view Lubrication model
