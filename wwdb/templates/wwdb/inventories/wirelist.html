@@ -6,10 +6,10 @@
 {% block content %}
 <h2>Tension member inventory</h2>
 </br>
-<button id="wireadd" class="btn btn-outline-wwdb">Add tension member</button>
+<button id="wireadd" class="btn btn-secondary btn-sm">Add tension member</button>
 </br>
 </br>
-<button id="wirelocationlist" class="btn btn-outline-wwdb">Edit location of wires</button>
+<button id="wirelocationlist" class="btn btn-primary btn-sm">Edit location of wires</button>
 </br>
 </br>
 <table id="table" class="display nowrap">
@@ -25,12 +25,14 @@
             <th>Absolute Breaking Load</th>
             <th>Location</th>
             <th>Winch</th>
-            <th> </th>
+            <th>Delete</th>
         </tr>
     </thead>
     {% for wire in wires %}
     <tr>
-        <td><a href="{% url 'wireedit' wire.pk %}">{{wire.nsfid}}</a></td>
+        <td>
+            <a href="{% url 'wireedit' wire.pk %}" class="btn btn-primary btn-sm">Edit</a>
+        </td>
         <td>{{wire.wirerope}}</td>
         <td>{{wire.dryendtag}}</td>
         <td>{{wire.active_wetendtag}}</td>
@@ -41,13 +43,7 @@
         <td>{{wire.active_location}}</td>
         <td>{{wire.active_winch}}</td>
         <td>
-            <button class='btn'
-                    hx-confirm='Are you sure?'
-                    hx-target="closest tr"
-                    hx-swap="outerHTML swap:1s"
-                    hx-delete="{% url 'wiredelete' wire.pk %}">
-                Delete
-            </button>
+            <a href="{% url 'wiredelete' wire.pk %}" class="btn btn-danger btn-sm">Delete</a>
         </td>
     </tr>
     {% endfor %}
@@ -58,7 +54,7 @@
         $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
+            order: [[1, "desc"]]
             // Add more options as needed
         });
 

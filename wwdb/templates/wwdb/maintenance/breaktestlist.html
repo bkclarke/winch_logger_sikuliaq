@@ -6,24 +6,32 @@
 {% block content %}
 <h2>Breaktests</h2>
 </br>
-<button id="breaktestadd" class="btn btn-outline-wwdb">Add breaktest</button>
+<button id="breaktestadd" class="btn btn-secondary btn-sm">Add breaktest</button>
 </br>
 </br>
 <table id="table" class="display nowrap" style="width:100%">
     <thead>
         <tr>
+            <th>Edit</th>
             <th>Date</th>
             <th>Wire</th>
             <th>Tested Breaking Load</th>
             <th>Notes</th>
+            <th>Delete</th>
         </tr>
     </thead>
     {% for breaktest in break_test %}
     <tr>
-        <td><a href="{% url 'breaktestedit' breaktest.pk %}">{{breaktest.format_date}}</a></td>
+        <td>
+            <a href="{% url 'breaktestedit' breaktest.pk %}" class="btn btn-primary btn-sm">Edit</a>
+        </td>
+        <td>{{breaktest.format_date}}</td>
         <td>{{breaktest.wire}}</td>
         <td>{{breaktest.testedbreakingload}}</td>
         <td>{{breaktest.notes}}</td>
+        <td>
+            <a href="{% url 'breaktestdelete' breaktest.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this breaktest?');">Delete</a>
+        </td>
     </tr>
     {% endfor %}
 </table>
@@ -33,7 +41,7 @@
         $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
+            order: [[1, "desc"]]
             // Add more options as needed
         });
 

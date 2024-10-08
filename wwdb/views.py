@@ -1491,6 +1491,11 @@ def breaktestedit(request, id):
 
     context["form"] = form
     return render(request, "wwdb/maintenance/breaktestedit.html", context)
+
+class BreaktestDelete(DeleteView):
+    model = Breaktest
+    template_name="wwdb/maintenance/breaktestdelete.html"
+    success_url= reverse_lazy('breaktestlist')
 """
 LUBRICATION
 Classes related to create, update, view Lubrication model
@@ -1619,6 +1624,11 @@ def cutbackreterminationadd(request):
 
     return render(request, 'wwdb/maintenance/cutbackreterminationadd.html', context)
 
+
+class CutbackreterminationDelete(DeleteView):
+    model = CutbackRetermination
+    template_name="wwdb/maintenance/cutbackreterminationdelete.html"
+    success_url= reverse_lazy('cutbackreterminationlist')
 
 """
 Cruises

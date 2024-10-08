@@ -1,42 +1,40 @@
-<!--template/wireropedatalist.html-->
+<!--template/breaktestlist.html-->
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
 
 
 {% block content %}
-<h2>Tension member metadata</h2>
+<h2>Wire Types</h2>
 </br>
-<button id="wireropedataadd" class="btn btn-outline-wwdb">Add tension member type</button>
+<button id="wireropedataadd" class="btn btn-secondary btn-sm">Add wire type</button>
 </br>
 </br>
 <table id="table" class="display nowrap" style="width:100%">
     <thead>
         <tr>
+            <th>Edit</th>
             <th>Name</th>
             <th>Manufacturer</th>
             <th>Manufacturer part number</th>
             <th>Cable type</th>
             <th>Nominal breaking load</th>
             <th>Weight per foot</th>
-            <th> </th>
+            <th>Delete</th>
         </tr>
     </thead>
     {% for wire in wireropes %}
     <tr>
-        <td><a href="{% url 'wireropedataedit' wire.pk %}">{{wire.name}}</a></td>
+        <td>
+            <a href="{% url 'wireropedataedit' wire.pk %}" class="btn btn-primary btn-sm">Edit</a>
+        </td>
+        <td>{{wire.name}}</td>
         <td>{{wire.manufacturer}}</td>
         <td>{{wire.manufacturerpartnumber}}</td>
         <td>{{wire.cabletype}}</td>
         <td>{{wire.nominalbreakingload}}</td>
         <td>{{wire.weightperfoot}}</td>
         <td>
-            <button class='btn'
-                    hx-confirm='Are you sure?'
-                    hx-target="closest tr"
-                    hx-swap="outerHTML swap:1s"
-                    hx-delete="{% url 'wireropedatadelete' wire.pk %}">
-                Delete
-            </button>
+            <a href="{% url 'wireropedatadelete' wire.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this wire type?');">Delete</a>
         </td>
     </tr>
     {% endfor %}
@@ -47,7 +45,7 @@
         $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
+            order: [[1, "desc"]]
             // Add more options as needed
         });
 
@@ -62,4 +60,7 @@
         });
     });
 </script>
-{% endblock content %}
+</br>
+</br>
+
+{% endblock %}

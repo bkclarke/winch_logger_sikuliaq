@@ -6,7 +6,7 @@
 {% block content %}
 <h2>Lubrications</h2>
 </br>
-<button id="lubricationadd" class="btn btn-outline-wwdb">Add Lubrication</button>
+<button id="lubricationadd" class="btn btn-secondary btn-sm">Add Lubrication</button>
 </br>
 </br>
 <table id="table" class="display nowrap" style="width:100%">
@@ -31,7 +31,9 @@
         <td>{{lubrication.lubestartmetermark}}</td>
         <td>{{lubrication.lubeendmetermark}}</td>
         <td>{{lubrication.notes}}</td>
-        <td><a href="{%url 'lubricationdelete' lubrication.pk %}">Delete</a></td>
+        <td>
+            <a href="{% url 'lubricationdelete' lubrication.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this lubrication?');">Delete</a>
+        </td>
     </tr>
     {% endfor %}
 </table>
@@ -41,7 +43,7 @@
         $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
+            order: [[1, "desc"]]
             // Add more options as needed
         });
 
