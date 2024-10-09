@@ -2,28 +2,91 @@
 {% extends "wwdb/base.html" %}
 
 {% block content %}
-<header>
-    <h1>Cast ended successfully</h1>
-</header>
+</br>
+</br>
+<a href="{% url 'charts' %}?start_date={{ cast.format_startdate_url }}&end_date={{ cast.format_enddate_url }}&winch={{ cast.winch.id }}" class="btn btn-warning btn-lg btn-block">View Plot</a>
+</br>
+</br>
 <div class="cast-entry">
-    <p>Wire: {{cast.wire}}</p>
-    <p>Start cast operator: {{cast.startoperator}}</p>
-    <p>End cast opertor: {{cast.endoperator}}</p>
-    <p>Start date: {{cast.startdate}}</p>
-    <p>End date: {{cast.enddate}}</p>
-    <p>Deployment type: {{cast.deploymenttype}}</p>
-    <p>Winch: {{cast.winch}}</p>
-    <p>Notes: {{cast.notes}}</p>
-    <p>Max tension: {{cast.maxtension}}</p>
-    <p>Max payout: {{cast.maxpayout}}</p>
-    <p>Payout at maxtension: {{cast.payoutmaxtension}}</p>
-    <p>Time at maxtension: {{cast.timemaxtension}}</p>
-    <p>Meter at maxtension: {{cast.metermaxtension}}</p>
-    <p>Dry end tag: {{cast.dryendtag}}</p>
-    <p>Wet end tag: {{cast.wetendtag}}</p>
-    <p>Wire length: {{cast.wirelength}}</p>
-    <p>Wire rinse: {{cast.wirerinse}}</p>
-    <p>Factor of safety: {{cast.factorofsafety}}</p>
-    <p>Safe working tension: {{cast.safeworkingtension}}</p>
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <td>Wire</td>
+                <td>{{ cast.wire }}</td>
+            </tr>
+            <tr>
+                <td>Start Cast Operator</td>
+                <td>{{ cast.startoperator }}</td>
+            </tr>
+            <tr>
+                <td>End Cast Operator</td>
+                <td>{{ cast.endoperator }}</td>
+            </tr>
+            <tr>
+                <td>Start Date</td>
+                <td>{{ cast.startdate }}</td>
+            </tr>
+            <tr>
+                <td>End Date</td>
+                <td>{{ cast.enddate }}</td>
+            </tr>
+            <tr>
+                <td>Deployment Type</td>
+                <td>{{ cast.deploymenttype }}</td>
+            </tr>
+            <tr>
+                <td>Winch</td>
+                <td>{{ cast.winch }}</td>
+            </tr>
+            <tr>
+                <td>Notes</td>
+                <td>{{ cast.notes }}</td>
+            </tr>
+            <tr>
+                <td>Max Tension</td>
+                <td>{{ cast.maxtension }}</td>
+            </tr>
+            <tr>
+                <td>Max Payout</td>
+                <td>{{ cast.maxpayout }}</td>
+            </tr>
+            <tr>
+                <td>Payout at Max Tension</td>
+                <td>{{ cast.payoutmaxtension }}</td>
+            </tr>
+            <tr>
+                <td>Time at Max Tension</td>
+                <td>{{ cast.timemaxtension }}</td>
+            </tr>
+            <tr>
+                <td>Meter at Max Tension</td>
+                <td>{{ cast.metermaxtension }}</td>
+            </tr>
+            <tr>
+                <td>Dry End Tag</td>
+                <td>{{ cast.dryendtag }}</td>
+            </tr>
+            <tr>
+                <td>Wet End Tag</td>
+                <td>{{ cast.wetendtag }}</td>
+            </tr>
+            <tr>
+                <td>Wire Length</td>
+                <td>{{ cast.wirelength }}</td>
+            </tr>
+            <tr>
+                <td>Wire Rinse</td>
+                <td>{{ cast.wirerinse }}</td>
+            </tr>
+            <tr>
+                <td>Factor of Safety</td>
+                <td>{{ cast.factorofsafety }}</td>
+            </tr>
+            <tr>
+                <td>Safe Working Tension</td>
+                <td>{{ cast.safeworkingtension }}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 {% endblock content %}
