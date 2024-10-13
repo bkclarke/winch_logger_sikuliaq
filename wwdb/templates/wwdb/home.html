@@ -7,10 +7,12 @@
     body {
         margin: 0;
         padding: 0;
+        overflow: hidden; /* Prevent vertical scrolling */
+        height: 100vh; /* Full viewport height */
+        width: 100vw; /* Full viewport width */
         background-image: url("/static/img/home_background.jpg");
-        background-size: cover;
-        background-position: center;
-        height: 100vh;
+        background-size: cover; /* Cover the entire screen */
+        background-position: bottom right; /* Center the image */
         position: relative;
     }
 </style>

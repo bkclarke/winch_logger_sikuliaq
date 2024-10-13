@@ -62,7 +62,7 @@
         {% endif %}
     </div>
     {% endif %}
-    <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar {% if template_name == 'home.html' %}fixed-top{% else %}sticky-top{% endif %} navbar-expand-lg navbar-light bg-light">
         <a href="{% url 'home' %}">
             <img src='/static/img/wire_logo.png' alt="Logo" class="logo" />
         </a>
@@ -115,8 +115,35 @@
         </br>
         </br>
     </div>
-    <nav class="navbar fixed-bottom navbar-expand-sm navbar-light">
+    <nav class="navbar fixed-bottom navbar-expand-sm navbar-light" style="background-color: rgba(255, 255, 255, 0.75);">
+        <div class="menu-right">
+            <ul class="navbar-nav login-control">
+                <div class="nav-item-bottom">
+                    </li>
+                    {% if user.is_authenticated %}
+                    <span>
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <a class="btn-link-wwdb" href="{% url 'logout' %}">Log out</a>
+                        </button>
+                    </span>
+                    {% else %}
+                    <span>
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <a class="btn-link-wwdb" href="{% url 'login' %}">Log in</a>
+                        </button>
+                    </span>
+                    <span>
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <a class="btn-link-wwdb" href="{% url 'signup' %}">Sign up</a>
+                        </button>
+                    </span>
+                    {% endif %}
+                    </li>
+                </div>
+            </ul>
+        </div>
     </nav>
+
 </body>
 </html>
 <script>
@@ -132,7 +159,6 @@
             window.location.href = "{% url 'caststart' %}";
         });
     });
-
 </script>
 
 

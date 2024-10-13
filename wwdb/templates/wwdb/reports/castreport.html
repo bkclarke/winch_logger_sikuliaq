@@ -62,7 +62,7 @@
             <a href="{% url 'castmanualedit' cast.pk %}" class="btn btn-secondary btn-sm">Manual Edit</a>
         </td>
         <td>
-            <a href="{% url 'castdelete' cast.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this cast?');">Delete</a>
+            <a href="{% url 'castdelete' cast.pk %}" class="btn btn-danger btn-sm delete-button" data-cast-id="{{ cast.pk }}">Delete</a>
         </td>
     </tr>
     {% endfor %}
@@ -361,6 +361,19 @@
                 document.body.removeChild(link);
             } else {
                 alert('DataTable is not initialized.');
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('.delete-button').click(function (event) {
+            // Check if the user is a superuser
+            const isSuperUser = '{{ user.is_superuser|yesno:"true,false" }}' === 'true';
+
+            if (!isSuperUser) {
+                event.preventDefault(); // Prevent the default action (link click)
+                alert('You must be logged in as an admin to delete this cast.');
             }
         });
     });
