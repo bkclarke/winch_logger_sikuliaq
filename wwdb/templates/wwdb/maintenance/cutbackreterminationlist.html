@@ -33,7 +33,7 @@
         <td>{{cutbackretermination.lengthaftercutback}}</td>
         <td>{{cutbackretermination.notes}}</td>
         <td>
-            <a href="{% url 'cutbackreterminationdelete' cutbackretermination.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this cutback?');">Delete</a>
+            <a href="{% url 'cutbackreterminationdelete' cutbackretermination.pk %}" class="btn btn-danger btn-sm delete-button">Delete</a>
         </td>
     </tr>
     {% endfor %}
@@ -56,6 +56,19 @@
     $(document).ready(function () {
         $('#cutbackreterminationadd').click(function () {
             window.location.href = "{% url 'cutbackreterminationadd' %}";
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('.delete-button').click(function (event) {
+            // Check if the user is a superuser
+            const isSuperUser = '{{ user.is_superuser|yesno:"true,false" }}' === 'true';
+
+            if (!isSuperUser) {
+                event.preventDefault(); // Prevent the default action (link click)
+                alert('You must be logged in as an admin to delete this cutback.');
+            }
         });
     });
 </script>

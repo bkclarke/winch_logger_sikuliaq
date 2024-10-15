@@ -122,20 +122,16 @@
                     </li>
                     {% if user.is_authenticated %}
                     <span>
-                        <button type="button" class="btn btn-secondary btn-sm">
-                            <a class="btn-link-wwdb" href="{% url 'logout' %}">Log out</a>
-                        </button>
+                        <button id="logout" class="btn btn-secondary btn-sm">Log out</button>
                     </span>
                     {% else %}
                     <span>
-                        <button type="button" class="btn btn-secondary btn-sm">
-                            <a class="btn-link-wwdb" href="{% url 'login' %}">Log in</a>
-                        </button>
+                        <button id="login" class="btn btn-secondary btn-sm">log in</button>
                     </span>
                     <span>
-                        <button type="button" class="btn btn-secondary btn-sm">
-                            <a class="btn-link-wwdb" href="{% url 'signup' %}">Sign up</a>
-                        </button>
+                        <span>
+                            <button id="signup" class="btn btn-secondary btn-sm">Sign up</button>
+                        </span>
                     </span>
                     {% endif %}
                     </li>
@@ -157,6 +153,27 @@
     $(document).ready(function () {
         $('#endcast').click(function () {
             window.location.href = "{% url 'caststart' %}";
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#login').click(function () {
+            window.location.href = "{% url 'login' %}";
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#signup').click(function () {
+            window.location.href = "{% url 'signup' %}";
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#logout').click(function () {
+            window.location.href = "{% url 'logout' %}";
         });
     });
 </script>

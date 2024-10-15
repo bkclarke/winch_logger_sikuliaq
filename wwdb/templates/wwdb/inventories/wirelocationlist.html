@@ -5,12 +5,13 @@
 {% block content %}
 <h2>Wire location changes</h2>
 </br>
-<button id="wirelocationadd" class="btn btn-outline-wwdb">Add wire location change</button>
+<button id="wirelocationadd" class="btn btn-secondary btn-sm">Add wire location change</button>
 </br>
 </br>
 <table id="table" class="display nowrap" style="width:100%">
     <thead>
         <tr>
+            <th>Edit</th>
             <th>Date</th>
             <th>NSF-id</th>
             <th>location</th>
@@ -22,15 +23,17 @@
     </thead>
     {% for wirelocation in wirelocations %}
     <tr>
-        <td><a href="{% url 'wirelocationedit' wirelocation.pk %}">{{wirelocation.date}}</a></td>
+        <td>
+            <a href="{% url 'wirelocationedit' wirelocation.pk %}" class="btn btn-primary btn-sm">Edit</a>
+        </td>
+        <td>{{wirelocation.date}}</td>
         <td>{{wirelocation.wireid}}</td>
         <td>{{wirelocation.location}}</td>
         <td>{{wirelocation.winch}}</td>
         <td>{{wirelocation.enteredby}}</td>
         <td>{{wirelocation.notes}}</td>
         <td>
-            <button class='btn'
-                    hx-confirm='Are you sure?'
+            <button class="btn btn-danger btn-sm delete-button"
                     hx-target="closest tr"
                     hx-swap="outerHTML swap:1s"
                     hx-delete="{% url 'wirelocationdelete' wirelocation.pk %}">
@@ -46,7 +49,7 @@
         $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
+            order: [[1, "desc"]]
             // Add more options as needed
         });
 
@@ -61,4 +64,18 @@
         });
     });
 </script>
-{% endblock content %}
+<script>
+    $(document).ready(function () {
+        $('.delete-button').click(function (event) {
+            // Check if the user is a superuser
+            const isSuperUser = '{{ user.is_superuser|yesno:"true,false" }}' === 'true';
+
+            if (!isSuperUser) {
+                event.preventDefault(); // Prevent the default action (link click)
+                alert('You must be logged in as an admin to delete this movement.');
+            }
+        });
+    });
+</script>
+{% endblock %}
+

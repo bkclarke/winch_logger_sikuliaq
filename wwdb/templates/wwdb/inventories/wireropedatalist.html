@@ -34,7 +34,7 @@
         <td>{{wire.nominalbreakingload}}</td>
         <td>{{wire.weightperfoot}}</td>
         <td>
-            <a href="{% url 'wireropedatadelete' wire.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this wire type?');">Delete</a>
+            <a href="{% url 'wireropedatadelete' wire.pk %}" class="btn btn-danger btn-sm delete-button">Delete</a>
         </td>
     </tr>
     {% endfor %}
@@ -60,7 +60,17 @@
         });
     });
 </script>
-</br>
-</br>
+<script>
+    $(document).ready(function () {
+        $('.delete-button').click(function (event) {
+            // Check if the user is a superuser
+            const isSuperUser = '{{ user.is_superuser|yesno:"true,false" }}' === 'true';
 
+            if (!isSuperUser) {
+                event.preventDefault(); // Prevent the default action (link click)
+                alert('You must be logged in as an admin to delete this wire type.');
+            }
+        });
+    });
+</script>
 {% endblock %}

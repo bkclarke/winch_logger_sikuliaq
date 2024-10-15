@@ -42,12 +42,10 @@
     border-radius: 5px;
     cursor: pointer;
     font-size: 84px;
-    opacity: 0.6;
 }
 
     .home-btn-startcast:hover {
         background-color: #ffd800;
-        opacity: 1;
     }
 
 .home-left-container {

@@ -14,8 +14,8 @@
         </button>
     </td>
     <td>
-        <button class='btn btn-danger btn-sm'
-                hx-confirm='Are you sure?'
+        <button class='btn btn-danger btn-sm delete-button'
+                hx-confirm="{% if user.is_superuser %}Are you sure? Winches cannot be deleted if they have logged casts in the database{% else %}You must be logged in as an admin to delete.{% endif %}"                
                 hx-target="closest tr"
                 hx-swap="outerHTML swap:1s"
                 hx-delete="{% url 'winchtabledelete' winch.pk %}">

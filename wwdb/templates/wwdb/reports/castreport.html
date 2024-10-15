@@ -150,7 +150,7 @@
             <a href="{% url 'castmanualedit' cast.pk %}" class="btn btn-secondary btn-sm">Manual Edit</a>
         </td>
         <td>
-            <a href="{% url 'castdelete' cast.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this cast?');">Delete</a>
+            <a href="{% url 'castdelete' cast.pk %}" class="btn btn-danger btn-sm delete-button" data-cast-id="{{ cast.pk }}">Delete</a>
         </td>
     </tr>
     {% endfor %}
