@@ -40,8 +40,9 @@
         }
 
         .log-box {
+            max-width: 600px; /* Set a maximum width for the log box */
             width: 100%;
-            height: 50px; /* Set height for scrolling */
+            height: 150px; /* Set height for scrolling */
             overflow-y: scroll; /* Enable vertical scrolling */
             border: 1px solid #ddd; /* Add border */
             padding: 10px; /* Add padding */
@@ -74,7 +75,6 @@
                 <td>
                     <div class="log-box">
                         <pre>{{ service.logs }}</pre>
-                        WTF!
                     </div>
                 </td>
             </tr>
@@ -84,3 +84,15 @@
 </body>
 {% endblock content %}
 </html>
+<script>
+    // Function to scroll the log box to the bottom
+    function scrollToBottom() {
+        const logBoxes = document.querySelectorAll('.log-box');
+        logBoxes.forEach(logBox => {
+            logBox.scrollTop = logBox.scrollHeight; // Scroll to the bottom
+        });
+    }
+
+    // Call the function after the page is fully loaded
+    window.onload = scrollToBottom;
+</script>
