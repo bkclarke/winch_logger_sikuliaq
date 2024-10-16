@@ -81,18 +81,19 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <script>
+        // Function to scroll the log box to the bottom
+        function scrollToBottom() {
+            const logBoxes = document.querySelectorAll('.log-box');
+            logBoxes.forEach(logBox => {
+                logBox.scrollTop = logBox.scrollHeight; // Scroll to the bottom
+            });
+        }
+
+        // Call the function after the page is fully loaded
+        window.onload = scrollToBottom;
+    </script>
 </body>
 {% endblock content %}
 </html>
-<script>
-    // Function to scroll the log box to the bottom
-    function scrollToBottom() {
-        const logBoxes = document.querySelectorAll('.log-box');
-        logBoxes.forEach(logBox => {
-            logBox.scrollTop = logBox.scrollHeight; // Scroll to the bottom
-        });
-    }
-
-    // Call the function after the page is fully loaded
-    window.onload = scrollToBottom;
-</script>
