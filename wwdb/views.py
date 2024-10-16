@@ -28,6 +28,8 @@ import io
 from datetime import datetime, timedelta
 from django.contrib.auth import logout
 import json
+import subprocess
+
 
 logger = logging.getLogger(__name__)
 
@@ -1725,3 +1727,65 @@ class CruiseDelete(DeleteView):
     model = Cruise
     template_name="wwdb/cruiseconfiguration/cruisedelete.html"
     success_url= reverse_lazy('cruiseconfigurehome')
+
+#For Lunix systems
+
+def check_service_status(service_name):
+    try:
+        # Check the status of the service using systemctl
+        result = subprocess.run(['systemctl', 'is-active', service_name], capture_output=True, text=True)
+        return result.stdout.strip() == "active"
+    except Exception:
+        return False
+
+def get_service_logs(service_name):
+    try:
+        # Get the last 50 lines of logs for the given service
+        result = subprocess.run(
+            ['journalctl', '-u', service_name, '--no-pager', '-n', '50'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout
+    except subprocess.CalledProcessError:
+        return "Error fetching logs."
+
+def servicestatus(request):
+    services = ['mysql', 'nginx', 'gunicorn', 'listen_write.service']  # Add your service names here
+    service_data = []
+
+    for service_name in services:
+        is_active = check_service_status(service_name)
+        service_logs = get_service_logs(service_name)
+        service_data.append({
+            'name': service_name,
+            'is_active': is_active,
+            'logs': service_logs,
+        })
+
+    context = {
+        'service_data': service_data,
+    }
+    return render(request, 'wwdb/reports/servicestatus.html', context)
+"""
+import win32serviceutil
+
+def check_service_status(service_name):
+    try:
+        # Get the status of the service
+        status = win32serviceutil.QueryServiceStatus(service_name)[1]
+        # Service status codes: 1 = SERVICE_STOPPED, 2 = SERVICE_START_PENDING, 3 = SERVICE_STOP_PENDING, 4 = SERVICE_RUNNING
+        return status == 4  # Check if the service is running
+    except Exception as e:
+        return False
+
+def servicestatus(request):
+    service_name = 'MySQL80'  # Change this to your service name
+    is_active = check_service_status(service_name)
+    context = {
+        'service_name': service_name,
+        'is_active': is_active,
+    }
+    return render(request, 'wwdb/reports/servicestatus.html', context)
+"""
