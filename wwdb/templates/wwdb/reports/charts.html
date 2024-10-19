@@ -2,12 +2,11 @@
 {% extends "wwdb/base.html" %}
 {% load static %}
 
-
 {% block content %}
 
 <h1>Winch Plots</h1>
 </br>
-<form method="get">
+<form method="get" id="dateRangeForm">
     <div>
         <label for="start_date">Start Date:</label>
         <input type="date" id="start_date" name="start_date" value="{{ form.start_date.value|date:'Y-m-d'|default_if_none:'' }}" required>
@@ -25,8 +24,8 @@
 </br>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        var startDateInput = document.getElementById('id_start_date');
-        var endDateInput = document.getElementById('id_end_date');
+        var startDateInput = document.getElementById('start_date');
+        var endDateInput = document.getElementById('end_date');
 
         var currentDate = new Date();
         var currentDateString = currentDate.toISOString().split('T')[0];
@@ -37,6 +36,31 @@
         if (startDateInput && endDateInput) {
             startDateInput.value = oneDayAgoString;
             endDateInput.value = currentDateString;
+
+            // Set max date for the end date to be the current date
+            endDateInput.setAttribute('max', currentDateString);
+            // Set the min date for the end date based on the start date
+            startDateInput.addEventListener('change', function () {
+                var startDate = new Date(startDateInput.value);
+                var endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 14); // 2 weeks later
+                endDateInput.setAttribute('min', startDateInput.value);
+                endDateInput.setAttribute('max', endDate.toISOString().split('T')[0]);
+                endDateInput.value = ''; // Reset end date
+            });
+
+            endDateInput.addEventListener('change', function () {
+                validateDateRange();
+            });
+        }
+
+        function validateDateRange() {
+            var startDate = new Date(startDateInput.value);
+            var endDate = new Date(endDateInput.value);
+            if (startDate >= endDate) {
+                alert('Start date must be before end date.');
+                endDateInput.value = ''; // Reset end date
+            }
         }
 
         try {
@@ -128,16 +152,15 @@
                                 style: {
                                     color: 'red'
                                 },
-                                align: 'left', // Horizontally aligned to the left of the line
-                                verticalAlign: 'bottom', // Vertically aligned in the middle
-                                x: 10, // Horizontal offset from the line
-                                y: -20, // Vertical offset from the line
-                                rotation: 0 // Horizontal text
+                                align: 'left',
+                                verticalAlign: 'bottom',
+                                x: 10,
+                                y: -20,
+                                rotation: 0
                             }
                         }]
                     });
                 } else {
-                    // If no data is visible, remove the plot line
                     xAxis.update({
                         plotLines: []
                     });
