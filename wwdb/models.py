@@ -268,11 +268,11 @@ class Cast(models.Model):
             else:
                 logging.error("either wetend or dryend values not found for", self.get_active_wire)
 
-            self.maxtension=castmaxtension
-            self.maxpayout=castmaxpayout
-            self.payoutmaxtension=castpayoutmaxtension
-            self.timemaxtension=casttimemaxtension
-            self.metermaxtension=castmetermaxtension
+                self.maxtension=None
+                self.maxpayout=None
+                self.payoutmaxtension=None
+                self.timemaxtension=None
+                self.metermaxtension=None
 
         except Exception as e:
             logging.error("Not able to establish connection with the database. Error: %s", e)
