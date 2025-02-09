@@ -217,6 +217,8 @@ class Cast(models.Model):
 
     def endcastcal(self):
         winch=(self.winch.name)
+        wetend=int(self.wet_end_tag)
+        dryend=int(self.dry_end_tag)
         try:
             conn = mysql.connector.connect(host='127.0.0.1',
                 user='root',
@@ -235,47 +237,30 @@ class Cast(models.Model):
                 logging.debug("DataFrame shape: %s", df.shape)
     
                 # Ensure max() operations are working correctly (in case of NaN values)
-                if not df['tension_load_cell'].isnull().all():
-                    castmaxtensiondf = df[df.tension_load_cell == df.tension_load_cell.max()]
-                    castmaxtension = castmaxtensiondf['tension_load_cell'].max()
-                    castmaxpayout = df['payout'].max()
-                    castpayoutmaxtension = castmaxtensiondf['payout'].max()
-                    casttimemaxtension = castmaxtensiondf['date_time'].max()
+                castmaxtensiondf = df[df.tension_load_cell == df.tension_load_cell.max()]
+                castmaxtension = castmaxtensiondf['tension_load_cell'].max()
+                castmaxpayout = df['payout'].max()
+                castpayoutmaxtension = castmaxtensiondf['payout'].max()
+                casttimemaxtension = castmaxtensiondf['date_time'].max()
+
+                if wetend>dryend:
+                    length=int(wetend)-int(castpayoutmaxtension)
+                    castmetermaxtension=length
                 else:
-                    logging.error("The 'tension_load_cell' column contains only NaN values.")
-                    castmaxtension = None
-                    castmaxpayout = None
-                    castpayoutmaxtension = None
-                    casttimemaxtension = None
+                    length=int(wetend)+int(castpayoutmaxtension)
+                    castmetermaxtension=length
+
+                self.maxtension=castmaxtension
+                self.maxpayout=castmaxpayout
+                self.payoutmaxtension=castpayoutmaxtension
+                self.timemaxtension=casttimemaxtension
+                self.metermaxtension=castmetermaxtension
+
             else:
                 logging.error("No data was found for the timeframe entered. Start: %s, End: %s", startcal, endcal)
-    
-                castmaxtension = None
-                castmaxpayout = None
-                castpayoutmaxtension = None
-                casttimemaxtension = None
 
             conn.close()
 
-            if castpayoutmaxtension:
-                if castpayoutmaxtension<0:
-                    payout=0
-                else:
-                    payout=castpayoutmaxtension
-            else:
-                payout=None
-
-            if self.wet_end_tag and self.dry_end_tag:
-                wetend=int(self.wet_end_tag)
-                dryend=int(self.dry_end_tag)
-                if wetend>dryend:
-                    length=int(wetend)-int(payout)
-                    castmetermaxtension=length
-                else:
-                    length=int(wetend)+int(payout)
-                    castmetermaxtension=length
-                self.wetendtag=wetend
-                self.dryendtag=dryend
             else:
                 logging.error("either wetend or dryend values not found for", self.get_active_wire)
 
