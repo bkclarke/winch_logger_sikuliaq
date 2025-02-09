@@ -231,12 +231,9 @@ class Cast(models.Model):
             endcal=str(self.enddate)
             df=pd.read_sql_query("SELECT * FROM " + winch + " WHERE date_time BETWEEN '" + startcal + "' AND '" + endcal + "'", conn)
 
-            # Assuming df is populated correctly from the SQL query
             if not df.empty:
-                # Check the shape of df to verify the number of rows and columns
                 logging.debug("DataFrame shape: %s", df.shape)
     
-                # Ensure max() operations are working correctly (in case of NaN values)
                 castmaxtensiondf = df[df.tension_load_cell == df.tension_load_cell.max()]
                 castmaxtension = castmaxtensiondf['tension_load_cell'].max()
                 castmaxpayout = df['payout'].max()
@@ -251,7 +248,9 @@ class Cast(models.Model):
                     castmetermaxtension=length
 
                 self.maxtension=castmaxtension
+                logging.debug("max tension is:", castmaxtension)
                 self.maxpayout=castmaxpayout
+                logging.debug("max payout is:", castmaxpayout)
                 self.payoutmaxtension=castpayoutmaxtension
                 self.timemaxtension=casttimemaxtension
                 self.metermaxtension=castmetermaxtension
