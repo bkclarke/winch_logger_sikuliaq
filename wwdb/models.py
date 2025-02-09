@@ -229,20 +229,31 @@ class Cast(models.Model):
             endcal=str(self.enddate)
             df=pd.read_sql_query("SELECT * FROM " + winch + " WHERE date_time BETWEEN '" + startcal + "' AND '" + endcal + "'", conn)
 
+            # Assuming df is populated correctly from the SQL query
             if not df.empty:
-                castmaxtensiondf=df[df.tension_load_cell==df.tension_load_cell.max()]
-                castmaxtension=castmaxtensiondf['tension_load_cell'].max()
-                castmaxpayout=df['payout'].max()
-                castpayoutmaxtension=castmaxtensiondf['payout'].max()
-                casttimemaxtension=castmaxtensiondf['date_time'].max()
-
+                # Check the shape of df to verify the number of rows and columns
+                logging.debug("DataFrame shape: %s", df.shape)
+    
+                # Ensure max() operations are working correctly (in case of NaN values)
+                if not df['tension_load_cell'].isnull().all():
+                    castmaxtensiondf = df[df.tension_load_cell == df.tension_load_cell.max()]
+                    castmaxtension = castmaxtensiondf['tension_load_cell'].max()
+                    castmaxpayout = df['payout'].max()
+                    castpayoutmaxtension = castmaxtensiondf['payout'].max()
+                    casttimemaxtension = castmaxtensiondf['date_time'].max()
+                else:
+                    logging.error("The 'tension_load_cell' column contains only NaN values.")
+                    castmaxtension = None
+                    castmaxpayout = None
+                    castpayoutmaxtension = None
+                    casttimemaxtension = None
             else:
                 logging.error("No data was found for the timeframe entered. Start: %s, End: %s", startcal, endcal)
-
-                castmaxtension=None
-                castmaxpayout=None
-                castpayoutmaxtension=None
-                casttimemaxtension=None
+    
+                castmaxtension = None
+                castmaxpayout = None
+                castpayoutmaxtension = None
+                casttimemaxtension = None
 
             conn.close()
 
