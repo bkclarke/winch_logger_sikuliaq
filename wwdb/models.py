@@ -11,6 +11,11 @@ from pandas.core.base import NoNewAttributesMixin
 import pyodbc 
 import pandas as pd
 import mysql.connector
+import logging
+
+
+
+logging.basicConfig(filename='debug.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def validate_commas(value):
@@ -224,45 +229,57 @@ class Cast(models.Model):
             endcal=str(self.enddate)
             df=pd.read_sql_query("SELECT * FROM " + winch + " WHERE date_time BETWEEN '" + startcal + "' AND '" + endcal + "'", conn)
 
-            castmaxtensiondf=df[df.tension_load_cell==df.tension_load_cell.max()]
-            castmaxtension=castmaxtensiondf['tension_load_cell'].max()
-            castmaxpayout=df['payout'].max()
-            castpayoutmaxtension=castmaxtensiondf['payout'].max()
-            casttimemaxtension=castmaxtensiondf['date_time'].max()
+            if not df.empty:
+                castmaxtensiondf=df[df.tension_load_cell==df.tension_load_cell.max()]
+                castmaxtension=castmaxtensiondf['tension_load_cell'].max()
+                castmaxpayout=df['payout'].max()
+                castpayoutmaxtension=castmaxtensiondf['payout'].max()
+                casttimemaxtension=castmaxtensiondf['date_time'].max()
+
+            else:
+                logging.error("No data was found for the timeframe entered. Start: %s, End: %s", startcal, endcal)
+
+                castmaxtension=None
+                castmaxpayout=None
+                castpayoutmaxtension=None
+                casttimemaxtension=None
 
             conn.close()
 
-            wetend=int(self.wet_end_tag)
-            dryend=int(self.dry_end_tag)
-
-            if castpayoutmaxtension<0:
-                payout=0
+            if castpayoutmaxtension:
+                if castpayoutmaxtension<0:
+                    payout=0
+                else:
+                    payout=castpayoutmaxtension
             else:
-                payout=castpayoutmaxtension
+                payout=None
 
-            if wetend and dryend:
+            if self.wet_end_tag and self.dry_end_tag:
+                wetend=int(self.wet_end_tag)
+                dryend=int(self.dry_end_tag)
                 if wetend>dryend:
                     length=int(wetend)-int(payout)
                     castmetermaxtension=length
                 else:
                     length=int(wetend)+int(payout)
                     castmetermaxtension=length
+                self.wetendtag=wetend
+                self.dryendtag=dryend
+            else:
+                logging.error("either wetend or dryend values not found for", self.get_active_wire)
+
             self.maxtension=castmaxtension
             self.maxpayout=castmaxpayout
             self.payoutmaxtension=castpayoutmaxtension
             self.timemaxtension=casttimemaxtension
             self.metermaxtension=castmetermaxtension
-            if wetend:
-                self.wetendtag=wetend
-            if dryend:
-                self.dryendtag=dryend
 
+        except Exception as e:
+            logging.error("Not able to establish connection with the database. Error: %s", e)
 
-        except :
-            if wetend:
+            if self.wet_end_tag and self.dry_end_tag:
                 wetend=int(self.wet_end_tag)
                 self.wetendtag=wetend
-            if dryend:
                 dryend=int(self.dry_end_tag)
                 self.dryendtag=dryend
             return
