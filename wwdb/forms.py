@@ -320,6 +320,9 @@ class AddCutbackReterminationForm(ModelForm):
                 choices.append((wire.id, choice_label))
         self.fields['wire'].widget.choices = choices
 
+        # Set 'wetendtag' as a required field
+        self.fields['wetendtag'].required = True
+
 class EditCutbackReterminationForm(ModelForm):
   
     class Meta:

@@ -240,26 +240,31 @@ class Cast(models.Model):
             else:
                 payout=castpayoutmaxtension
 
-            if wetend>dryend:
-                length=int(wetend)-int(payout)
-                castmetermaxtension=length
-            else:
-                length=int(wetend)+int(payout)
-                castmetermaxtension=length
-
+            if wetend and dryend:
+                if wetend>dryend:
+                    length=int(wetend)-int(payout)
+                    castmetermaxtension=length
+                else:
+                    length=int(wetend)+int(payout)
+                    castmetermaxtension=length
             self.maxtension=castmaxtension
             self.maxpayout=castmaxpayout
             self.payoutmaxtension=castpayoutmaxtension
             self.timemaxtension=casttimemaxtension
             self.metermaxtension=castmetermaxtension
-            self.wetendtag=wetend
-            self.dryendtag=dryend
+            if wetend:
+                self.wetendtag=wetend
+            if dryend:
+                self.dryendtag=dryend
+
 
         except :
-            wetend=int(self.wet_end_tag)
-            dryend=int(self.dry_end_tag)
-            self.wetendtag=wetend
-            self.dryendtag=dryend
+            if wetend:
+                wetend=int(self.wet_end_tag)
+                self.wetendtag=wetend
+            if dryend:
+                dryend=int(self.dry_end_tag)
+                self.dryendtag=dryend
             return
 
     def startcast_get_datetime(self):
@@ -336,10 +341,11 @@ class CutbackRetermination(models.Model):
 
     @property
     def length(self):
-        dryendlength=self.wire_dry_end_tag
-        wetendlength=self.wetendtag
-        length=wetendlength-dryendlength
-        return length
+        if self.wire_dry_end_tag and self.wetendtag:
+            dryendlength=self.wire_dry_end_tag
+            wetendlength=self.wetendtag
+            length=wetendlength-dryendlength
+            return length
 
     @property
     def format_date(self):
@@ -359,9 +365,10 @@ class CutbackRetermination(models.Model):
             return
 
     def submit_dry_end_tag(self):
-        dryendtag=self.wire_dry_end_tag
-        self.dryendtag=dryendtag
-        return
+        if self.wire_dry_end_tag:
+            dryendtag=self.wire_dry_end_tag
+            self.dryendtag=dryendtag
+            return
 
     def edit_length(self):
         if not self.wire_dry_end_tag and self.wetendtag:
