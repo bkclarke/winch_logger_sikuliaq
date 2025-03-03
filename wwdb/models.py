@@ -195,6 +195,12 @@ class Cast(models.Model):
         formatdate=date.strftime("%Y-%m-%d, %H:%M:%S")
         return formatdate
 
+    @property
+    def wire_in(self):
+        if self.wirelength and self.payoutmaxtension:
+            wirein=self.wirelength-self.payoutmaxtension
+            return wirein
+
     def get_active_wire(self):
         if self.active_wire:
             self.wire=self.active_wire
