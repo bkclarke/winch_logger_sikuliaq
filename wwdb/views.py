@@ -133,9 +133,10 @@ def charts(request):
         'data_json_payout': data_json_payout
     })
 
-def logout_view(request):
-    logout(request)
-    return redirect('home')
+
+def custom_logout(request):
+    logout(request)  # Logs out the user
+    return redirect('home')  # Redirects to the homepage
 
 def home(request):
     template = loader.get_template('wwdb/home.html')
