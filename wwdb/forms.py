@@ -331,6 +331,7 @@ class EditCutbackReterminationForm(ModelForm):
         fields = [
             'date',
             'wire',
+            'wetendtag',
             'notes',
         ]
 
