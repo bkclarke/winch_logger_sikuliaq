@@ -46,40 +46,140 @@ class Breaktest(models.Model):
         return formatdate
 
 class Calibration(models.Model):
-    id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
-    appliedloadlow = models.IntegerField(db_column='AppliedLoadLow', blank=True, null=True, verbose_name='Lowest applied load')  
-    tensionlow = models.IntegerField(db_column='TensionLow', blank=True, null=True, verbose_name='Lowest tension')  
-    rawmvlow = models.FloatField(db_column='RawmVLow', blank=True, null=True, verbose_name='Lowest raw mv')  
-    appliedloadhigh = models.IntegerField(db_column='AppliedLoadHigh', blank=True, null=True, verbose_name='Highest applied load')  
-    tensionhigh = models.IntegerField(db_column='TensionHigh', blank=True, null=True, verbose_name='Highest tension')  
-    rawmvhigh = models.FloatField(db_column='RawmVHigh', blank=True, null=True, verbose_name='Highest raw mv')  
-    calibration = models.ForeignKey('CalibrationMeta', models.DO_NOTHING, db_column='CalibrationId', blank=True, null=True, verbose_name='Calibration id')  
+    id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)   
+    date = models.DateField(db_column='Date', blank=True, null=True, verbose_name='Start date')  
+    wire = models.ForeignKey('Wire', models.DO_NOTHING, db_column='WireId', blank=True, null=True, verbose_name='Wire')  
+    winch = models.ForeignKey('Winch', models.DO_NOTHING, db_column='WinchId', related_name='calibration_winch', null=True, verbose_name='Winch')  
+    notes = models.TextField(db_column='Notes', blank=True, null=True, verbose_name='Notes', validators=[validate_commas])  
+    factorofsafety = models.FloatField(db_column='FactorofSafety', blank=True, null=True, verbose_name='Factor of safety')  
+    safeworkingtension = models.FloatField(db_column='SafeWorkingTension', blank=True, null=True, verbose_name='Safe Working tension')  
+    alarmsetpoint = models.IntegerField(db_column='AlarmSetpoint', blank=True, null=True, verbose_name='Alarm setpoint')  
+    tensionmonitoringaccuracy = models.FloatField(db_column='TensionMonitoringAccuracy', blank=True, null=True, verbose_name='Tension Monitoring Accuracy')  
+    weightofgear = models.IntegerField(db_column='WeightofGear', blank=True, null=True, verbose_name='Weight of gear')  
+    calhighsetpoint = models.IntegerField(db_column='CalHighSetpoint', blank=True, null=True, verbose_name='Calibration high setpoint')  
+    callowsetpoint = models.IntegerField(db_column='CalLowSetpoint', blank=True, null=True, verbose_name='Calibration low setpoint')  
+    operator = models.TextField(db_column='Operator', blank=True, null=True, verbose_name='Operator', validators=[validate_commas])  
 
     class Meta:
         managed = True
         db_table = 'Calibration'
         verbose_name_plural = "Calibration"
 
+    @property
+    def get_active_winch(self):
+        wire=self.wire
+        winch=wire.active_winch
+        return winch
 
-class CalibrationMeta(models.Model):
+    @property
+    def get_active_fos(self):
+        wire=self.wire
+        fos=wire.factorofsafety.factorofsafety
+        return fos
+
+    @property
+    def get_abl(self):
+        wire=self.wire
+        abl=wire.absolute_breaking_load
+        return abl
+
+    @property
+    def get_swt(self):
+        fos=self.get_active_fos
+        abl=self.get_abl
+        swt=abl/fos
+        return swt
+    
+    @property
+    def get_alarm_factor(self):
+        fos=self.get_active_fos
+        if fos<2:
+            af=1.7
+        elif fos<2.5:
+            af=2.2
+        elif fos<5:
+            af=2.8
+        else:
+            af=None
+        return af
+
+    @property
+    def get_tension_monitoring_accuracy(self):
+        fos=self.get_active_fos
+        if fos<2.5:
+            tma=3
+        elif fos<5:
+            tma=4
+        else:
+            af=None
+        return tma
+
+    @property
+    def get_alarm_setpoint(self):
+        abl=self.get_abl
+        af=self.get_alarm_factor
+        alarm = (abl/af)-1
+        return alarm
+
+    @property
+    def cal_high_setpoint(self):
+        swt=self.get_swt
+        high=swt*0.97
+        return high
+
+    @property
+    def cal_low_setpoint(self):
+        swt=self.get_swt
+        low=swt*0.10
+        return low
+
+    def worksheet_calculation(self):
+        if self.wire:
+
+            self.winch=self.get_active_winch
+            self.factorofsafety=self.get_active_fos
+            self.safeworkingtension=self.get_swt
+            self.alarm_factor=self.get_alarm_factor
+            self.alarmsetpoint=self.get_alarm_setpoint
+            self.calhighsetpoint=int(self.cal_high_setpoint)
+            self.callowsetpoint=int(self.cal_low_setpoint)
+            self.tensionmonitoringaccuracy=self.get_tension_monitoring_accuracy
+
+class TensionVerification(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
-    winch = models.ForeignKey('Winch', models.DO_NOTHING, db_column='WinchId', blank=True, null=True, verbose_name='Winch')  
-    date = models.DateField(db_column='Date', blank=True, null=True, verbose_name='Date', validators=[MaxValueValidator(limit_value=date.today)])  
-    operator = models.ForeignKey('Winchoperator', models.DO_NOTHING, db_column='OperatorId', blank=True, null=True, verbose_name='Operator')  
-    wire = models.ForeignKey('Wire', models.DO_NOTHING, db_column='WireId', blank=True, null=True, verbose_name='Wire id')  
-    dynomometerid = models.ForeignKey('Dynomometer', models.DO_NOTHING, db_column='DynomometerId', blank=True, null=True, verbose_name='Dynomometer')  
-    frame = models.ForeignKey('Frame', models.DO_NOTHING, db_column='FrameId', blank=True, null=True, verbose_name='Frame')  
-    safetyfactor = models.IntegerField(db_column='SafetyFactor', blank=True, null=True, verbose_name='Factor of safety')  
-    monitoringaccuracy = models.IntegerField(db_column='MonitoringAccuracy', blank=True, null=True, verbose_name='Monitoring accuracy')  
+    appliedload = models.IntegerField(db_column='AppliedLoad', blank=True, null=True, verbose_name='Applied load')  
+    loadcelltension = models.IntegerField(db_column='LoadCellTension', blank=True, null=True, verbose_name='Load cell tension')  
+    loadcellrawmv = models.FloatField(db_column='RawmV', blank=True, null=True, verbose_name='Raw mv')  
+    calibration = models.ForeignKey('Calibration', db_column='CalibrationId', blank=True, null=True, verbose_name='Calibration id', on_delete=models.CASCADE)  
 
     class Meta:
         managed = True
-        db_table = 'CalibrationMeta'
-        verbose_name_plural = "CalibrationMeta"
+        db_table = 'TensionVerification'
+        verbose_name_plural = 'TensionVerification'
 
-    def __str__(self):
-        return str(self.date)
+class TensionCalibration(models.Model):
+    id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
+    appliedload = models.IntegerField(db_column='AppliedLoad', blank=True, null=True, verbose_name='Applied load')  
+    loadcelltension = models.IntegerField(db_column='LoadCellTension', blank=True, null=True, verbose_name='Load cell tension')  
+    loadcellrawmv = models.FloatField(db_column='RawmV', blank=True, null=True, verbose_name='Raw mv')  
+    calibration = models.ForeignKey('Calibration', db_column='CalibrationId', blank=True, null=True, verbose_name='Calibration id', on_delete=models.CASCADE)  
 
+    class Meta:
+        managed = True
+        db_table = 'TensionCalibration'
+        verbose_name_plural = 'TensionCalibration'
+
+class CalibrationVerification(models.Model):
+    id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
+    appliedload = models.IntegerField(db_column='AppliedLoad', blank=True, null=True, verbose_name='Applied load')  
+    loadcelltension = models.IntegerField(db_column='LoadCellTension', blank=True, null=True, verbose_name='Load cell tension')  
+    loadcellrawmv = models.FloatField(db_column='RawmV', blank=True, null=True, verbose_name='Raw mv')  
+    calibration = models.ForeignKey('Calibration', db_column='CalibrationId', blank=True, null=True, verbose_name='Calibration id', on_delete=models.CASCADE)  
+
+    class Meta:
+        managed = True
+        db_table = 'CalibrationVerification'
+        verbose_name_plural = 'CalibrationVerification'
 
 class Cast(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True, blank=True, null=False)  
@@ -120,14 +220,16 @@ class Cast(models.Model):
     @property
     def dry_end_tag(self):
         wire=self.wire
-        dryend=wire.dryendtag
-        return dryend
+        if wire and wire.active_dryendtag:
+            dryend=wire.dryendtag
+            return dryend
 
     @property
     def wet_end_tag(self):
-        if self.wire.active_wetendtag:
-            wetend=self.wire.active_wetendtag
-        return wetend
+        wire=self.wire
+        if wire and wire.active_wetendtag:
+            wetend=wire.active_wetendtag
+            return wetend
 
     @property
     def active_winch(self):
@@ -139,25 +241,25 @@ class Cast(models.Model):
     def active_wire(self):
         if self.winch and self.winch.active_wire:
             d=self.winch.active_wire
-        return d
+            return d
     
     @property
     def active_wire_length(self):
         if self.active_wire:
             d=self.active_wire.active_length
-        return d
+            return d
 
     @property
     def active_wire_safeworkingtension(self):
         if self.active_wire:
             d=self.active_wire.safe_working_tension
-        return d
+            return d
 
     @property
     def active_wire_factorofsafety(self):
         if self.active_wire:
             d=self.active_wire.factorofsafety 
-        return d
+            return d
 
     @property
     def format_startdate(self):
@@ -223,8 +325,10 @@ class Cast(models.Model):
 
     def endcastcal(self):
         winch=(self.winch.name)
-        wetend=int(self.wet_end_tag)
-        dryend=int(self.dry_end_tag)
+        if self.wet_end_tag:
+            wetend=int(self.wet_end_tag)
+        if self.dry_end_tag:
+            dryend=int(self.dry_end_tag)
         try:
             conn = mysql.connector.connect(host='127.0.0.1',
                 user='root',
@@ -246,12 +350,13 @@ class Cast(models.Model):
                 castpayoutmaxtension = castmaxtensiondf['payout'].max()
                 casttimemaxtension = castmaxtensiondf['date_time'].max()
 
-                if wetend>dryend:
-                    length=int(wetend)-int(castpayoutmaxtension)
-                    castmetermaxtension=length
-                else:
-                    length=int(wetend)+int(castpayoutmaxtension)
-                    castmetermaxtension=length
+                if wetend and dryend:
+                    if wetend>dryend:
+                        length=int(wetend)-int(castpayoutmaxtension)
+                        castmetermaxtension=length
+                    else:
+                        length=int(wetend)+int(castpayoutmaxtension)
+                        castmetermaxtension=length
 
                 self.maxtension=castmaxtension
                 logging.debug("max tension is:", castmaxtension)
@@ -528,13 +633,15 @@ class Winch(models.Model):
 
     @property
     def active_wire(self):
-        lastlocation=self.wirelocation_set.order_by('date').last()
-        lastwire=lastlocation.active_wire
-        active_wire_winch=lastwire.active_winch
-        if active_wire_winch == self:
-            return lastwire
-        else:
-            return None
+        if self.wirelocation_set:
+            lastlocation=self.wirelocation_set.order_by('date').last()
+            if lastlocation:
+                lastwire=lastlocation.active_wire
+                active_wire_winch=lastwire.active_winch
+                if active_wire_winch == self:
+                    return lastwire
+                else:
+                    return None
         
 
 class WinchOperator(models.Model):
@@ -634,15 +741,21 @@ class Wire(models.Model):
 
     @property 
     def active_wire_cutback(self):
-        c=self.wire_cutback_retermination.order_by('date').last()
-        return c    
+        if self.wire_cutback_retermination:
+            c=self.wire_cutback_retermination.order_by('date').last()
+            return c    
 
     @property
     def active_wetendtag(self):
-        if not self.active_wire_cutback:
-            return None
-        w=self.active_wire_cutback.wetendtag
-        return w
+        if self.active_wire_cutback:
+            w=self.active_wire_cutback.wetendtag
+            return w
+
+    @property
+    def active_dryendtag(self):
+        if self.active_wire_cutback:
+            w=self.active_wire_cutback.dryendtag
+            return w
 
     @property 
     def active_length(self):

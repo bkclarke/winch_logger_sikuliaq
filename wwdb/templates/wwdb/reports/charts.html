@@ -5,7 +5,7 @@
 {% block content %}
 
 <h1>Winch Plots</h1>
-</br>
+<br>
 <form method="get" id="dateRangeForm">
     <div>
         <label for="start_date">Start Date:</label>
@@ -20,8 +20,9 @@
     <button type="submit">Filter Data</button>
 </form>
 <div id="container" style="width: 100%; height: 400px;"></div>
-</br>
-</br>
+<br>
+<br>
+
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
         var startDateInput = document.getElementById('start_date');
@@ -37,16 +38,15 @@
             startDateInput.value = oneDayAgoString;
             endDateInput.value = currentDateString;
 
-            // Set max date for the end date to be the current date
             endDateInput.setAttribute('max', currentDateString);
-            // Set the min date for the end date based on the start date
+
             startDateInput.addEventListener('change', function () {
                 var startDate = new Date(startDateInput.value);
                 var endDate = new Date(startDate);
-                endDate.setDate(endDate.getDate() + 14); // 2 weeks later
+                endDate.setDate(endDate.getDate() + 14);
                 endDateInput.setAttribute('min', startDateInput.value);
                 endDateInput.setAttribute('max', endDate.toISOString().split('T')[0]);
-                endDateInput.value = ''; // Reset end date
+                endDateInput.value = '';
             });
 
             endDateInput.addEventListener('change', function () {
@@ -59,116 +59,174 @@
             var endDate = new Date(endDateInput.value);
             if (startDate >= endDate) {
                 alert('Start date must be before end date.');
-                endDateInput.value = ''; // Reset end date
+                endDateInput.value = '';
             }
         }
 
-        try {
-            var data_tension = JSON.parse('{{ data_json_tension|escapejs }}');
-            var data_payout = JSON.parse('{{ data_json_payout|escapejs }}');
+        var noDbConnection = {{ no_db_connection|yesno:"true,false" }};
+        var data_tension = JSON.parse('{{ data_json_tension|escapejs }}');
+        var data_payout = JSON.parse('{{ data_json_payout|escapejs }}');
 
-            var chart = Highcharts.chart('container', {
-                chart: {
-                    type: 'line',
-                    zoomType: 'x',
-                    events: {
-                        load: function() {
-                            updateMaxTensionPlotLine(this);
+        const chart = Highcharts.chart('container', {
+            chart: {
+                type: 'line',
+                zoomType: 'x',
+                events: {
+                    load: function () {
+                        if (noDbConnection) {
+                            this.customNoDataLabel = this.renderer.text(
+                                'No database connection',
+                                this.plotLeft + this.plotWidth / 2 - 100,
+                                this.plotTop + this.plotHeight / 2
+                            ).css({
+                                color: 'red',
+                                fontSize: '16px',
+                                fontWeight: 'bold'
+                            }).attr({ zIndex: 5 }).add();
+                            return;
                         }
+                        updateMaxTensionPlotLine(this);
                     }
-                },
-                title: {
-                    text: 'Tension, Payout vs. Time'
-                },
-                xAxis: {
-                    type: 'datetime',
-                    title: {
-                        text: 'Date'
-                    },
-                    events: {
-                        afterSetExtremes: function (e) {
+                }
+            },
+            title: {
+                text: 'Tension, Payout vs. Time'
+            },
+            xAxis: {
+                type: 'datetime',
+                title: { text: 'Date' },
+                events: {
+                    afterSetExtremes: function () {
+                        if (!noDbConnection) {
                             updateMaxTensionPlotLine(this.chart);
                         }
                     }
-                },
-                yAxis: [{
-                    title: {
-                        text: 'Tension lbs'
-                    },
-                    labels: {
-                        format: '{value} lbs'
-                    }
-                }, {
-                    title: {
-                        text: 'Payout (m)'
-                    },
-                    labels: {
-                        format: '{value} m'
-                    },
-                    opposite: true
-                }],
-                series: [{
-                    name: 'Tension',
-                    type: 'line',
-                    yAxis: 0,
-                    data: data_tension.map(function (point) {
-                        return [new Date(point.date).getTime(), point.value];
-                    })
-                }, {
-                    name: 'Payout',
-                    type: 'line',
-                    yAxis: 1,
-                    data: data_payout.map(function (point) {
-                        return [new Date(point.date).getTime(), point.value];
-                    })
-                }]
+                }
+            },
+            yAxis: [{
+                title: { text: 'Tension (lbs)' },
+                labels: { format: '{value} lbs' }
+            }, {
+                title: { text: 'Payout (m)' },
+                labels: { format: '{value} m' },
+                opposite: true
+            }],
+            series: [{
+                name: 'Tension',
+                yAxis: 0,
+                data: data_tension.map(p => [new Date(p.date).getTime(), p.value])
+            }, {
+                name: 'Payout',
+                yAxis: 1,
+                data: data_payout.map(p => [new Date(p.date).getTime(), p.value])
+            }, {
+                name: 'Gray area = Null data',
+                type: 'line',
+                color: 'rgba(150, 150, 150, 0.5)',
+                enableMouseTracking: false,
+                marker: { enabled: true },
+                showInLegend: true,
+                visible: true
+            }]
+        });
+
+        function updateMaxTensionPlotLine(chart) {
+            const xAxis = chart.xAxis[0];
+            const min = xAxis.min;
+            const max = xAxis.max;
+
+            const visibleTensionData = data_tension.filter(p => {
+                const time = new Date(p.date).getTime();
+                return time >= min && time <= max;
             });
 
-            function updateMaxTensionPlotLine(chart) {
-                var xAxis = chart.xAxis[0];
-                var min = xAxis.min;
-                var max = xAxis.max;
+            const nonNullTension = visibleTensionData.filter(p => p.value !== null);
 
-                var visibleTensionData = data_tension.filter(function(point) {
-                    var pointTime = new Date(point.date).getTime();
-                    return pointTime >= min && pointTime <= max;
-                });
+            if (chart.customNoDataLabel) {
+                chart.customNoDataLabel.destroy();
+                chart.customNoDataLabel = null;
+            }
 
-                if (visibleTensionData.length > 0) {
-                    var maxTensionData = visibleTensionData.reduce(function(prev, current) {
-                        return (prev.value > current.value) ? prev : current;
-                    });
+            const nullBands = [];
+            for (let i = 0; i < visibleTensionData.length; i++) {
+                const point = visibleTensionData[i];
+                if (point.value === null) {
+                    let prev = null;
+                    for (let j = i - 1; j >= 0; j--) {
+                        if (visibleTensionData[j].value !== null) {
+                            prev = new Date(visibleTensionData[j].date).getTime();
+                            break;
+                        }
+                    }
 
-                    var maxTensionValue = maxTensionData.value;
-                    var maxTensionDate = new Date(maxTensionData.date).getTime();
+                    let next = null;
+                    for (let j = i + 1; j < visibleTensionData.length; j++) {
+                        if (visibleTensionData[j].value !== null) {
+                            next = new Date(visibleTensionData[j].date).getTime();
+                            break;
+                        }
+                    }
 
-                    xAxis.update({
-                        plotLines: [{
-                            color: 'rgba(255, 0, 0, 0.8)',
-                            width: 2,
-                            value: maxTensionDate,
-                            label: {
-                                text: 'Max Tension: ' + maxTensionValue,
-                                style: {
-                                    color: 'red'
-                                },
-                                align: 'left',
-                                verticalAlign: 'bottom',
-                                x: 10,
-                                y: -20,
-                                rotation: 0
-                            }
-                        }]
-                    });
-                } else {
-                    xAxis.update({
-                        plotLines: []
-                    });
+                    if (prev !== null && next !== null) {
+                        nullBands.push({
+                            color: 'rgba(150, 150, 150, 0.3)',
+                            from: prev,
+                            to: next,
+                            zIndex: 1
+                        });
+                    }
                 }
             }
-        } catch (e) {
-            console.error('Error parsing or plotting data:', e);
+
+            const uniqueBands = [];
+            const seen = new Set();
+            nullBands.forEach(band => {
+                const key = `${band.from}-${band.to}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueBands.push(band);
+                }
+            });
+
+            xAxis.update({
+                plotLines: [],
+                plotBands: uniqueBands
+            });
+
+            if (nonNullTension.length > 0) {
+                const maxPoint = nonNullTension.reduce((a, b) => a.value > b.value ? a : b);
+                const maxDate = new Date(maxPoint.date).getTime();
+
+                xAxis.update({
+                    plotLines: [{
+                        color: 'red',
+                        width: 2,
+                        value: maxDate,
+                        label: {
+                            text: 'Max Tension: ' + maxPoint.value,
+                            align: 'left',
+                            verticalAlign: 'bottom',
+                            x: 10,
+                            y: -20,
+                            rotation: 0,
+                            style: { color: 'red' }
+                        }
+                    }]
+                });
+            } else {
+                chart.customNoDataLabel = chart.renderer.text(
+                    'No values in the selected date range',
+                    chart.plotLeft + chart.plotWidth / 2 - 100,
+                    chart.plotTop + chart.plotHeight / 2
+                ).css({
+                    color: 'gray',
+                    fontSize: '16px'
+                }).attr({ zIndex: 5 }).add();
+            }
         }
     });
 </script>
+
 {% endblock content %}
+
+

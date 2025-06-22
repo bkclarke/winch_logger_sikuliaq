@@ -30,6 +30,33 @@ from django.contrib.auth import logout
 import json
 import subprocess
 
+def test_plots(request):
+    # Generate sample data (some nulls included)
+    base_time = datetime.now() - timedelta(days=1)
+    timestamps = [base_time + timedelta(minutes=30 * i) for i in range(48)]  # 24h data
+
+    # Example: half null values for tension, valid for payout
+    tension_data = [
+        {'date': t.isoformat(), 'value': None if i % 2 == 0 else i * 10}
+        for i, t in enumerate(timestamps)
+    ]
+    payout_data = [
+        {'date': t.isoformat(), 'value': i * 0.5}
+        for i, t in enumerate(timestamps)
+    ]
+
+    context = {
+        'data_json_tension': json.dumps(tension_data),
+        'data_json_payout': json.dumps(payout_data),
+        'form': {
+            'start_date': {'value': (base_time).date()},
+            'end_date': {'value': (base_time + timedelta(days=1)).date()},
+            'winch': '',  # If you have a winch field, you can pass it here
+        }
+    }
+
+    return render(request, 'wwdb/tests/test_plots.html', context)
+
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +104,9 @@ def get_data_from_external_db(start_date, end_date, winch):
         return []
 
 def charts(request):
+
+    db_connected = True
+
     # Default values for filtering
     start_date = request.GET.get('start_date')
     print(start_date)
@@ -108,7 +138,12 @@ def charts(request):
         winch = Winch.objects.last()  # Default to the last winch if none provided
 
     # Fetch data using the retrieved parameters
-    data_points = get_data_from_external_db(start_date, end_date, winch)
+    try:
+        data_points = get_data_from_external_db(start_date, end_date, winch)
+    except Exception as e:
+        print("DB connection error:", e)
+        db_connected = False
+        data_points = []
 
     # Process the data points
     if data_points:
@@ -130,7 +165,8 @@ def charts(request):
     return render(request, 'wwdb/reports/charts.html', {
         'form': form,
         'data_json_tension': data_json_tension,
-        'data_json_payout': data_json_payout
+        'data_json_payout': data_json_payout,
+        'db_connected' : db_connected,
     })
 
 
@@ -406,10 +442,8 @@ def cruiselist(request):
 def castreport(request):
     # Initialize form with data from GET request (if any)
     form = CastFilterForm(request.GET)
-    casts = Cast.objects.all()
-    cast_complete = Cast.objects.filter(flagforreview=False, maxpayout__isnull=False, maxtension__isnull=False) 
-    cast_flag = Cast.objects.filter((Q(flagforreview=True) | Q(maxpayout__isnull=True) | Q(maxtension__isnull=True)))
-
+    casts = Cast.objects.all().order_by('-startdate')
+ 
     # Handle form submission and filtering
     if form.is_valid():
         casts = Cast.objects.all()
@@ -433,8 +467,6 @@ def castreport(request):
             casts = casts.filter(Q(startoperator=operator) | Q(endoperator=operator))
 
     context = {
-        'cast_complete': cast_complete,
-        'cast_flag': cast_flag,
         'casts': casts,
         'form': form,
        }
@@ -1333,6 +1365,156 @@ def operatoradd(request):
 
     return render(request, 'wwdb/configuration/deploymentadd.html', context)
 
+
+"""
+CALIBRATIONS
+Classes related to calibrations
+"""
+
+class CalibrationDelete(DeleteView):
+    model = Calibration
+    template_name="wwdb/maintenance/calibrationdelete.html"
+    success_url= reverse_lazy('calibrationlist')
+
+def calibrationdetail(request, pk):
+    calibration = get_object_or_404(Calibration, id=pk)
+
+    def add_error_fields(queryset):
+        for obj in queryset:
+            try:
+                applied = float(obj.appliedload)
+                tension = float(obj.loadcelltension)
+                error_lbs = tension - applied
+                error_pct = (error_lbs / applied * 100) if applied != 0 else None
+            except (TypeError, ZeroDivisionError, ValueError):
+                error_lbs = None
+                error_pct = None
+            obj.error_lbs = error_lbs
+            obj.error_pct = error_pct
+        return queryset
+
+    tension_verifications = add_error_fields(TensionVerification.objects.filter(calibration=calibration))
+    tension_calibrations = add_error_fields(TensionCalibration.objects.filter(calibration=calibration))
+    calibration_verifications = add_error_fields(CalibrationVerification.objects.filter(calibration=calibration))
+
+    return render(request, 'wwdb/maintenance/calibrationdetail.html', {
+        'calibration': calibration,
+        'tension_verifications': tension_verifications,
+        'tension_calibrations': tension_calibrations,
+        'calibration_verifications': calibration_verifications,
+    })
+
+def calibrationedit(request, pk):
+    calibration = get_object_or_404(Calibration, id=pk)
+
+    formset1 = TensionVerificationFormSet(
+        request.POST or None,
+        queryset=TensionVerification.objects.filter(calibration=calibration),
+        prefix='tv1'
+    )
+    formset2 = TensionCalibrationFormSet(
+        request.POST or None,
+        queryset=TensionCalibration.objects.filter(calibration=calibration),
+        prefix='tc1'
+    )
+    formset3 = CalibrationVerificationFormSet(
+        request.POST or None,
+        queryset=CalibrationVerification.objects.filter(calibration=calibration),
+        prefix='cv1'
+    )
+
+    if request.method == 'POST':
+        if formset1.is_valid() and formset2.is_valid() and formset3.is_valid():
+            instances1 = formset1.save(commit=False)
+            instances2 = formset2.save(commit=False)
+            instances3 = formset3.save(commit=False)
+
+            # Reassign calibration FK before saving
+            for instance in instances1 + instances2 + instances3:
+                instance.calibration = calibration
+                instance.save()
+
+            return redirect('calibrationdetail', pk=calibration.id)
+
+    return render(request, 'wwdb/maintenance/calibrationedit.html', {
+        'calibration': calibration,
+        'formset1': formset1,
+        'formset2': formset2,
+        'formset3': formset3,
+    })
+
+def calibrationlist(request):
+    calibrations=Calibration.objects.all()
+    context={
+        'calibrations': calibrations,
+        }
+    return render(request, 'wwdb/maintenance/calibrationlist.html', context)
+
+def calibrationlogsheet(request, pk):
+    calibration = Calibration.objects.get(id=pk)
+
+    formset1 = TensionVerificationFormSet(request.POST or None, queryset=TensionVerification.objects.none(), prefix='tv1')
+    formset2 = TensionCalibrationFormSet(request.POST or None, queryset=TensionCalibration.objects.none(), prefix='tc1')
+    formset3 = CalibrationVerificationFormSet(request.POST or None, queryset=CalibrationVerification.objects.none(), prefix='cv1')
+
+    for formset in [formset1, formset2, formset3]:
+        for form in formset:
+            form.fields['appliedload'].widget.attrs.update({'class': 'appliedload form-control'})
+            form.fields['loadcelltension'].widget.attrs.update({'class': 'loadcelltension form-control'})
+            form.fields['loadcellrawmv'].widget.attrs.update({'class': 'loadcellrawmv form-control'})
+
+    if request.method == 'POST':
+        if formset1.is_valid() and formset2.is_valid() and formset3.is_valid():
+            for instances in [formset1.save(commit=False), formset2.save(commit=False), formset3.save(commit=False)]:
+                for instance in instances:
+                    instance.calibration = calibration
+                    instance.save()
+            return redirect('calibrationlist')
+
+
+    return render(request, 'wwdb/maintenance/calibrationlogsheet.html', {
+        'formset1': formset1,
+        'formset2': formset2,
+        'formset3': formset3,
+        'calibration': calibration,
+    })
+
+
+def calibrationworksheet(request):
+
+    form = CalibrationWorksheetForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            obj = form.save(commit=False)  
+            obj.worksheet_calculation()
+            obj.save()
+            return redirect('calibrationlogsheet', pk=obj.id)
+
+    context = {
+        'form':form,
+    }
+
+    return render(request, "wwdb/maintenance/calibrationworksheet.html", context)
+
+def calibrationeditdetails(request, pk):
+    calibration = get_object_or_404(Calibration, pk=pk)
+    form = CalibrationWorksheetForm(request.POST or None, instance=calibration)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.worksheet_calculation()
+            obj.save()
+            return redirect('calibrationdetail', pk=obj.id)
+
+    context = {
+        'form': form,
+        'calibration': calibration,
+    }
+
+    return render(request, "wwdb/maintenance/calibrationeditdetails.html", context)
+
 """
 DEPLOYMENTS 
 Classes related to create, update, view DeploymentType model
@@ -1728,8 +1910,6 @@ class CruiseDelete(DeleteView):
     model = Cruise
     template_name="wwdb/cruiseconfiguration/cruisedelete.html"
     success_url= reverse_lazy('cruiseconfigurehome')
-
-#For Lunix systems
 
 def check_service_status(service_name):
     try:

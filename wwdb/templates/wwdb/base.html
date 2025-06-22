@@ -28,6 +28,7 @@
     <script type="text/javascript" src={% static 'js/buttons.html5.min.js' %} crossorigin="anonymous"></script>
     <script type="text/javascript" src={% static 'js/buttons.print.min.js' %} crossorigin="anonymous"></script>
     <script type="text/javascript" src={% static 'js/htmx.min.js' %} crossorigin="anonymous"></script>
+    <script type="text/javascript" src={% static 'js/plotly-latest.min.js' %} crossorigin="anonymous"></script>
     <script>
         document.addEventListener('htmx:afterRequest', function (evt) {
             $('table.display').DataTable({
@@ -41,34 +42,27 @@
 
 
 <body>
-    {% if template_name != 'caststart.html' and template_name != 'castend.html' and template_name != 'home.html' %}
-    <div class="top-button-container stickey-top">
-        {% if last.enddate %}
-        <div class="top-button-container sticky-top">
-            <button type="button" class="btn btn-startcast">
-                <a class="button-link" href="{% url 'caststart' %}" style="color: inherit; text-decoration: none; width: 100%; height: 100%; padding: 10px;">
-                    Start Cast
-                </a>
-            </button>
-        </div>
-        {% else %}
-        <div class="top-button-container sticky-top">
-            <button type="button" class="btn btn-startcast">
-                <a class="button-link" href="{% url 'cast_end' %}" style="color: inherit; text-decoration: none; width: 100%; height: 100%; padding: 10px;">
-                    Cast in progress - click here to End Cast
-                </a>
-            </button>
-        </div>
-        {% endif %}
-    </div>
-    {% endif %}
     <nav class="navbar {% if template_name == 'home.html' %}fixed-top{% else %}sticky-top{% endif %} navbar-expand-lg navbar-light bg-light">
         <a href="{% url 'home' %}">
             <img src='/static/img/wire_logo.png' alt="Logo" class="logo" />
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="btn-container">
+            {% if template_name != 'caststart.html' and template_name != 'castend.html' %}
+            {% if last.enddate %}
+            <button type="button" class="btn btn-danger btn-lg" style="padding: 5px 10px;">
+                <a class="button-link" href="{% url 'caststart' %}" style="color: inherit; text-decoration: none;">
+                    Start Cast
+                </a>
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-danger btn-lg" style="padding: 5px 10px;">
+                <a class="button-link" href="{% url 'cast_end' %}" style="color: inherit; text-decoration: none;">
+                    Cast in progress - click here to End Cast
+                </a>
+            </button>
+            {% endif %}
+            {% endif %}
+        </div>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
@@ -93,6 +87,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{% url 'cutbackreterminationlist' %}">Cutbacks/reterminations</a>
+                        <a class="dropdown-item" href="{% url 'calibrationlist' %}">Calibrations</a>
                         <a class="dropdown-item" href="{% url 'breaktestlist' %}">Breaktests</a>
                         <a class="dropdown-item" href="{% url 'lubricationlist' %}">Lubrications</a>
                     </div>
@@ -148,29 +143,21 @@
             window.location.href = "{% url 'caststart' %}";
         });
     });
-</script>
-<script>
     $(document).ready(function () {
         $('#endcast').click(function () {
             window.location.href = "{% url 'caststart' %}";
         });
     });
-</script>
-<script>
     $(document).ready(function () {
         $('#login').click(function () {
             window.location.href = "{% url 'login' %}";
         });
     });
-</script>
-<script>
     $(document).ready(function () {
         $('#signup').click(function () {
             window.location.href = "{% url 'signup' %}";
         });
     });
-</script>
-<script>
     $(document).ready(function () {
         $('#logout').click(function () {
             window.location.href = "{% url 'logout' %}";  // Uses GET request
