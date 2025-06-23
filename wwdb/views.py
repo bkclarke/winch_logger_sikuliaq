@@ -90,6 +90,28 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 
     return data_points
 
+from collections import defaultdict
+
+def bin_data(data_points, bin_minutes=5):
+    """
+    Downsample data by binning into N-minute intervals.
+    Keeps the maximum value in each bin.
+    """
+    binned = defaultdict(list)
+
+    for dt, values in data_points:
+        # Round down timestamp to bin start
+        key = dt.replace(minute=(dt.minute // bin_minutes) * bin_minutes, second=0, microsecond=0)
+        binned[key].append(values)
+
+    result = []
+    for dt, group in binned.items():
+        max_tension = max((v['max_tension'] for v in group if v['max_tension'] is not None), default=None)
+        max_payout = max((v['max_payout'] for v in group if v['max_payout'] is not None), default=None)
+        result.append((dt, {'max_tension': max_tension, 'max_payout': max_payout}))
+
+    return sorted(result)
+
 def get_data_from_external_db(start_date, end_date, winch_table):
     start_time = time.time()
     try:
@@ -181,7 +203,13 @@ def charts(request):
             db_connected = False
             data_points = []
 
-        for dt, values in data_points:
+        # Only bin if there are more than 1000 data points
+        if len(data_points) > 1000:
+            binned_data = bin_data(data_points, bin_minutes=5)
+        else:
+            binned_data = data_points
+
+        for dt, values in binned_data:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_tension']})
             data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_payout']})
 
