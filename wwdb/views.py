@@ -30,6 +30,7 @@ from django.contrib.auth import logout
 import json
 import subprocess
 import random
+import time
 
 def test_plots(request):
     # Generate sample data (some nulls included)
@@ -113,7 +114,6 @@ def get_data_from_external_db(start_date, end_date, winch_table):
         rows = cursor.fetchall()
 
         print(f"Fetched {len(rows)} rows from DB")
-
 
         cursor.close()
         conn.close()
