@@ -78,7 +78,7 @@
             }
         }
 
-        var noDbConnection = {{ no_db_connection| yesno: "true,false"}};
+        var noDbConnection = {{ no_db_connection|yesno:"true,false"}};
         var data_tension = {{ data_json_tension| safe }};
         var data_payout = {{ data_json_payout| safe }};
 
