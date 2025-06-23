@@ -200,20 +200,20 @@ def charts(request):
 
             if (end_date - start_date).days > MAX_DAYS:
                 error_message = f"Please select a date range of {MAX_DAYS} days or less."
-                # Optionally, auto-adjust end_date:
+                # Optionally auto-correct:
                 # end_date = start_date + timedelta(days=MAX_DAYS)
 
-            # Adjust end_date to include the whole day (add 1 day)
+            # Include full day
             end_date = end_date + timedelta(days=1)
         else:
             end_date = datetime.utcnow()
             start_date = end_date - timedelta(days=1)
-            end_date = end_date + timedelta(days=1)  # include full day
+            end_date = end_date + timedelta(days=1)
 
     except ValueError:
         error_message = "Invalid date format."
 
-    # Validate winch
+    # Validate winch selection
     try:
         winch = Winch.objects.get(id=winch_id) if winch_id else Winch.objects.last()
     except Winch.DoesNotExist:
@@ -222,24 +222,20 @@ def charts(request):
     data_tension = []
     data_payout = []
 
-
-def charts(request):
-    # ... your date validation and winch fetching code ...
-
     if not error_message:
         data_points = get_data_from_external_db(start_date, end_date, winch.name)
 
-        if data_points is None:
+        if data_points == 'timeout':
+            error_message = "Data processing timed out. Please select a smaller date range."
+            db_connected = False
+            data_points = []
+        elif data_points is None:
             db_connected = False
             data_points = []
 
-        # Only bin if > 1000 points to avoid huge payloads
+        # Bin data if more than 1000 points (0.016 min = ~1 second bins)
         if len(data_points) > 1000:
-            data_points = bin_data(data_points, bin_minutes=0.016)  
-
-        # Prepare for JSON
-        data_tension = []
-        data_payout = []
+            data_points = bin_data(data_points, bin_minutes=0.016)
 
         for dt, vals in data_points:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
@@ -261,10 +257,12 @@ def charts(request):
         'db_connected': db_connected,
         'no_db_connection': not db_connected,
     }
+
     if error_message:
         messages.error(request, error_message)
 
     return render(request, 'wwdb/reports/charts.html', context)
+
 
 def custom_logout(request):
     logout(request)  # Logs out the user
