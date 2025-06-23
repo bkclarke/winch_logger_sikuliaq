@@ -29,6 +29,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import logout
 import json
 import subprocess
+import random
 
 def test_plots(request):
     # Generate sample data (some nulls included)
@@ -60,115 +61,146 @@ def test_plots(request):
 
 logger = logging.getLogger(__name__)
 
-def get_data_from_external_db(start_date, end_date, winch):
-    print("Fetching data from external DB...")  # Added context to the print statement
+MAX_DAYS = 14
+MAX_PROCESS_SECONDS = 5  # max allowed processing time for query + binning
 
+def get_fake_data_for_testing(start_date, end_date, winch=None):
+    print("Generating fake data...")
+    simulated_delay = 6  # seconds to simulate slowness
+
+    import time
+    time.sleep(simulated_delay)
+
+    data_points = []
+    current = datetime.combine(start_date, datetime.min.time())
+    end = datetime.combine(end_date, datetime.min.time())
+
+    # Every 1 minute for 14 days = ~20,000 points
+    while current < end:
+        # Simulate 5% chance of missing values
+        tension = random.randint(100, 800) if random.random() > 0.05 else None
+        payout = random.uniform(5.0, 30.0) if random.random() > 0.05 else None
+
+        data_points.append((current, {
+            'max_tension': tension,
+            'max_payout': payout
+        }))
+        current += timedelta(minutes=1)
+
+    return data_points
+
+def get_data_from_external_db(start_date, end_date, winch_table):
+    start_time = start_date.time()
     try:
         conn = mysql.connector.connect(
             host='127.0.0.1',
             user='root',
             password='b1uz00!!2SQ',
-            database='winch_data'
+            database='winch_data',
+            connection_timeout=5,  # optional DB-level timeout
         )
-
-        query = f"""
-            SELECT date_time, tension_load_cell, payout
-            FROM {winch}
-            WHERE date_time BETWEEN '{start_date}' AND '{end_date}'
-        """
-
         cursor = conn.cursor()
-        cursor.execute(query)
+
+        # Use GROUP BY date_time and MAX to reduce data on DB side
+        query = f"""
+            SELECT date_time, MAX(tension_load_cell) as max_tension, MAX(payout) as max_payout
+            FROM {winch_table}
+            WHERE date_time BETWEEN %s AND %s
+            GROUP BY date_time
+            ORDER BY date_time
+        """
+        cursor.execute(query, (start_date, end_date))
         rows = cursor.fetchall()
 
         cursor.close()
-        conn.close()  # Close connection properly
+        conn.close()
 
-        if len(rows) > 1000:
-            print("Data rows fetched:", rows)
-            binned_data = {}
-            for row in rows:
-                dt = row[0]
-                if dt not in binned_data:
-                    binned_data[dt] = {'max_tension': row[1], 'max_payout': row[2]}
-                else:
-                    binned_data[dt]['max_tension'] = max(binned_data[dt]['max_tension'], row[1])
-                    binned_data[dt]['max_payout'] = max(binned_data[dt]['max_payout'], row[2])
-            return sorted(binned_data.items())
-        else:
-            print("Data rows fetched (less than 1000):", rows)
-            return [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
-    
+        # Check for timeout during processing
+        if (time.time() - start_time) > MAX_PROCESS_SECONDS:
+            raise TimeoutError("Data processing took too long")
+
+        return [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
+
+    except TimeoutError as te:
+        print(te)
+        return 'timeout'
+
     except Exception as e:
-        print(f"Error fetching data: {e}")  # Print error for debugging
-        return []
+        print(f"Error fetching data: {e}")
+        return None
+
 
 def charts(request):
-
     db_connected = True
+    error_message = None
 
-    # Default values for filtering
-    start_date = request.GET.get('start_date')
-    print(start_date)
-    end_date = request.GET.get('end_date')
-    print(end_date)
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
     winch_id = request.GET.get('winch')
-    print(winch_id)
 
-    # Initialize empty data lists
+    # Validate input and limit date range
+    try:
+        if start_date_str and end_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+            if (end_date - start_date).days > MAX_DAYS:
+                error_message = f"Please select a date range of {MAX_DAYS} days or less."
+                # Optionally, auto-adjust end_date:
+                # end_date = start_date + timedelta(days=MAX_DAYS)
+
+            # Adjust end_date to include the whole day (add 1 day)
+            end_date = end_date + timedelta(days=1)
+        else:
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=1)
+            end_date = end_date + timedelta(days=1)  # include full day
+
+    except ValueError:
+        error_message = "Invalid date format."
+
+    # Validate winch
+    try:
+        winch = Winch.objects.get(id=winch_id) if winch_id else Winch.objects.last()
+    except Winch.DoesNotExist:
+        winch = Winch.objects.last()
+
     data_tension = []
     data_payout = []
 
-    # Validate and parse the dates and winch
-    if start_date and end_date and winch_id:
-        print('attempting to parse:', start_date, end_date, winch_id)
-        try:
-            # Convert the string dates to date objects
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date() + timedelta(days=1)
-            winch = Winch.objects.get(id=winch_id)  # Fetch the winch object
-        except (ValueError, Winch.DoesNotExist):
-            # Handle parsing errors or winch not found
-            start_date = end_date = None
-            winch = None
-    else:
-        # Set default values if parameters are missing
-        end_date = datetime.utcnow().date() + timedelta(days=1)
-        start_date = end_date - timedelta(days=1)
-        winch = Winch.objects.last()  # Default to the last winch if none provided
+    if not error_message:
+        data_points = get_data_from_external_db(start_date, end_date, winch.name)  # assuming winch.name matches table
+        if data_points == 'timeout':
+            error_message = "Data processing timed out. Please select a smaller date range."
+            db_connected = False
+            data_points = []
+        elif data_points is None:
+            db_connected = False
+            data_points = []
 
-    # Fetch data using the retrieved parameters
-    try:
-        data_points = get_data_from_external_db(start_date, end_date, winch)
-    except Exception as e:
-        print("DB connection error:", e)
-        db_connected = False
-        data_points = []
-
-    # Process the data points
-    if data_points:
         for dt, values in data_points:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_tension']})
             data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_payout']})
 
-    # Serialize the data to JSON
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
-    # Create an instance of the form with the initial values for rendering
     form = DataFilterForm(initial={
-        'start_date': start_date,
-        'end_date': end_date - timedelta(days=1) if end_date else None,
+        'start_date': start_date.date() if start_date else None,
+        'end_date': (end_date - timedelta(days=1)).date() if end_date else None,
         'winch': winch,
     })
 
-    return render(request, 'wwdb/reports/charts.html', {
+    context = {
         'form': form,
         'data_json_tension': data_json_tension,
         'data_json_payout': data_json_payout,
-        'db_connected' : db_connected,
-    })
+        'db_connected': db_connected,
+    }
+    if error_message:
+        messages.error(request, error_message)
 
+    return render(request, 'wwdb/reports/charts.html', context)
 
 def custom_logout(request):
     logout(request)  # Logs out the user
