@@ -134,14 +134,6 @@
                 name: 'Payout',
                 yAxis: 1,
                 data: data_payout.map(p => [new Date(p.date).getTime(), p.value])
-            }, {
-                name: 'Gray area = Null data',
-                type: 'line',
-                color: 'rgba(150, 150, 150, 0.5)',
-                enableMouseTracking: false,
-                marker: { enabled: true },
-                showInLegend: true,
-                visible: true
             }]
         });
 
@@ -182,15 +174,6 @@
                         from: new Date(prev.date).getTime(),
                         to: new Date(next.date).getTime(),
                         zIndex: 1,
-                        label: {
-                            text: 'null values',
-                            align: 'center',
-                            verticalAlign: 'middle',
-                            style: {
-                                color: '#606060',
-                                fontWeight: 'bold',
-                                fontSize: '12px'
-                            }
                         }
                     });
                 }
