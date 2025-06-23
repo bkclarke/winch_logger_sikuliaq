@@ -205,7 +205,7 @@ def charts(request):
 
         # Only bin if there are more than 1000 data points
         if len(data_points) > 1000:
-            binned_data = bin_data(data_points, bin_minutes=5)
+            binned_data = bin_data(data_points, bin_minutes=0.1)
         else:
             binned_data = data_points
 
