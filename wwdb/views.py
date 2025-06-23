@@ -112,43 +112,72 @@ def bin_data(data_points, bin_minutes=5):
 
     return sorted(result)
 
+def bin_data(data_points, bin_minutes=0.016):
+    """
+    Bin data points by averaging values in bin_minutes intervals.
+    """
+    binned = []
+    bin_delta = timedelta(minutes=bin_minutes)
+    if not data_points:
+        return binned
+
+    bin_start = data_points[0][0]
+    bin_end = bin_start + bin_delta
+
+    bin_tensions = []
+    bin_payouts = []
+
+    for dt, vals in data_points:
+        while dt >= bin_end:
+            # Compute averages for the current bin
+            if bin_tensions:
+                avg_tension = sum(v for v in bin_tensions if v is not None) / len(bin_tensions)
+                avg_payout = sum(v for v in bin_payouts if v is not None) / len(bin_payouts)
+            else:
+                avg_tension = None
+                avg_payout = None
+
+            binned.append((bin_start, {'max_tension': avg_tension, 'max_payout': avg_payout}))
+            bin_start = bin_end
+            bin_end = bin_start + bin_delta
+            bin_tensions = []
+            bin_payouts = []
+
+        bin_tensions.append(vals['max_tension'])
+        bin_payouts.append(vals['max_payout'])
+
+    # Final bin
+    if bin_tensions:
+        avg_tension = sum(v for v in bin_tensions if v is not None) / len(bin_tensions)
+        avg_payout = sum(v for v in bin_payouts if v is not None) / len(bin_payouts)
+        binned.append((bin_start, {'max_tension': avg_tension, 'max_payout': avg_payout}))
+
+    return binned
+
 def get_data_from_external_db(start_date, end_date, winch_table):
-    start_time = time.time()
     try:
         conn = mysql.connector.connect(
             host='127.0.0.1',
             user='root',
             password='b1uz00!!2SQ',
             database='winch_data',
-            connection_timeout=5,  # optional DB-level timeout
+            connection_timeout=5,
         )
         cursor = conn.cursor()
 
-        # Use GROUP BY date_time and MAX to reduce data on DB side
         query = f"""
-            SELECT date_time, MAX(tension_load_cell) as max_tension, MAX(payout) as max_payout
+            SELECT date_time, tension_load_cell, payout
             FROM {winch_table}
             WHERE date_time BETWEEN %s AND %s
-            GROUP BY date_time
             ORDER BY date_time
         """
         cursor.execute(query, (start_date, end_date))
         rows = cursor.fetchall()
 
-        print(f"Fetched {len(rows)} rows from DB")
-
         cursor.close()
         conn.close()
 
-        # Check for timeout during processing
-        if (time.time() - start_time) > MAX_PROCESS_SECONDS:
-            raise TimeoutError("Data processing took too long")
-
         return [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
-
-    except TimeoutError as te:
-        print(te)
-        return 'timeout'
 
     except Exception as e:
         print(f"Error fetching data: {e}")
@@ -193,25 +222,28 @@ def charts(request):
     data_tension = []
     data_payout = []
 
+
+def charts(request):
+    # ... your date validation and winch fetching code ...
+
     if not error_message:
-        data_points = get_data_from_external_db(start_date, end_date, winch.name)  # assuming winch.name matches table
-        if data_points == 'timeout':
-            error_message = "Data processing timed out. Please select a smaller date range."
-            db_connected = False
-            data_points = []
-        elif data_points is None:
+        data_points = get_data_from_external_db(start_date, end_date, winch.name)
+
+        if data_points is None:
             db_connected = False
             data_points = []
 
-        # Only bin if there are more than 1000 data points
-        if len(data_points) > 2000:
-            binned_data = bin_data(data_points, bin_minutes=0.1)
-        else:
-            binned_data = data_points
+        # Only bin if > 1000 points to avoid huge payloads
+        if len(data_points) > 1000:
+            data_points = bin_data(data_points, bin_minutes=0.016)  
 
-        for dt, values in binned_data:
-            data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_tension']})
-            data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': values['max_payout']})
+        # Prepare for JSON
+        data_tension = []
+        data_payout = []
+
+        for dt, vals in data_points:
+            data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
+            data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_payout']})
 
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
