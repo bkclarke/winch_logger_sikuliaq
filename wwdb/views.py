@@ -90,7 +90,7 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
     return data_points
 
 def get_data_from_external_db(start_date, end_date, winch_table):
-    start_time = start_date.time()
+    start_time = time.time()
     try:
         conn = mysql.connector.connect(
             host='127.0.0.1',
@@ -111,6 +111,9 @@ def get_data_from_external_db(start_date, end_date, winch_table):
         """
         cursor.execute(query, (start_date, end_date))
         rows = cursor.fetchall()
+
+        print(f"Fetched {len(rows)} rows from DB")
+
 
         cursor.close()
         conn.close()
@@ -196,6 +199,7 @@ def charts(request):
         'data_json_tension': data_json_tension,
         'data_json_payout': data_json_payout,
         'db_connected': db_connected,
+        'no_db_connection': not db_connected,
     }
     if error_message:
         messages.error(request, error_message)
