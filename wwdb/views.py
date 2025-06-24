@@ -92,26 +92,6 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 
 from collections import defaultdict
 
-def bin_data(data_points, bin_minutes=5):
-    """
-    Downsample data by binning into N-minute intervals.
-    Keeps the maximum value in each bin.
-    """
-    binned = defaultdict(list)
-
-    for dt, values in data_points:
-        # Round down timestamp to bin start
-        key = dt.replace(minute=(dt.minute // bin_minutes) * bin_minutes, second=0, microsecond=0)
-        binned[key].append(values)
-
-    result = []
-    for dt, group in binned.items():
-        max_tension = max((v['max_tension'] for v in group if v['max_tension'] is not None), default=None)
-        max_payout = max((v['max_payout'] for v in group if v['max_payout'] is not None), default=None)
-        result.append((dt, {'max_tension': max_tension, 'max_payout': max_payout}))
-
-    return sorted(result)
-
 def bin_data(data_points, bin_minutes=0.016):
     """
     Bin data points by averaging values in bin_minutes intervals.
