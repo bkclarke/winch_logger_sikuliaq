@@ -95,6 +95,44 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 
 from collections import defaultdict
 
+def bin_data(data_points, *, bin_minutes: float) -> list:
+
+    if not data_points:
+        return []
+
+    bin_delta = timedelta(minutes=bin_minutes)
+    binned    = []
+
+    bin_start   = data_points[0][0]
+    bin_end     = bin_start + bin_delta
+    bin_tens    = []
+    bin_payouts = []
+
+    for dt, vals in data_points:
+        while dt >= bin_end:                        # time to close the bin
+            if bin_tens:                           # avoid /0
+                avg_t = sum(t for t in bin_tens    if t is not None) / len(bin_tens)
+                avg_p = sum(p for p in bin_payouts if p is not None) / len(bin_payouts)
+            else:
+                avg_t = avg_p = None
+
+            binned.append((bin_start, {'max_tension': avg_t, 'max_payout': avg_p}))
+            bin_start   = bin_end
+            bin_end     = bin_start + bin_delta
+            bin_tens    = []
+            bin_payouts = []
+
+        bin_tens.append(vals['max_tension'])
+        bin_payouts.append(vals['max_payout'])
+
+    # final partially filled bin
+    if bin_tens:
+        avg_t = sum(t for t in bin_tens    if t is not None) / len(bin_tens)
+        avg_p = sum(p for p in bin_payouts if p is not None) / len(bin_payouts)
+        binned.append((bin_start, {'max_tension': avg_t, 'max_payout': avg_p}))
+
+    return binned
+
 def auto_bin_to_target(data_points, max_points=MAX_POINTS):
 
     n = len(data_points)
