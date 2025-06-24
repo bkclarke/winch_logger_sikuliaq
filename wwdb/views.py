@@ -96,14 +96,7 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 from collections import defaultdict
 
 def auto_bin_to_target(data_points, max_points=MAX_POINTS):
-    """
-    Return  max_points items by choosing a suitable bin width (in seconds).
 
-    Parameters
-    ----------
-    data_points : list[(datetime, dict)]
-    max_points  : int
-    """
     n = len(data_points)
     if n <= max_points:
         return data_points                        # already small
@@ -113,13 +106,11 @@ def auto_bin_to_target(data_points, max_points=MAX_POINTS):
     if total_sec <= 0:
         return data_points[:max_points]           # degenerate, just clip
 
-    # bin width needed so that: total_sec / bin_sec  max_points
     bin_sec = max(MIN_BIN_SEC, ceil(total_sec / max_points))
     bin_minutes = bin_sec / 60.0
 
     binned = bin_data(data_points, bin_minutes=bin_minutes)
 
-    # Safety net – if pathological gaps keep us > max_points, decimate
     if len(binned) > max_points:
         step = ceil(len(binned) / max_points)
         binned = binned[::step]
@@ -206,7 +197,6 @@ def charts(request):
             data_points = []
 
         data_points = auto_bin_to_target(data_points, MAX_POINTS)
-
 
         for dt, vals in data_points:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
