@@ -95,6 +95,9 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 
 from collections import defaultdict
 
+def _parse_iso(ts: str) -> datetime:
+    return parser.isoparse(ts)
+
 def auto_bin_to_target(data_points, *, max_points=MAX_POINTS):
     n = len(data_points)
     if n <= max_points:
@@ -117,8 +120,8 @@ def auto_bin_to_target(data_points, *, max_points=MAX_POINTS):
 def chart_data_zoom(request):
     """AJAX endpoint that returns rebinned data for the visible range."""
     try:
-        start = datetime.strptime(request.GET["start"], "%Y-%m-%dT%H:%M:%S.%fZ")
-        end   = datetime.strptime(request.GET["end"],   "%Y-%m-%dT%H:%M:%S.%fZ")
+        start = _parse_iso(request.GET["start"])
+        end   = _parse_iso(request.GET["end"])
         winch = Winch.objects.get(id=request.GET["winch"])
         max_points = min(int(request.GET.get("max_points", MAX_POINTS)), MAX_CAP)
     except Exception as e:
