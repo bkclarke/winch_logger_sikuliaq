@@ -83,8 +83,8 @@
         let data_payout = [];
 
         try {
-            data_tension = JSON.parse("{{ data_json_tension|escapejs }}");
-            data_payout = JSON.parse("{{ data_json_payout|escapejs }}");
+            data_tension = JSON.parse("{{ data_json_tension|default:'[]'|escapejs }}");
+            data_payout = JSON.parse("{{ data_json_payout|default:'[]'|escapejs }}");
             console.log('Tension data:', data_tension);
             console.log('Payout data:', data_payout);
         } catch (e) {
