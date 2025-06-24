@@ -114,6 +114,8 @@
                         max_points: maxPts
                     });
 
+                    console.log("zoom request: ", params.toString());
+
                     fetch("{% url 'chart_data_zoom' %}?" + params)
                         .then(r => r.json())
                         .then(data => {

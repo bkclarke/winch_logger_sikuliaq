@@ -32,6 +32,7 @@ import subprocess
 import random
 import time
 from math import ceil
+from dateutil import parser
 
 def test_plots(request):
     # Generate sample data (some nulls included)
@@ -97,25 +98,6 @@ from collections import defaultdict
 
 def _parse_iso(ts: str) -> datetime:
     return parser.isoparse(ts)
-
-def auto_bin_to_target(data_points, *, max_points=MAX_POINTS):
-    n = len(data_points)
-    if n <= max_points:
-        return data_points
-
-    total_sec = (data_points[-1][0] - data_points[0][0]).total_seconds()
-    if total_sec <= 0:
-        return data_points[:max_points]
-
-    bin_sec  = max(MIN_BIN_SEC, ceil(total_sec / max_points))
-    bin_min  = bin_sec / 60.0
-    binned   = bin_data(data_points, bin_minutes=bin_min)
-
-    if len(binned) > max_points:            # safety net
-        step   = ceil(len(binned) / max_points)
-        binned = binned[::step]
-
-    return binned
 
 def chart_data_zoom(request):
     """AJAX endpoint that returns rebinned data for the visible range."""
