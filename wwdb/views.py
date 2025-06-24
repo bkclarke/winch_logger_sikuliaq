@@ -221,6 +221,9 @@ def charts(request):
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
             data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_payout']})
 
+    console.log('Tension data:', data_tension);
+    console.log('Payout data:', data_payout);
+
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
