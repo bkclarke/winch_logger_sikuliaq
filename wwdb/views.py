@@ -31,6 +31,7 @@ import json
 import subprocess
 import random
 import time
+from math import ceil
 
 def test_plots(request):
     # Generate sample data (some nulls included)
@@ -64,6 +65,8 @@ logger = logging.getLogger(__name__)
 
 MAX_DAYS = 14
 MAX_PROCESS_SECONDS = 5  # max allowed processing time for query + binning
+MAX_POINTS  = 2_000        # hard ceiling
+MIN_BIN_SEC = 1 
 
 def get_fake_data_for_testing(start_date, end_date, winch=None):
     print("Generating fake data...")
@@ -92,45 +95,34 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 
 from collections import defaultdict
 
-def bin_data(data_points, bin_minutes=0.016):
+def auto_bin_to_target(data_points, max_points=MAX_POINTS):
     """
-    Bin data points by averaging values in bin_minutes intervals.
+    Return  max_points items by choosing a suitable bin width (in seconds).
+
+    Parameters
+    ----------
+    data_points : list[(datetime, dict)]
+    max_points  : int
     """
-    binned = []
-    bin_delta = timedelta(minutes=bin_minutes)
-    if not data_points:
-        return binned
+    n = len(data_points)
+    if n <= max_points:
+        return data_points                        # already small
 
-    bin_start = data_points[0][0]
-    bin_end = bin_start + bin_delta
+    # overall timespan in seconds
+    total_sec = (data_points[-1][0] - data_points[0][0]).total_seconds()
+    if total_sec <= 0:
+        return data_points[:max_points]           # degenerate, just clip
 
-    bin_tensions = []
-    bin_payouts = []
+    # bin width needed so that: total_sec / bin_sec  max_points
+    bin_sec = max(MIN_BIN_SEC, ceil(total_sec / max_points))
+    bin_minutes = bin_sec / 60.0
 
-    for dt, vals in data_points:
-        while dt >= bin_end:
-            # Compute averages for the current bin
-            if bin_tensions:
-                avg_tension = sum(v for v in bin_tensions if v is not None) / len(bin_tensions)
-                avg_payout = sum(v for v in bin_payouts if v is not None) / len(bin_payouts)
-            else:
-                avg_tension = None
-                avg_payout = None
+    binned = bin_data(data_points, bin_minutes=bin_minutes)
 
-            binned.append((bin_start, {'max_tension': avg_tension, 'max_payout': avg_payout}))
-            bin_start = bin_end
-            bin_end = bin_start + bin_delta
-            bin_tensions = []
-            bin_payouts = []
-
-        bin_tensions.append(vals['max_tension'])
-        bin_payouts.append(vals['max_payout'])
-
-    # Final bin
-    if bin_tensions:
-        avg_tension = sum(v for v in bin_tensions if v is not None) / len(bin_tensions)
-        avg_payout = sum(v for v in bin_payouts if v is not None) / len(bin_payouts)
-        binned.append((bin_start, {'max_tension': avg_tension, 'max_payout': avg_payout}))
+    # Safety net – if pathological gaps keep us > max_points, decimate
+    if len(binned) > max_points:
+        step = ceil(len(binned) / max_points)
+        binned = binned[::step]
 
     return binned
 
@@ -213,9 +205,8 @@ def charts(request):
             db_connected = False
             data_points = []
 
-        # Bin data if more than 1000 points (0.016 min = ~1 second bins)
-        if len(data_points) > 1000:
-            data_points = bin_data(data_points, bin_minutes=0.016)
+        data_points = auto_bin_to_target(data_points, MAX_POINTS)
+
 
         for dt, vals in data_points:
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
