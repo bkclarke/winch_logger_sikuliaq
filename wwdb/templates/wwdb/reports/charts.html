@@ -2,10 +2,10 @@
 {% extends "wwdb/base.html" %}
 {% load static %}
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
 
 
 {% block content %}
+<script src="https://code.highcharts.com/highcharts.js"></script>
 
 <h1>Winch Plots</h1>
 <br>
@@ -186,13 +186,12 @@
                         from: new Date(prev.date).getTime(),
                         to: new Date(next.date).getTime(),
                         zIndex: 1,
-                        }
                     });
                 }
             } else {
                 i++;
             }
-        }
+    }
 
         xAxis.update({
             plotLines: [],
