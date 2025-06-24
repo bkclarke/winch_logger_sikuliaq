@@ -83,16 +83,13 @@
         let data_payout = [];
 
         try {
-            data_tension = JSON.parse('{{ data_json_tension|escapejs }}');
-            data_payout = JSON.parse('{{ data_json_payout|escapejs }}');
+            data_tension = JSON.parse("{{ data_json_tension|escapejs }}");
+            data_payout = JSON.parse("{{ data_json_payout|escapejs }}");
             console.log('Tension data:', data_tension);
             console.log('Payout data:', data_payout);
         } catch (e) {
             console.error("Failed to parse chart data:", e);
         }
-
-        console.log('Tension data:', data_tension);
-        console.log('Payout data:', data_payout);
 
         const chart = Highcharts.chart('container', {
             chart: {
