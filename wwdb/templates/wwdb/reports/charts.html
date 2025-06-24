@@ -79,8 +79,17 @@
         }
 
         var noDbConnection = {{ no_db_connection|yesno:"true,false"}};
-        var data_tension = JSON.parse('{{ data_json_tension|escapejs }}');
-        var data_payout = JSON.parse('{{ data_json_payout|escapejs }}');
+        let data_tension = [];
+        let data_payout = [];
+
+        try {
+            data_tension = JSON.parse('{{ data_json_tension|escapejs }}');
+            data_payout = JSON.parse('{{ data_json_payout|escapejs }}');
+            console.log('Tension data:', data_tension);
+            console.log('Payout data:', data_payout);
+        } catch (e) {
+            console.error("Failed to parse chart data:", e);
+        }
 
         console.log('Tension data:', data_tension);
         console.log('Payout data:', data_payout);
