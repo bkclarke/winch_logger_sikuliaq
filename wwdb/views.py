@@ -221,17 +221,6 @@ def charts(request):
             data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
             data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_payout']})
 
-    data_tension = [
-        {'date': '2025-06-23 00:00:00', 'value': 10},
-        {'date': '2025-06-23 00:01:00', 'value': 12},
-        {'date': '2025-06-23 00:02:00', 'value': 9},
-    ]
-    data_payout = [
-        {'date': '2025-06-23 00:00:00', 'value': 5},
-        {'date': '2025-06-23 00:01:00', 'value': 4.5},
-        {'date': '2025-06-23 00:02:00', 'value': 6},
-    ]
-
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
