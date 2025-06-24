@@ -94,62 +94,56 @@
             console.error("Failed to parse chart data:", e);
         }
 
-        const chart = Highcharts.chart('container', {
-            chart: {
-                type: 'line',
-                zoomType: 'x',
-                events: {
-                    load: function () {
-                        if (noDbConnection) {
-                            this.customNoDataLabel = this.renderer.text(
-                                'No database connection',
-                                this.plotLeft + this.plotWidth / 2 - 100,
-                                this.plotTop + this.plotHeight / 2
-                            ).css({
-                                color: 'red',
-                                fontSize: '16px',
-                                fontWeight: 'bold'
-                            }).attr({ zIndex: 5 }).add();
-                            return;
-                        }
-                        updateMaxTensionPlotLine(this);
-                    }
-                }
-            },
-            title: {
-                text: 'Tension, Payout vs. Time'
-            },
-            xAxis: {
-                type: 'datetime',
-                title: { text: 'Date' },
-                events: {
-                    afterSetExtremes: function () {
-                        if (!noDbConnection) {
-                            updateMaxTensionPlotLine(this.chart);
-                        }
-                    }
-                }
-            },
-            yAxis: [{
-                title: { text: 'Tension (lbs)' },
-                labels: { format: '{value} lbs' }
-            }, {
-                title: { text: 'Payout (m)' },
-                labels: { format: '{value} m' },
-                opposite: true
-            }],
-            series: [{
-                name: 'Tension',
-                yAxis: 0,
-                data: data_tension.map(p => [new Date(p.date).getTime(), p.value])
-            }, {
-                name: 'Payout',
-                yAxis: 1,
-                data: data_payout.map(p => [new Date(p.date).getTime(), p.value])
-            }]
-        });
+    const toSeries = arr => arr.map(p => [new Date(p.date).getTime(), p.value]);
 
-    function updateMaxTensionPlotLine(chart) {
+    let chart = Highcharts.chart("container", {
+        chart: {
+            zoomType: "x",
+            events: {
+                load() { if (!noDbConnection) updateMaxTension(this); },
+                selection(evt) {            // fires on zoom
+                    if (!evt.xAxis || noDbConnection) return;
+
+                    const min = evt.xAxis[0].min;
+                    const max = evt.xAxis[0].max;
+                    const maxPts = Math.min(this.chartWidth, 10000); // 1-pt-per-px cap 10k
+                    const params = new URLSearchParams({
+                        start: new Date(min).toISOString(),
+                        end: new Date(max).toISOString(),
+                        winch: "{{ winch.id }}",
+                        max_points: maxPts
+                    });
+
+                    fetch("{% url 'chart_data_zoom' %}?" + params)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.error) { console.error(data.error); return; }
+                            data_tension = data.tension;
+                            data_payout = data.payout;
+                            chart.series[0].setData(toSeries(data_tension), false);
+                            chart.series[1].setData(toSeries(data_payout), false);
+                            updateMaxTension(chart);
+                        })
+                        .catch(console.error);
+
+                    // let Highcharts know we’ll handle redrawing
+                    evt.preventDefault();
+                }
+            }
+        },
+        title: { text: "Tension, Payout vs. Time" },
+        xAxis: { type: "datetime" },
+        yAxis: [
+            { title: { text: "Tension (lbs)" }, labels: { format: "{value} lbs" } },
+            { title: { text: "Payout (m)" }, labels: { format: "{value} m" }, opposite: true }
+        ],
+        series: [
+            { name: "Tension", yAxis: 0, data: toSeries(data_tension) },
+            { name: "Payout", yAxis: 1, data: toSeries(data_payout) }
+        ]
+    });
+
+    function updateMaxTension(chart) {
         const xAxis = chart.xAxis[0];
         const min = xAxis.min;
         const max = xAxis.max;
@@ -232,6 +226,7 @@
     }
 
     });
+
 </script>
 
 {% endblock content %}

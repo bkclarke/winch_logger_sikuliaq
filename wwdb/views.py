@@ -95,6 +95,48 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
 
 from collections import defaultdict
 
+def auto_bin_to_target(data_points, *, max_points=MAX_POINTS):
+    n = len(data_points)
+    if n <= max_points:
+        return data_points
+
+    total_sec = (data_points[-1][0] - data_points[0][0]).total_seconds()
+    if total_sec <= 0:
+        return data_points[:max_points]
+
+    bin_sec  = max(MIN_BIN_SEC, ceil(total_sec / max_points))
+    bin_min  = bin_sec / 60.0
+    binned   = bin_data(data_points, bin_minutes=bin_min)
+
+    if len(binned) > max_points:            # safety net
+        step   = ceil(len(binned) / max_points)
+        binned = binned[::step]
+
+    return binned
+
+def chart_data_zoom(request):
+    """AJAX endpoint that returns rebinned data for the visible range."""
+    try:
+        start = datetime.strptime(request.GET["start"], "%Y-%m-%dT%H:%M:%S.%fZ")
+        end   = datetime.strptime(request.GET["end"],   "%Y-%m-%dT%H:%M:%S.%fZ")
+        winch = Winch.objects.get(id=request.GET["winch"])
+        max_points = min(int(request.GET.get("max_points", MAX_POINTS)), MAX_CAP)
+    except Exception as e:
+        return JsonResponse({"error": f"Invalid input: {e}"}, status=400)
+
+    data_pts = get_data_from_external_db(start, end, winch.name)
+    data_pts = auto_bin_to_target(data_pts, max_points=max_points)
+
+    data_t = [
+        {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_tension"]}
+        for dt, v in data_pts
+    ]
+    data_p = [
+        {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_payout"]}
+        for dt, v in data_pts
+    ]
+    return JsonResponse({"tension": data_t, "payout": data_p})
+
 def bin_data(data_points, *, bin_minutes: float) -> list:
 
     if not data_points:

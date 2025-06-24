@@ -138,4 +138,6 @@ urlpatterns = [
     path('reports/charts/', charts, name='charts'),
     path('reports/servicestatus/', views.servicestatus, name='servicestatus'),
     path('tests/test_plots/', views.test_plots, name='test_plots'),
+
+    path('zoom-data', views.chart_data_zoom, name='chart_data_zoom'),
 ]
