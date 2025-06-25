@@ -420,26 +420,21 @@ def castend(request, id):
     return render(request, "wwdb/casts/castend.html", context)
 
 def castedit(request, id):
-    context ={}
-    obj = Cast.objects.get(id=id)
-    if request.method == 'POST':
-        form = EditCastForm(request.POST, instance = obj)
-        if form.is_valid():
-            obj.save()
-            obj.refresh_from_db()
-            obj.get_active_wire()
-            obj.endcastcal()
-            obj.get_cast_duration()
-            obj.save()
-            return HttpResponseRedirect('/wwdb/reports/castreport')
-    else:
-        form = EditCastForm(instance = obj)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/wwdb/casts/%i/edit' % cast.pk)
+    cast = get_object_or_404(Cast, id=id)
 
-    context["form"] = form
-    return render(request, "wwdb/casts/castedit.html", context)
+    if request.method == 'POST':
+        form = EditCastForm(request.POST, instance=cast)
+        if form.is_valid():
+            cast = form.save(commit=False)     
+            cast.get_active_wire()
+            cast.endcastcal()
+            cast.get_cast_duration()
+            cast.save()                     
+            return redirect('cast_report')    
+    else:
+        form = EditCastForm(instance=cast)
+
+    return render(request, "wwdb/casts/castedit.html", {"form": form})
 
 def castmanualenter(request):
     context ={}
