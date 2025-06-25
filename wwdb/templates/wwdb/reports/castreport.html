@@ -1,8 +1,12 @@
 <!doctype html>
 {% extends "wwdb/base.html" %}
 {% load static %}
-
-
+<style>
+    .js-hide {
+        visibility: hidden;
+        height: 0;
+    }
+</style>
 {% block content %}
 <button id="caststartend" class="btn btn-secondary btn-sm">Enter Past Cast</button>
 <img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use to retroactively enter a cast and calculate payout and tension from the database">
@@ -23,7 +27,7 @@
     </br>
     </br>
 </form>
-<table id="table" class="display nowrap d-none">
+<table id="table" class="display nowrap js-hide">
     <thead>
         <tr>
             <th>View Plot</th>
@@ -117,7 +121,8 @@
             scrollX: true,
             order: [[1, "desc"]],
             initComplete: function () {
-                $('#table').removeClass('d-none js-hide');
+                // remove whichever hide class you used
+                $('#table').removeClass('js-hide');
             }
         });
 
