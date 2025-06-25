@@ -65,7 +65,8 @@ logger = logging.getLogger(__name__)
 
 MAX_DAYS = 14
 MAX_PROCESS_SECONDS = 5  
-MAX_POINTS  = 2000       
+MAX_POINTS  = 2000  
+MAX_CAP = 5000 
 MIN_BIN_SEC = 1 
 
 def get_fake_data_for_testing(start_date, end_date, winch=None):
