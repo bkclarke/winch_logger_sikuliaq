@@ -1,6 +1,7 @@
 <!doctype html>
 {% extends "wwdb/base.html" %}
 {% load static %}
+{% block content %}
 <style>
     .js-hide {
         visibility: hidden;
@@ -10,10 +11,9 @@
 <style>
     #cast-table-container {
         opacity: 0;
-        transition: opacity .15s; 
+        transition: opacity .15s;
     }
 </style>
-{% block content %}
 <button id="caststartend" class="btn btn-secondary btn-sm">Enter Past Cast</button>
 <img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use to retroactively enter a cast and calculate payout and tension from the database">
 <button id="castmanualenter" class="btn btn-primary btn-sm">Enter cast without calculation</button>
@@ -110,9 +110,9 @@
     </table>
 </div>
     </br>
-    <button id="unolsButton">Download UNOLS report</button>
-    <button id="tableButton">Download table</button>
-    <script>
+<button id="unolsButton">Download UNOLS report</button>
+<button id="tableButton">Download table</button>
+<script>
     $(document).ready(function () {
         $('#castmanualenter').click(function () {
             window.location.href = "{% url 'castmanualenter' %}";
@@ -322,5 +322,5 @@
             }
         });
     });
-    </script>
+</script>
     {% endblock content %}
