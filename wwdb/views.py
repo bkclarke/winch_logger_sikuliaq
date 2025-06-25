@@ -434,7 +434,12 @@ def castedit(request, id):
         else:
             form = EditCastForm(instance=cast)
 
+        context={
+            form:'form',
+                 }
+
     return render(request, "wwdb/casts/castedit.html", {"form": form})
+
 
 def castmanualenter(request):
     context ={}
