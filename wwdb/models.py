@@ -324,6 +324,7 @@ class Cast(models.Model):
         return
 
     def endcastcal(self):
+        logging.debug("endcastcal() called for cast %s", self.pk)
         winch=(self.winch.name)
         if self.wet_end_tag:
             wetend=int(self.wet_end_tag)
