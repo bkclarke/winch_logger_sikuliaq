@@ -101,12 +101,12 @@
             zoomType: "x",
             events: {
                 load() { if (!noDbConnection) updateMaxTension(this); },
-                selection(evt) {            // fires on zoom
+                selection(evt) {          
                     if (!evt.xAxis || noDbConnection) return;
 
                     const min = evt.xAxis[0].min;
                     const max = evt.xAxis[0].max;
-                    const maxPts = Math.min(this.chartWidth, 10000); // 1-pt-per-px cap 10k
+                    const maxPts = Math.min(this.chartWidth, 10000); 
                     const params = new URLSearchParams({
                         start: new Date(min).toISOString(),
                         end: new Date(max).toISOString(),
@@ -128,7 +128,6 @@
                         })
                         .catch(console.error);
 
-                    // let Highcharts know we’ll handle redrawing
                     evt.preventDefault();
                 }
             }
@@ -173,7 +172,6 @@
                 while (i < visibleTensionData.length && visibleTensionData[i].value === null) {
                     i++;
                 }
-                // i is now at first non-null after a block of nulls
                 let prev = visibleTensionData[startIdx - 1];
                 let next = visibleTensionData[i];
                 if (prev && next) {
