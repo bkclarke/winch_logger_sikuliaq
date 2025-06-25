@@ -325,61 +325,60 @@ class Cast(models.Model):
 
     def endcastcal(self):
         logging.debug("endcastcal() called for cast %s", self.pk)
-        winch=(self.winch.name)
-        if self.wet_end_tag:
-            wetend=int(self.wet_end_tag)
-        if self.dry_end_tag:
-            dryend=int(self.dry_end_tag)
+        winch = self.winch.name
+        wetend = int(self.wet_end_tag) if self.wet_end_tag else None
+        dryend = int(self.dry_end_tag) if self.dry_end_tag else None
+
         try:
-            conn = mysql.connector.connect(host='localhost',
+            conn = mysql.connector.connect(
+                host='127.0.0.1',
                 user='root',
                 password='b1uz00!!2SQ',
                 database='winch_data'
             )
 
-            winch=(self.winch.name)
-            startcal=str(self.startdate)
-            endcal=str(self.enddate)
-            df=pd.read_sql_query("SELECT * FROM " + winch + " WHERE date_time BETWEEN '" + startcal + "' AND '" + endcal + "'", conn)
+            startcal = str(self.startdate)
+            endcal = str(self.enddate)
+            df = pd.read_sql_query(
+                f"SELECT * FROM {winch} WHERE date_time BETWEEN '{startcal}' AND '{endcal}'",
+                conn
+            )
 
             if not df.empty:
                 logging.debug("DataFrame shape: %s", df.shape)
-    
+
                 castmaxtensiondf = df[df.tension_load_cell == df.tension_load_cell.max()]
                 castmaxtension = castmaxtensiondf['tension_load_cell'].max()
                 castmaxpayout = df['payout'].max()
                 castpayoutmaxtension = castmaxtensiondf['payout'].max()
                 casttimemaxtension = castmaxtensiondf['date_time'].max()
 
-                if wetend and dryend:
-                    if wetend>dryend:
-                        length=int(wetend)-int(castpayoutmaxtension)
-                        castmetermaxtension=length
+                if wetend is not None and dryend is not None:
+                    if wetend > dryend:
+                        castmetermaxtension = wetend - int(castpayoutmaxtension)
                     else:
-                        length=int(wetend)+int(castpayoutmaxtension)
-                        castmetermaxtension=length
+                        castmetermaxtension = wetend + int(castpayoutmaxtension)
 
-                self.maxtension=castmaxtension
-                logging.debug("max tension is:", castmaxtension)
-                self.maxpayout=castmaxpayout
-                logging.debug("max payout is:", castmaxpayout)
-                self.payoutmaxtension=castpayoutmaxtension
-                self.timemaxtension=casttimemaxtension
-                self.metermaxtension=castmetermaxtension
+                self.maxtension = castmaxtension
+                self.maxpayout = castmaxpayout
+                self.payoutmaxtension = castpayoutmaxtension
+                self.timemaxtension = casttimemaxtension
+                self.metermaxtension = castmetermaxtension
+                logging.debug("max tension is: %s", castmaxtension)
+                logging.debug("max payout is: %s", castmaxpayout)
 
             else:
-                logging.error("No data was found for the timeframe entered. Start: %s, End: %s", startcal, endcal)
-
-                self.maxtension=None
-                self.maxpayout=None
-                self.payoutmaxtension=None
-                self.timemaxtension=None
-                self.metermaxtension=None
+                logging.warning("No data was found for the timeframe entered. Start: %s, End: %s", startcal, endcal)
+                self.maxtension = None
+                self.maxpayout = None
+                self.payoutmaxtension = None
+                self.timemaxtension = None
+                self.metermaxtension = None
 
             conn.close()
 
         except Exception as e:
-            logging.error("Not able to establish connection with the database. Error: %s", e)
+            logging.error("Unexpected error during endcastcal: %s", e, exc_info=True)   
 
             if self.wet_end_tag and self.dry_end_tag:
                 wetend=int(self.wet_end_tag)
