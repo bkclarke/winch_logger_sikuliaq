@@ -35,11 +35,9 @@ from math import ceil
 from dateutil import parser
 
 def test_plots(request):
-    # Generate sample data (some nulls included)
     base_time = datetime.now() - timedelta(days=1)
     timestamps = [base_time + timedelta(minutes=30 * i) for i in range(48)]  # 24h data
 
-    # Example: half null values for tension, valid for payout
     tension_data = [
         {'date': t.isoformat(), 'value': None if i % 2 == 0 else i * 10}
         for i, t in enumerate(timestamps)
@@ -65,8 +63,8 @@ def test_plots(request):
 logger = logging.getLogger(__name__)
 
 MAX_DAYS = 14
-MAX_PROCESS_SECONDS = 5  # max allowed processing time for query + binning
-MAX_POINTS  = 2_000        # hard ceiling
+MAX_PROCESS_SECONDS = 5  
+MAX_POINTS  = 2_000       
 MIN_BIN_SEC = 1 
 
 def get_fake_data_for_testing(start_date, end_date, winch=None):
@@ -80,9 +78,7 @@ def get_fake_data_for_testing(start_date, end_date, winch=None):
     current = datetime.combine(start_date, datetime.min.time())
     end = datetime.combine(end_date, datetime.min.time())
 
-    # Every 1 minute for 14 days = ~20,000 points
     while current < end:
-        # Simulate 5% chance of missing values
         tension = random.randint(100, 800) if random.random() > 0.05 else None
         payout = random.uniform(5.0, 30.0) if random.random() > 0.05 else None
 
@@ -121,7 +117,7 @@ def chart_data_zoom(request):
         return JsonResponse({"tension": data_t, "payout": data_p})
 
     except Exception as e:
-        print("chart_data_zoom ERROR:", e)          #  <<< debug line
+        print("chart_data_zoom ERROR:", e)         
         return JsonResponse({"error": str(e)}, status=400)
 
 def bin_data(data_points, *, bin_minutes: float) -> list:
@@ -230,8 +226,6 @@ def charts(request):
 
             if (end_date - start_date).days > MAX_DAYS:
                 error_message = f"Please select a date range of {MAX_DAYS} days or less."
-                # Optionally auto-correct:
-                # end_date = start_date + timedelta(days=MAX_DAYS)
 
             # Include full day
             end_date = end_date + timedelta(days=1)
