@@ -34,6 +34,7 @@ import time
 from math import ceil
 from dateutil import parser
 import traceback
+from django.db import transaction
 
 def test_plots(request):
     base_time = datetime.now() - timedelta(days=1)
