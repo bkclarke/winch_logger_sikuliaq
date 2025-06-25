@@ -106,21 +106,23 @@ def chart_data_zoom(request):
         end   = _parse_iso(request.GET["end"])
         winch = Winch.objects.get(id=request.GET["winch"])
         max_points = min(int(request.GET.get("max_points", MAX_POINTS)), MAX_CAP)
+
+        data_pts = get_data_from_external_db(start, end, winch.name)
+        data_pts = auto_bin_to_target(data_pts, max_points=max_points)
+
+        data_t = [
+            {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_tension"]}
+            for dt, v in data_pts
+        ]
+        data_p = [
+            {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_payout"]}
+            for dt, v in data_pts
+        ]
+        return JsonResponse({"tension": data_t, "payout": data_p})
+
     except Exception as e:
-        return JsonResponse({"error": f"Invalid input: {e}"}, status=400)
-
-    data_pts = get_data_from_external_db(start, end, winch.name)
-    data_pts = auto_bin_to_target(data_pts, max_points=max_points)
-
-    data_t = [
-        {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_tension"]}
-        for dt, v in data_pts
-    ]
-    data_p = [
-        {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_payout"]}
-        for dt, v in data_pts
-    ]
-    return JsonResponse({"tension": data_t, "payout": data_p})
+        print("chart_data_zoom ERROR:", e)          #  <<< debug line
+        return JsonResponse({"error": str(e)}, status=400)
 
 def bin_data(data_points, *, bin_minutes: float) -> list:
 
