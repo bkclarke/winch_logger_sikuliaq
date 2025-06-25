@@ -33,7 +33,6 @@ import random
 import time
 from math import ceil
 from dateutil import parser
-import traceback
 
 def test_plots(request):
     base_time = datetime.now() - timedelta(days=1)
