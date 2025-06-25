@@ -115,7 +115,10 @@
         var table = $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[1, "desc"]]
+            order: [[1, "desc"]],
+            initComplete: function () {
+                $('#table').removeClass('d-none js-hide');
+            }
         });
 
         // Function to count unique values in a column
