@@ -430,9 +430,9 @@ def castedit(request, id):
             cast.endcastcal()
             cast.get_cast_duration()
             cast.save()                     
-            return redirect('cast_report')    
-    else:
-        form = EditCastForm(instance=cast)
+            return HttpResponseRedirect('/wwdb/reports/castreport')    
+        else:
+            form = EditCastForm(instance=cast)
 
     return render(request, "wwdb/casts/castedit.html", {"form": form})
 
