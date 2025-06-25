@@ -27,84 +27,86 @@
     </br>
     </br>
 </form>
-<table id="table" class="display nowrap js-hide">
-    <thead>
-        <tr>
-            <th>View Plot</th>
-            <th>Start time</th>
-            <th>Duration (min)</th>
-            <th>Winch</th>
-            <th>Wire</th>
-            <th>Deployment type</th>
-            <th>Start operator</th>
-            <th>End operator</th>
-            <th>Max tension</th>
-            <th>Max payout</th>
-            <th>Wire out at max tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Payout at which max tension occured."></th>
-            <th>Meter mark at max tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Marks where along the wire the max tension occured"></th>
-            <th>Time of max tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Time at which the max tension occured"></th>
-            <th>Wet end<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Value of meter mark at the wet end"></th>
-            <th>Dry end<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Value of meter mark at the dry end"></th>
-            <th>Wire rinse</th>
-            <th>Ship</th>
-            <th>Institution</th>
-            <th>Winch manufacturer</th>
-            <th>Wire type</th>
-            <th>Wire length (m)</th>
-            <th>factor of Safety</th>
-            <th>Safe working tension (lbs)</th>
-            <th>Wire in at max tension</th>
-            <th>Edit cast<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Edit a cast and automatically calculate max payout and tension."></th>
-            <th>Manual edit<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use only if payout and tension need to be manually entered"></th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for cast in casts %}
-        <tr class="{% if cast.flagforreview or not cast.maxtension or not cast.maxpayout %}table-danger{% endif %}">
-            <td>
-                <a href="{% url 'charts' %}?start_date={{ cast.format_startdate_url }}&end_date={{ cast.format_enddate_url }}&winch={{ cast.winch.id }}" class="btn btn-info btn-sm">View Plot</a>
-            </td>
-            <td>{{cast.format_startdate_csv}}</td>
-            <td>{{cast.duration}}</td>
-            <td>{{cast.winch}}</td>
-            <td>{{cast.wire}}</td>
-            <td>{{cast.deploymenttype}}</td>
-            <td>{{cast.startoperator}}</td>
-            <td>{{cast.endoperator}}</td>
-            <td>{{cast.maxtension}}</td>
-            <td>{{cast.maxpayout}}</td>
-            <td>{{cast.payoutmaxtension}}</td>
-            <td>{{cast.metermaxtension}}</td>
-            <td>{{cast.format_timemaxtension}}</td>
-            <td>{{cast.wetendtag}}</td>
-            <td>{{cast.dryendtag}}</td>
-            <td>{{cast.wirerinse}}</td>
-            <td>{{cast.winch.ship}}</td>
-            <td>{{cast.winch.institution}}</td>
-            <td>{{cast.winch.manufacturer}}</td>
-            <td>{{cast.wire.wirerope.name}}</td>
-            <td>{{cast.wirelength}}</td>
-            <td>{{cast.factorofsafety}}</td>
-            <td>{{cast.safeworkingtension}}</td>
-            <td>{{cast.wire_in}}</td>
-            <td>
-                <a href="{% url 'castedit' cast.pk %}" class="btn btn-primary btn-sm">Edit</a>
-            </td>
-            <td>
-                <a href="{% url 'castmanualedit' cast.pk %}" class="btn btn-secondary btn-sm">Manual Edit</a>
-            </td>
-            <td>
-                <a href="{% url 'castdelete' cast.pk %}" class="btn btn-danger btn-sm delete-button" data-cast-id="{{ cast.pk }}">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</br>
-<button id="unolsButton">Download UNOLS report</button>
-<button id="tableButton">Download table</button>
-<script>
+<div id="cast-table-container" class="js-hide">
+    <table id="table" class="display nowrap">
+        <thead>
+            <tr>
+                <th>View Plot</th>
+                <th>Start time</th>
+                <th>Duration (min)</th>
+                <th>Winch</th>
+                <th>Wire</th>
+                <th>Deployment type</th>
+                <th>Start operator</th>
+                <th>End operator</th>
+                <th>Max tension</th>
+                <th>Max payout</th>
+                <th>Wire out at max tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Payout at which max tension occured."></th>
+                <th>Meter mark at max tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Marks where along the wire the max tension occured"></th>
+                <th>Time of max tension<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Time at which the max tension occured"></th>
+                <th>Wet end<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Value of meter mark at the wet end"></th>
+                <th>Dry end<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Value of meter mark at the dry end"></th>
+                <th>Wire rinse</th>
+                <th>Ship</th>
+                <th>Institution</th>
+                <th>Winch manufacturer</th>
+                <th>Wire type</th>
+                <th>Wire length (m)</th>
+                <th>factor of Safety</th>
+                <th>Safe working tension (lbs)</th>
+                <th>Wire in at max tension</th>
+                <th>Edit cast<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Edit a cast and automatically calculate max payout and tension."></th>
+                <th>Manual edit<img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use only if payout and tension need to be manually entered"></th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cast in casts %}
+            <tr class="{% if cast.flagforreview or not cast.maxtension or not cast.maxpayout %}table-danger{% endif %}">
+                <td>
+                    <a href="{% url 'charts' %}?start_date={{ cast.format_startdate_url }}&end_date={{ cast.format_enddate_url }}&winch={{ cast.winch.id }}" class="btn btn-info btn-sm">View Plot</a>
+                </td>
+                <td>{{cast.format_startdate_csv}}</td>
+                <td>{{cast.duration}}</td>
+                <td>{{cast.winch}}</td>
+                <td>{{cast.wire}}</td>
+                <td>{{cast.deploymenttype}}</td>
+                <td>{{cast.startoperator}}</td>
+                <td>{{cast.endoperator}}</td>
+                <td>{{cast.maxtension}}</td>
+                <td>{{cast.maxpayout}}</td>
+                <td>{{cast.payoutmaxtension}}</td>
+                <td>{{cast.metermaxtension}}</td>
+                <td>{{cast.format_timemaxtension}}</td>
+                <td>{{cast.wetendtag}}</td>
+                <td>{{cast.dryendtag}}</td>
+                <td>{{cast.wirerinse}}</td>
+                <td>{{cast.winch.ship}}</td>
+                <td>{{cast.winch.institution}}</td>
+                <td>{{cast.winch.manufacturer}}</td>
+                <td>{{cast.wire.wirerope.name}}</td>
+                <td>{{cast.wirelength}}</td>
+                <td>{{cast.factorofsafety}}</td>
+                <td>{{cast.safeworkingtension}}</td>
+                <td>{{cast.wire_in}}</td>
+                <td>
+                    <a href="{% url 'castedit' cast.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                </td>
+                <td>
+                    <a href="{% url 'castmanualedit' cast.pk %}" class="btn btn-secondary btn-sm">Manual Edit</a>
+                </td>
+                <td>
+                    <a href="{% url 'castdelete' cast.pk %}" class="btn btn-danger btn-sm delete-button" data-cast-id="{{ cast.pk }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    </br>
+    <button id="unolsButton">Download UNOLS report</button>
+    <button id="tableButton">Download table</button>
+    <script>
     $(document).ready(function () {
         $('#castmanualenter').click(function () {
             window.location.href = "{% url 'castmanualenter' %}";
@@ -121,8 +123,7 @@
             scrollX: true,
             order: [[1, "desc"]],
             initComplete: function () {
-                // remove whichever hide class you used
-                $('#table').removeClass('js-hide');
+                $('#cast-table-container').removeClass('js-hide');
             }
         });
 
@@ -316,5 +317,5 @@
             }
         });
     });
-</script>
-{% endblock content %}
+    </script>
+    {% endblock content %}
