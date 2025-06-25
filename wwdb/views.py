@@ -1,7 +1,7 @@
 from typing_extensions import Concatenate
 from django import template
 from django.db.models.query import QuerySet
-from django.http import HttpResponse, Http404, HttpResponseRedirect, FileResponse
+from django.http import HttpResponse, Http404, HttpResponseRedirect, FileResponse, JsonResponse
 from django.template import loader
 from wwdb.filters import CastFilter
 from .models import *
@@ -64,7 +64,7 @@ logger = logging.getLogger(__name__)
 
 MAX_DAYS = 14
 MAX_PROCESS_SECONDS = 5  
-MAX_POINTS  = 2_000       
+MAX_POINTS  = 2000       
 MIN_BIN_SEC = 1 
 
 def get_fake_data_for_testing(start_date, end_date, winch=None):
