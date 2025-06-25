@@ -331,7 +331,7 @@ class Cast(models.Model):
         if self.dry_end_tag:
             dryend=int(self.dry_end_tag)
         try:
-            conn = mysql.connector.connect(host='127.0.0.1',
+            conn = mysql.connector.connect(host='localhost',
                 user='root',
                 password='b1uz00!!2SQ',
                 database='winch_data'
