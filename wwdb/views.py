@@ -425,7 +425,8 @@ def castedit(request, id):
     if request.method == 'POST':
         form = EditCastForm(request.POST, instance = obj)
         if form.is_valid():
-            form.save(commit=False)
+            obj.save()
+            obj.refresh_from_db()
             obj.get_active_wire()
             obj.endcastcal()
             obj.get_cast_duration()
