@@ -422,21 +422,17 @@ def castend(request, id):
 def castedit(request, id):
     cast = get_object_or_404(Cast, id=id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = EditCastForm(request.POST, instance=cast)
         if form.is_valid():
-            cast = form.save(commit=False)     
+            cast = form.save(commit=False)   
             cast.get_active_wire()
             cast.endcastcal()
             cast.get_cast_duration()
-            cast.save()                     
-            return HttpResponseRedirect('/wwdb/reports/castreport')    
-        else:
-            form = EditCastForm(instance=cast)
-
-        context={
-            form:'form',
-                 }
+            cast.save()                      
+            return redirect("/wwdb/reports/castreport")
+    else:
+        form = EditCastForm(instance=cast)
 
     return render(request, "wwdb/casts/castedit.html", {"form": form})
 
