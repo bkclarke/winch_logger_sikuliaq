@@ -101,9 +101,13 @@ def chart_data_zoom(request):
     try:
         start = _parse_iso(request.GET["start"])
         end = _parse_iso(request.GET["end"])
-        winch = Winch.objects.get(id=request.GET["winch"])
+        winch_id = request.GET.get("winch", "").strip()
         max_points = min(int(request.GET.get("max_points", MAX_POINTS)), MAX_CAP)
 
+        if not winch_id.isdigit():
+            raise ValueError("Invalid winch ID")
+
+        winch = Winch.objects.get(id=int(winch_id))
         data_pts = get_data_from_external_db(start, end, winch.name)
         data_pts = auto_bin_to_target(data_pts, max_points=max_points)
 
@@ -118,8 +122,8 @@ def chart_data_zoom(request):
         return JsonResponse({"tension": data_t, "payout": data_p})
 
     except Exception as e:
+        traceback.print_exc()
         print("chart_data_zoom ERROR:", e)
-        traceback.print_exc()  
         return JsonResponse({"error": str(e)}, status=400)
 
 def bin_data(data_points, *, bin_minutes: float) -> list:
