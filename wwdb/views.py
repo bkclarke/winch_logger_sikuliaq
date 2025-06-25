@@ -217,7 +217,11 @@ def charts(request):
 
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
-    winch_id = request.GET.get('winch')
+    winch_id = request.GET.get("winch")
+    if not winch_id:
+        winch = Winch.objects.last()     # fallback to any winch you like
+    else:
+        winch = Winch.objects.get(id=int(winch_id))
 
     # Validate input and limit date range
     try:

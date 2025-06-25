@@ -110,7 +110,7 @@
                     const params = new URLSearchParams({
                         start: new Date(min).toISOString(),
                         end: new Date(max).toISOString(),
-                        winch: "{{ winch.id }}",
+                        winch: "{{ winch.id|default:'' }}",
                         max_points: maxPts
                     });
 
