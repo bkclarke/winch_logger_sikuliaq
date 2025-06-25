@@ -48,8 +48,8 @@
         var startDateInput = document.getElementById('start_date');
         var endDateInput = document.getElementById('end_date');
 
-        const chartDiv = document.getElementById('container');
-        const winchId = chartDiv.dataset.winch;
+        const urlParams = new URLSearchParams(window.location.search);
+        const winchId = urlParams.get("winch");
 
         var currentDate = new Date();
         var currentDateString = currentDate.toISOString().split('T')[0];
