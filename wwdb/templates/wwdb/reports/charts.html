@@ -58,8 +58,20 @@
         var oneDayAgoString = oneDayAgo.toISOString().split('T')[0];
 
         if (startDateInput && endDateInput) {
-            startDateInput.value = oneDayAgoString;
-            endDateInput.value = currentDateString;
+            if (!startDateInput.value) {
+                startDateInput.value = oneDayAgoString;
+            }
+            if (!endDateInput.value) {
+                endDateInput.value = currentDateString;
+            }
+
+        if (startDateInput.value) {
+            var startDate = new Date(startDateInput.value);
+            var endLimit = new Date(startDate);
+            endLimit.setDate(endLimit.getDate() + 14);
+            endDateInput.setAttribute('min', startDateInput.value);
+            endDateInput.setAttribute('max', endLimit.toISOString().split('T')[0]);
+        }
 
             endDateInput.setAttribute('max', currentDateString);
 
