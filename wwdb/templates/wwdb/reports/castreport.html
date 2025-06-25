@@ -7,6 +7,12 @@
         height: 0;
     }
 </style>
+<style>
+    #cast-table-container {
+        opacity: 0;
+        transition: opacity .15s; 
+    }
+</style>
 {% block content %}
 <button id="caststartend" class="btn btn-secondary btn-sm">Enter Past Cast</button>
 <img src="{% static 'img/info_icon.png' %}" alt="Example Image" data-toggle="tooltip" data-placement="left" title="Use to retroactively enter a cast and calculate payout and tension from the database">
@@ -27,7 +33,7 @@
     </br>
     </br>
 </form>
-<div id="cast-table-container" class="js-hide">
+<div id="cast-table-container">
     <table id="table" class="display nowrap">
         <thead>
             <tr>
@@ -118,16 +124,15 @@
         });
     });
     $(document).ready(function () {
-        var table = $('#table').DataTable({
+        const table = $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[1, "desc"]],
+            order: [[1, 'desc']],
             initComplete: function () {
-                $('#cast-table-container').removeClass('js-hide');
+                $('#cast-table-container').css('opacity', 1);
             }
         });
 
-        // Function to count unique values in a column
         function verifyCountUniqueValues(columnIndex) {
             var values = [];
             table.column(columnIndex, { search: 'applied' }).data().each(function (value) {
