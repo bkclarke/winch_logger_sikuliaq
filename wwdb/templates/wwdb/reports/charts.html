@@ -115,11 +115,12 @@
                     const params = new URLSearchParams({
                         start: new Date(min).toISOString(),
                         end: new Date(max).toISOString(),
-                        winch: "{{ winch.id|default:'' }}",
+                        winch: winchId,
                         max_points: maxPts
                     });
 
                     console.log("zoom request: ", params.toString());
+                    console.log("Zoom winchId:", winchId);
 
                     fetch("{% url 'chart_data_zoom' %}?" + params)
                         .then(r => r.json())
