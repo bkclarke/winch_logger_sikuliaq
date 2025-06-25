@@ -99,7 +99,7 @@ def chart_data_zoom(request):
     """AJAX endpoint that returns rebinned data for the visible range."""
     try:
         start = _parse_iso(request.GET["start"])
-        end   = _parse_iso(request.GET["end"])
+        end = _parse_iso(request.GET["end"])
         winch = Winch.objects.get(id=request.GET["winch"])
         max_points = min(int(request.GET.get("max_points", MAX_POINTS)), MAX_CAP)
 
@@ -117,7 +117,8 @@ def chart_data_zoom(request):
         return JsonResponse({"tension": data_t, "payout": data_p})
 
     except Exception as e:
-        print("chart_data_zoom ERROR:", e)         
+        print("chart_data_zoom ERROR:", e)
+        traceback.print_exc()  
         return JsonResponse({"error": str(e)}, status=400)
 
 def bin_data(data_points, *, bin_minutes: float) -> list:
