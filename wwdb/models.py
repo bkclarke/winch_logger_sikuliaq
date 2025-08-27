@@ -358,12 +358,20 @@ class Cast(models.Model):
                         castmetermaxtension = wetend - int(castpayoutmaxtension)
                     else:
                         castmetermaxtension = wetend + int(castpayoutmaxtension)
+                elif wetend is not None and dryend is None:
+                    castmetermaxtension = wetend - int(castpayoutmaxtension)
+                
+                if castmaxtension:
+                    self.maxtension = castmaxtension
+                if castmaxpayout:
+                    self.maxpayout = castmaxpayout
+                if castpayoutmaxtension:
+                    self.payoutmaxtension = castpayoutmaxtension
+                if casttimemaxtension:
+                    self.timemaxtension = casttimemaxtension
+                if castmetermaxtension:
+                    self.metermaxtension = castmetermaxtension
 
-                self.maxtension = castmaxtension
-                self.maxpayout = castmaxpayout
-                self.payoutmaxtension = castpayoutmaxtension
-                self.timemaxtension = casttimemaxtension
-                self.metermaxtension = castmetermaxtension
                 logging.debug("max tension is: %s", castmaxtension)
                 logging.debug("max payout is: %s", castmaxpayout)
 
