@@ -96,10 +96,14 @@
                 <td>{{cast.safeworkingtension}}</td>
                 <td>{{cast.wire_in}}</td>
                 <td>
-                    <a href="{% url 'castedit' cast.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="{% url 'castedit' cast.pk %}"
+                       class="btn btn-primary btn-sm edit-button"
+                       data-url="{% url 'castedit' cast.pk %}">Edit</a>
                 </td>
                 <td>
-                    <a href="{% url 'castmanualedit' cast.pk %}" class="btn btn-secondary btn-sm">Manual Edit</a>
+                    <a href="{% url 'castmanualedit' cast.pk %}"
+                       class="btn btn-secondary btn-sm edit-button"
+                       data-url="{% url 'castmanualedit' cast.pk %}">Manual Edit</a>
                 </td>
                 <td>
                     <button type="button"
@@ -362,6 +366,17 @@
         // Optional: Close modal on cancel click
         $('#deleteConfirmModal .btn-secondary').click(function () {
             deleteModal.hide();
+        });
+
+        // Restrict Edit buttons to admins
+        $('.edit-button').click(function (e) {
+            const isSuperUser = '{{ user.is_superuser|yesno:"true,false" }}' === 'true';
+            if (!isSuperUser) {
+                e.preventDefault();
+                alert('You must be logged in as an admin to edit this cast.');
+                return false;
+            }
+            // Otherwise proceed with normal link navigation
         });
     });
 </script>

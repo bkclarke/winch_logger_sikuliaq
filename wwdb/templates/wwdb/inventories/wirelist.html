@@ -1,5 +1,4 @@
 <!--template/wirelist.html-->
-<!--template/wirelist.html-->
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
 {% load static %}
@@ -19,6 +18,7 @@
         <tr>
             <th>Edit</th>
             <th>NSF-ID</th>
+            <th>Casts since last cutback</th>
             <th>Wire Type</th>
             <th>Dry End Tag</th>
             <th>Wet End Tag</th>
@@ -31,25 +31,26 @@
             <th>Delete</th>
         </tr>
     </thead>
-    {% for wire in wires %}
+    {% for wire in wire_data %}
     <tr>
         <td>
-            <a href="{% url 'wireedit' wire.pk %}" class="btn btn-primary btn-sm">Edit</a>
+            <a href="{% url 'wireedit' wire.wire.pk %}" class="btn btn-primary btn-sm">Edit</a>
         </td>
-        <td>{{wire.nsfid}}</td>
-        <td>{{wire.wirerope}}</td>
-        <td>{{wire.dryendtag}}</td>
-        <td>{{wire.active_wetendtag}}</td>
-        <td>{{wire.active_length}}</td>
-        <td>{{wire.nominal_breaking_load}}</td>
-        <td>{{wire.tested_breaking_load}}</td>
-        <td>{{wire.absolute_breaking_load}}</td>
-        <td>{{wire.active_location}}</td>
-        <td>{{wire.active_winch}}</td>
+        <td>{{wire.wire.nsfid}}</td>
+        <td>{{wire.casts_count }}</td>
+        <td>{{wire.wire.wirerope}}</td>
+        <td>{{wire.wire.dryendtag}}</td>
+        <td>{{wire.wire.active_wetendtag}}</td>
+        <td>{{wire.wire.active_length}}</td>
+        <td>{{wire.wire.nominal_breaking_load}}</td>
+        <td>{{wire.wire.tested_breaking_load}}</td>
+        <td>{{wire.wire.absolute_breaking_load}}</td>
+        <td>{{wire.wire.active_location}}</td>
+        <td>{{wire.wire.active_winch}}</td>
         <td>
             <button type="button"
                     class="btn btn-danger btn-sm delete-button"
-                    data-url="{% url 'wiredelete' wire.pk %}">
+                    data-url="{% url 'wiredelete' wire.wire.pk %}">
                 Delete
             </button>
         </td>

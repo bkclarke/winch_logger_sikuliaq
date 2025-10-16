@@ -25,7 +25,7 @@ from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 import io
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time as dt_time
 from django.contrib.auth import logout
 import json
 import subprocess
@@ -35,6 +35,8 @@ from math import ceil
 from dateutil import parser
 import traceback
 from django.db import transaction
+from django.utils import timezone
+
 
 def test_plots(request):
     base_time = datetime.now() - timedelta(days=1)
@@ -249,6 +251,8 @@ def charts(request):
     except ValueError:
         error_message = "Invalid date format."
 
+
+
     # Validate winch selection
     try:
         winch = Winch.objects.get(id=winch_id) if winch_id else Winch.objects.last()
@@ -291,9 +295,6 @@ def charts(request):
         'db_connected': db_connected,
         'no_db_connection': not db_connected,
     }
-
-    if error_message:
-        messages.error(request, error_message)
 
     return render(request, 'wwdb/reports/charts.html', context)
 
@@ -1099,13 +1100,35 @@ def wirelist(request):
     wires_in_storage = Wire.objects.filter(status=False)
     wires = Wire.objects.all()
     
+    today_start = datetime.combine(datetime.today(), dt_time.min)
+    today_end = datetime.combine(datetime.today(), dt_time.max)
+
+    wire_data = []
+    for wire in wires:
+        last_cutback = wire.active_wire_cutback
+        if last_cutback:
+            last_cutback_dt = datetime.combine(last_cutback.date, dt_time.min)
+            
+            casts_count = Cast.objects.filter(
+                wire=wire,
+                startdate__gte=last_cutback_dt,
+                startdate__lte=today_end
+            ).count()
+        else:
+            casts_count = 0
+
+        wire_data.append({
+            'wire': wire,
+            'casts_count': casts_count
+        })
+
     context = {
         'wires_in_use': wires_in_use,
-        'wires_in_storage': wires_in_storage, 
-        'wires' : wires,
-        }
+        'wires_in_storage': wires_in_storage,
+        'wire_data': wire_data,
+    }
 
-    return render(request, 'wwdb/inventories/wirelist.html', context=context)
+    return render(request, 'wwdb/inventories/wirelist.html', context)
 
 def wireropedatalist(request):
     wireropes = WireRopeData.objects.all()
