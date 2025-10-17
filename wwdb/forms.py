@@ -757,6 +757,17 @@ class SWTTableForm(forms.ModelForm):
             ]
  
 class WireEditForm(ModelForm):
+    UNIT_CHOICES = [
+        ('m', 'Meters'),
+        ('ft', 'Feet'),
+    ]
+
+    dryendtag_units = forms.ChoiceField(
+        choices=UNIT_CHOICES,
+        label="Units",
+        initial='m',
+        widget=forms.Select(attrs={"class": "form-control", "style": "max-width: 150px;"})
+    )
 
     class Meta:
         model = Wire
@@ -769,35 +780,62 @@ class WireEditForm(ModelForm):
             'ownershipstatus',
             'factorofsafety',
             'dryendtag',
-
         ]
 
         widgets = {
             'dateacquired': DatePickerInput(
-                    options={
-                    "format": "YYYY-MM-DD"}
-                    ),
+                options={"format": "YYYY-MM-DD"},
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%;"
+                }
+            ),
             "nsfid": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "max-width: ;100% align: center;",
-                    "placeholder": "name",
-                }),
-            "manufacturerid": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "max-width: 100%; align: center;",
-                    "placeholder": "name",
-                }),
+                attrs={"class": "form-control", "style": "max-width: 100%;", "placeholder": "NSF ID"}
+            ),
+            "wirerope": forms.TextInput(
+                attrs={"class": "form-control", "style": "max-width: 100%;", "placeholder": "Wire Type"}
+            ),
             "notes": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "max-width: 100%; align: center;",
-                    "placeholder": "name",
-                }),
+                attrs={"class": "form-control", "style": "max-width: 100%;", "placeholder": "Notes"}
+            ),
+            "dryendtag": forms.NumberInput(
+                attrs={"class": "form-control", "placeholder": "Enter dry end tag", "step": "any", "style": "max-width: 100%;"}
+            ),
         }
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        dryendtag = cleaned_data.get('dryendtag')
+        unit = cleaned_data.get('dryendtag_units')
+
+        if dryendtag is not None and unit == 'ft':
+            # Convert feet to meters
+            cleaned_data['dryendtag'] = round(dryendtag * 0.3048, 3)
+
+        return cleaned_data
 
 class WireAddForm(ModelForm):
+    UNIT_CHOICES = [
+        ('m', 'Meters'),
+        ('ft', 'Feet'),
+    ]
+
+    dryendtag_units = forms.ChoiceField(
+        choices=UNIT_CHOICES,
+        label="Units",
+        initial='m',
+        widget=forms.Select(attrs={"class": "form-control", "style": "max-width: 150px;"})
+    )
+
+    factorofsafety = forms.ModelChoiceField(
+        queryset=FactorOfSafety.objects.all(),
+        empty_label="Select Factor of Safety",
+        label="Factor of Safety",
+        widget=forms.Select(attrs={"class": "form-control", "style": "max-width: 100%;"}),
+        to_field_name="factorofsafety"  # This tells Django which field to display in options
+    )
 
     class Meta:
         model = Wire
@@ -814,22 +852,39 @@ class WireAddForm(ModelForm):
 
         widgets = {
             'dateacquired': DatePickerInput(
-                    options={
-                    "format": "YYYY-MM-DD"}
-                    ),
+                options={"format": "YYYY-MM-DD"},
+                attrs={"class": "form-control", "style": "max-width: 100%;"}
+            ),
             "nsfid": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "max-width: ;100% align: center;",
-                    "placeholder": "nsf id",
-                }),
+                attrs={"class": "form-control", "style": "max-width: 100%;", "placeholder": "NSF ID"}
+            ),
+            "wirerope": forms.TextInput(
+                attrs={"class": "form-control", "style": "max-width: 100%;", "placeholder": "Wire Type"}
+            ),
             "notes": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "max-width: 100%; align: center;",
-                    "placeholder": "notes",
-                }),
+                attrs={"class": "form-control", "style": "max-width: 100%;", "placeholder": "Notes"}
+            ),
+            "dryendtag": forms.NumberInput(
+                attrs={"class": "form-control", "placeholder": "Enter dry end tag", "step": "any", "style": "max-width: 100%;"}
+            ),
+            "status": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "ownershipstatus": forms.Select(
+                attrs={"class": "form-control", "style": "max-width: 100%;"}
+            ),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        dryendtag = cleaned_data.get('dryendtag')
+        unit = cleaned_data.get('dryendtag_units')
+
+        if dryendtag is not None and unit == 'ft':
+            cleaned_data['dryendtag'] = round(dryendtag * 0.3048, 3)
+
+        return cleaned_data
+
 
 class WireRopeDataEditForm(ModelForm):
 

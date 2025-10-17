@@ -4,10 +4,56 @@
 {{ form.media }}
 
 {% block content %}
-<h1>Add a tension member</h1>
+<h1>Add a Tension Member</h1>
 <form action="" method="post">
     {% csrf_token %}
-    {% bootstrap_form form %}
-    <input type="submit" value="save">
+
+    <div class="form-group mb-3">
+        {{ form.nsfid.label_tag }}
+        {{ form.nsfid }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.wirerope.label_tag }}
+        {{ form.wirerope }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.dateacquired.label_tag }}
+        {{ form.dateacquired }}
+    </div>
+
+    <!-- Dry end tag + units -->
+    <div class="form-group row align-items-end mb-3">
+        <div class="col-md-6">
+            {{ form.dryendtag.label_tag }}
+            {{ form.dryendtag }}
+        </div>
+        <div class="col-md-3">
+            {{ form.dryendtag_units.label_tag }}
+            {{ form.dryendtag_units }}
+        </div>
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.notes.label_tag }}
+        {{ form.notes }}
+    </div>
+    <div class="form-check mb-3">
+        <label class="form-check-label d-flex align-items-center">
+            {{ form.status.label }}
+            {{ form.status }}
+        </label>
+    </div>
+    <div class="form-group mb-3">
+        {{ form.ownershipstatus.label_tag }}
+        {{ form.ownershipstatus }}
+    </div>
+    <div class="form-group mb-3">
+        {{ form.factorofsafety.label_tag }}
+        {{ form.factorofsafety }}
+    </div>
+
+    <input type="submit" value="Save" class="btn btn-primary">
 </form>
 {% endblock content %}
