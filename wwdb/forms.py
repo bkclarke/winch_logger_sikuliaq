@@ -285,6 +285,17 @@ class EditCruiseForm(ModelForm):
                     )}
 
 class AddCutbackReterminationForm(ModelForm):
+    UNIT_CHOICES = [
+        ('m', 'Meters'),
+        ('ft', 'Feet'),
+    ]
+
+    wetendtag_units = forms.ChoiceField(
+        choices=UNIT_CHOICES,
+        label="Units",
+        initial='m',
+        widget=forms.Select(attrs={"class": "form-control", "style": "max-width: 150px;"})
+    )
 
     class Meta:
         model = CutbackRetermination
@@ -292,6 +303,7 @@ class AddCutbackReterminationForm(ModelForm):
             'date',
             'wire',
             'wetendtag',
+            'wetendtag_units',
             'notes',
         ]
 
@@ -299,31 +311,55 @@ class AddCutbackReterminationForm(ModelForm):
             "notes": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "style": "max-width: 100%; align: center;",
+                    "style": "max-width: 100%;",
                     "placeholder": "Notes",
                 }
             ),
             'date': DatePickerInput(
-                    options={
-                    "format": "YYYY-MM-DD"}
-        )}
+                options={"format": "YYYY-MM-DD"},
+                attrs={"class": "form-control", "style": "max-width: 100%;"}
+            ),
+            'wetendtag': forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter wet-end tag",
+                    "step": "any",
+                    "style": "max-width: 100%;",
+                }
+            ),
+            'wire': forms.Select(
+                attrs={
+                    "class": "form-control",
+                    "style": "max-width: 100%;",
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Customize choices for 'wire' field
+        # Customize wire dropdown labels
         self.fields['wire'].queryset = Wire.objects.all()
         choices = []
         for wire in self.fields['wire'].queryset:
-            if wire.active_winch is not None:
+            if wire.active_winch:
                 choice_label = f"{wire} - {wire.active_winch}"
-                choices.append((wire.id, choice_label))
             else:
                 choice_label = f"{wire}"
-                choices.append((wire.id, choice_label))
+            choices.append((wire.id, choice_label))
         self.fields['wire'].widget.choices = choices
 
-        # Set 'wetendtag' as a required field
         self.fields['wetendtag'].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        wetendtag = cleaned_data.get('wetendtag')
+        unit = cleaned_data.get('wetendtag_units')
+
+        if wetendtag is not None and unit == 'ft':
+            # Convert feet to meters
+            cleaned_data['wetendtag'] = round(wetendtag * 0.3048, 3)
+
+        return cleaned_data
 
 class EditCutbackReterminationForm(ModelForm):
   
@@ -349,6 +385,19 @@ class EditCutbackReterminationForm(ModelForm):
                     options={
                     "format": "YYYY-MM-DD"})
             }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
 
 
 class CruiseAddForm(ModelForm):
@@ -440,6 +489,19 @@ class BreaktestAddForm(ModelForm):
             "format": "YYYY-MM-DD"}
             )}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
+
 class BreaktestEditForm(ModelForm):
 
     class Meta:
@@ -463,6 +525,19 @@ class BreaktestEditForm(ModelForm):
             options={
             "format": "YYYY-MM-DD"}
             )}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
 
 class LubricationAddForm(ModelForm):
 
@@ -496,6 +571,19 @@ class LubricationAddForm(ModelForm):
             "format": "YYYY-MM-DD"}
             )}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
+
 class LubricationEditForm(ModelForm):
 
     class Meta:
@@ -527,6 +615,19 @@ class LubricationEditForm(ModelForm):
             options={
             "format": "YYYY-MM-DD"}
             )}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
 
 class UnolsWireReportForm(ModelForm):
 
@@ -821,6 +922,19 @@ class CastFilterForm(forms.Form):
     enddate = forms.DateTimeField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
 
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
+
 class WireLocationForm(ModelForm):
 
     class Meta:
@@ -899,8 +1013,22 @@ class CalibrationWorksheetForm(ModelForm):
             ),
         }
 
+
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Customize wire dropdown labels
+        self.fields['wire'].queryset = Wire.objects.all()
+        choices = []
+        for wire in self.fields['wire'].queryset:
+            if wire.active_winch:
+                choice_label = f"{wire} - {wire.active_winch}"
+            else:
+                choice_label = f"{wire}"
+            choices.append((wire.id, choice_label))
+        self.fields['wire'].widget.choices = choices
+
 
         # Set required fields
         self.fields['date'].required = True

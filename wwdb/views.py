@@ -1913,14 +1913,14 @@ def cutbackreterminationedit(request, id):
     obj = get_object_or_404(CutbackRetermination, id = id)
 
     if request.method == 'POST':
-        form = EditCutbackReterminationForm(request.POST, instance = obj)
+        form = AddCutbackReterminationForm(request.POST, instance = obj)
         if form.is_valid():
             form.save()
             obj.edit_length()
             obj.save()
             return HttpResponseRedirect('/wwdb/maintenance/cutbackreterminationlist')
     else:
-        form = EditCutbackReterminationForm(instance = obj)
+        form =AddCutbackReterminationForm(instance = obj)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect("/wwdb/maintenance/cutbackretermination/%i/edit" % cutbackreterminationid.pk)
@@ -1933,33 +1933,21 @@ class CutbackReterminationDetail(DetailView):
     model = CutbackRetermination
     template_name="wwdb/maintenance/cutbackreterminationdetail.html"
 
-class CutbackReterminationAdd(CreateView):
-    model = CutbackRetermination
-    template_name="wwdb/maintenance/cutbackreterminationadd.html"
-    fields=['dryendtag','wetendtag', 'lengthremoved','wireid','date','notes']
-
 def cutbackreterminationadd(request):
-    context ={}
-    form = AddCutbackReterminationForm(request.POST or None)
     if request.method == "POST":
         form = AddCutbackReterminationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            obj=CutbackRetermination.objects.last()
+            obj = form.save()
             obj.submit_dry_end_tag()
             obj.submit_length()
             obj.save()
-            return HttpResponseRedirect("/wwdb/maintenance/cutbackreterminationlist")
+            return redirect("/wwdb/maintenance/cutbackreterminationlist")
     else:
-        form = AddCutbackReterminationForm 
-        if 'submitted' in request.GET:
-            submitted = True
-            return render(request, 'wwdb/maintenance/cutbackreterminationadd.html', {'form':form, 'submitted':submitted, 'id':id})
+        form = AddCutbackReterminationForm() 
+        submitted = request.GET.get('submitted', False)
 
-    context['form']= form
-
+    context = {'form': form, 'submitted': submitted}
     return render(request, 'wwdb/maintenance/cutbackreterminationadd.html', context)
-
 
 class CutbackreterminationDelete(DeleteView):
     model = CutbackRetermination

@@ -3,6 +3,7 @@ from django_filters import DateFilter
 from bootstrap_datepicker_plus.widgets import DatePickerInput, DateTimePickerInput
 from django import forms
 
+
 from .models import *
 
 class DateInput(forms.DateInput):
@@ -16,4 +17,3 @@ class CastFilter(django_filters.FilterSet):
         model = Cast
         fields =['deploymenttype','winch']
 
-            
