@@ -43,64 +43,94 @@
 
 <body>
     <nav class="navbar {% if template_name == 'home.html' %}fixed-top{% else %}sticky-top{% endif %} navbar-expand-lg navbar-light bg-light">
-        <a href="{% url 'home' %}">
-            <img src='/static/img/wire_logo.png' alt="Logo" class="logo" />
+
+        <!-- Logo -->
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="/static/img/wire_logo.png" alt="Logo" class="logo">
         </a>
-        <div class="btn-container">
+
+        <!-- Hamburger -->
+        <button class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Start / End Cast button (always visible, right-aligned) -->
+        <div class="btn-container ml-auto mr-2">
             {% if template_name != 'caststart.html' and template_name != 'castend.html' %}
-            {% if last.enddate %}
-            <button type="button" class="btn btn-danger btn-lg" style="padding: 5px 10px;">
-                <a class="button-link" href="{% url 'caststart' %}" style="color: inherit; text-decoration: none;">
-                    Start Cast
-                </a>
-            </button>
-            {% else %}
-            <button type="button" class="btn btn-danger btn-lg" style="padding: 5px 10px;">
-                <a class="button-link" href="{% url 'cast_end' %}" style="color: inherit; text-decoration: none;">
-                    Cast in progress - click here to End Cast
-                </a>
-            </button>
-            {% endif %}
+                {% if last.enddate %}
+                    <a href="{% url 'caststart' %}" class="btn btn-danger btn-lg">
+                        Start Cast
+                    </a>
+                {% else %}
+                    <a href="{% url 'cast_end' %}" class="btn btn-danger btn-lg">
+                        Cast in progress – End Cast
+                    </a>
+                {% endif %}
             {% endif %}
         </div>
+
+        <!-- Collapsible menu -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'cruiseconfigurehome' %}">
                         Configuration
                     </a>
                 </li>
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle"
+                    href="#"
+                    id="reportsDropdown"
+                    role="button"
+                    data-toggle="dropdown">
                         Reports
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url 'castreport' %}">Casts</a>
                         <a class="dropdown-item" href="{% url 'cruiselist' %}">Cruises</a>
                         <a class="dropdown-item" href="{% url 'safeworkingtensions' %}">Safe working tensions</a>
                         <a class="dropdown-item" href="{% url 'charts' %}">Winch plots</a>
                     </div>
                 </li>
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle"
+                    href="#"
+                    id="maintenanceDropdown"
+                    role="button"
+                    data-toggle="dropdown">
                         Maintenance
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url 'cutbackreterminationlist' %}">Cutbacks/reterminations</a>
                         <a class="dropdown-item" href="{% url 'calibrationlist' %}">Calibrations</a>
                         <a class="dropdown-item" href="{% url 'breaktestlist' %}">Breaktests</a>
                         <a class="dropdown-item" href="{% url 'lubricationlist' %}">Lubrications</a>
                     </div>
                 </li>
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle"
+                    href="#"
+                    id="inventoriesDropdown"
+                    role="button"
+                    data-toggle="dropdown">
                         Inventories
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu">
                         <a class="dropdown-item" href="{% url 'wirelist' %}">Tension members</a>
                         <a class="dropdown-item" href="{% url 'wireropedatalist' %}">Wire data</a>
                     </div>
                 </li>
+
             </ul>
         </div>
     </nav>
