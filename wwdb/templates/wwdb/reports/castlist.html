@@ -123,8 +123,8 @@
         $('#table1').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
-            // Add more options as needed
+            order: [[0, "desc"]],
+            fixedHeader: true,
         });
 
         // Initialize tooltips (assuming you're using Bootstrap tooltips)
@@ -135,7 +135,8 @@
         $('#table2').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
+            order: [[0, "desc"]],
+            fixedHeader: true,
             // Add more options as needed
         });
 

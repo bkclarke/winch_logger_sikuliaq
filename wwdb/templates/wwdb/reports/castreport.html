@@ -2,6 +2,7 @@
 {% extends "wwdb/base.html" %}
 {% load static %}
 {% block content %}
+
 <style>
     .js-hide {
         visibility: hidden;
@@ -157,13 +158,25 @@
         });
     });
     $(document).ready(function () {
+
+        const navbarHeight = $('.navbar').outerHeight() || 0;
+
         const table = $('#table').DataTable({
             responsive: true,
             scrollX: true,
             order: [[1, 'desc']],
+            fixedHeader: {
+                header: true,
+                headerOffset: navbarHeight
+            },            
             initComplete: function () {
                 $('#cast-table-container').css('opacity', 1);
             }
+        });
+
+        $(window).on('resize', function () {
+            const newNavbarHeight = $('.navbar').outerHeight() || 0;
+            table.fixedHeader.headerOffset(newNavbarHeight);
         });
 
         function verifyCountUniqueValues(columnIndex) {

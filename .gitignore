@@ -37,3 +37,11 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore Django migrations except __init__.py
+*/migrations/*.py
+!*/migrations/__init__.py

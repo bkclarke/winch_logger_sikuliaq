@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href={% static 'css/buttons.datatables.min.css' %}>
     <link rel="stylesheet" type="text/css" href={% static 'css/wwdb.css' %}>
     <link rel="stylesheet" type="text/css" href={% static 'css/all.min.css' %}>
+    <link rel="stylesheet" type="text/css" href={% static 'css/fixedHeader.dataTables.min.css' %}>
     <script type="text/javascript" src={% static 'admin/js/vendor/jquery/jquery.min.js' %} crossorigin="anonymous"></script>
     <script type="text/javascript" src={% static 'js/Chart.min.js' %} crossorigin="anonymous"></script>
     <script type="text/javascript" src={% static 'js/highcharts.js' %} crossorigin="anonymous"></script>
@@ -29,6 +30,7 @@
     <script type="text/javascript" src={% static 'js/buttons.print.min.js' %} crossorigin="anonymous"></script>
     <script type="text/javascript" src={% static 'js/htmx.min.js' %} crossorigin="anonymous"></script>
     <script type="text/javascript" src={% static 'js/plotly-latest.min.js' %} crossorigin="anonymous"></script>
+    <script type="text/javascript" src={% static 'js/dataTables.fixedHeader.min.js' %} crossorigin="anonymous"></script>
     <script>
         document.addEventListener('htmx:afterRequest', function (evt) {
             $('table.display').DataTable({
@@ -64,7 +66,7 @@
         <div class="btn-container ml-auto mr-2">
             {% if template_name != 'caststart.html' and template_name != 'castend.html' %}
                 {% if last.enddate %}
-                    <a href="{% url 'caststart' %}" class="btn btn-danger btn-lg">
+                    <a href="{% url 'caststart' %}" class="btn btn-danger btn-md">
                         Start Cast
                     </a>
                 {% else %}
