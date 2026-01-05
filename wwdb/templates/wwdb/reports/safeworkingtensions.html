@@ -30,31 +30,81 @@
     {% endfor %}
 </table>
 <p>Date posted: <span id="datetime"></span></p>
-<script>
-    $(document).ready(function () {
-        // Initialize DataTables
-        $('#table').DataTable({
-            responsive: true,
-            scrollX: true,
-            order: [[0, "desc"]]
-            // Add more options as needed
-        });
+<!-- template/safeworkingtension.html -->
+<!DOCTYPE html>
+{% extends "wwdb/base.html" %}
 
-        // Initialize tooltips (assuming you're using Bootstrap tooltips)
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-</script>
+{% block content %}
+
+<h1>Safe Working Tensions</h1>
+<br>
+
+<button id="safeworkingtensions_file" class="btn btn-primary btn-sm">
+    Download
+</button>
+
+<br><br>
+
+<table id="table" class="display nowrap" style="width:100%">
+    <thead class="thead-light">
+        <tr>
+            <th>Winch</th>
+            <th>NSF-ID</th>
+            <th>Length</th>
+            <th>Factor of Safety</th>
+            <th>Safe Working Tension</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for wire in wires %}
+        <tr>
+            <td>{{ wire.active_winch }}</td>
+            <td>{{ wire.nsfid }}</td>
+            <td>{{ wire.active_length|floatformat:0 }}</td>
+            <td>{{ wire.factorofsafety }}</td>
+            <td>{{ wire.safe_working_tension|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p>Date posted: <span id="datetime"></span></p>
+
 <script>
-    $(document).ready(function () {
-        $('#safeworkingtensions_file').click(function () {
-            window.location.href = "{% url 'safeworkingtensions_file' %}";
-        });
+$(function () {
+
+    /* -------------------------------
+       Initialize DataTable (core)
+    -------------------------------- */
+    window.initFixedHeaderTable('#table', {
+        order: [[0, 'desc']]
     });
+
+    /* -------------------------------
+       Download button
+    -------------------------------- */
+    $('#safeworkingtensions_file').on('click', function () {
+        window.location.href = "{% url 'safeworkingtensions_file' %}";
+    });
+
+    /* -------------------------------
+       Tooltips
+    -------------------------------- */
+    $('[data-toggle="tooltip"]').tooltip();
+
+    /* -------------------------------
+       Date posted
+    -------------------------------- */
+    const dt = new Date();
+    $('#datetime').text(dt.toLocaleDateString());
+
+});
 </script>
-<script>
-    var dt = new Date();
-    document.getElementById("datetime").innerHTML = dt.toLocaleDateString();
-</script>
+
+<br><br>
+
+{% endblock %}
+
 </br>
 </br>
 {% endblock %}

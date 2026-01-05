@@ -918,78 +918,113 @@ def safeworkingtensions(request):
 
 def safeworkingtensions_file(request):
 
+    wires = Wire.objects.all()
+
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer)
 
-    #Set canvas as landscape A4
-    c.setPageSize(landscape(A4))
+    # Page setup
+    page_width, page_height = landscape(A4)
+    c.setPageSize((page_width, page_height))
 
-    #Draw title
-    c.setFont("Helvetica", 36, leading=None)
-    c.drawString(1*inch,7*inch,"Safe Working Tensions")
+    # -------------------------------
+    # Title
+    # -------------------------------
+    c.setFont("Helvetica", 36)
+    c.drawString(1 * inch, page_height - 1.25 * inch, "Safe Working Tensions")
 
-    #Create formatted datetime object 
-    now=datetime.now()
-    date_time=now.strftime('%m/%d/%Y')
-    date_time_filename=now.strftime('%Y%m%d')
+    # Date
+    now = datetime.now()
+    date_display = now.strftime('%m/%d/%Y')
+    date_filename = now.strftime('%Y%m%d')
 
-    #draw date posted on canvas
-    c.setFont("Helvetica", 12, leading=None)
-    c.drawString(1*inch,1*inch,"date posted: " + date_time)
+    c.setFont("Helvetica", 12)
+    c.drawString(1 * inch, 0.75 * inch, f"Date posted: {date_display}")
 
-    #create empty lines list object
+    # -------------------------------
+    # Table data
+    # -------------------------------
+    active_wires = [w for w in wires if w.active_winch is not None]
+
+    stylesheet = getSampleStyleSheet()
+    header_style = ParagraphStyle(
+        'HeaderStyle',
+        fontName="Helvetica-Bold",
+        fontSize=16,
+        parent=stylesheet['Normal'],
+        alignment=TA_LEFT
+    )
+
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        fontName="Helvetica",
+        fontSize=14,
+        parent=stylesheet['Normal'],
+        alignment=TA_LEFT
+    )
+
     lines = []
-    
-    #wire objects where status=True, ordered by winch name in ascending order
-    active_wire = [wire for wire in wires if wire.active_winch is not None]
-    
-    #Define stylesheet for headers
-    stylesheet=getSampleStyleSheet()
-    HeaderStyle=ParagraphStyle('yourtitle',
-                           fontName="Helvetica-Bold",
-                           fontSize=16,
-                           parent=stylesheet['Heading2'],
-                           alignment=TA_LEFT,
-                           spaceAfter=14)
 
+    # Header row
+    lines.append([
+        Paragraph("Winch", header_style),
+        Paragraph("Wire ID", header_style),
+        Paragraph("Length", header_style),
+        Paragraph("Factor of Safety", header_style),
+        Paragraph("Safe Working Tension", header_style),
+    ])
 
-    #Define header objects
-    header1=Paragraph('Winch',HeaderStyle)
-    header2=Paragraph('Wire ID',HeaderStyle)
-    header3=Paragraph('Length',HeaderStyle)
-    header4=Paragraph('Factor of Safety',HeaderStyle)
-    header5=Paragraph('Safe Working Tension',HeaderStyle)
+    # Data rows
+    for wire in active_wires:
+        lines.append([
+            Paragraph(str(wire.active_winch.name), body_style),
+            Paragraph(str(wire.nsfid), body_style),
+            Paragraph(f"{wire.active_length:.0f}", body_style),
+            Paragraph(str(wire.factorofsafety), body_style),
+            Paragraph(f"{wire.safe_working_tension:.0f}", body_style),
+        ])
 
-    #append headers to lines list
-    lines.append((header1,header2,header3,header4,header5))
-    
-    #append wire data to lines list
-    for wire in active_wire:
-        lines.append((wire.active_winch.name, 
-                      wire.nsfid, 
-                      wire.active_length, 
-                      wire.factorofsafety, 
-                      wire.safe_working_tension))
-    
-    #Define table settings and styles, add lines list to table
-    table = Table(lines,
-                  colWidths=[150,175,80,120,120],
-                  rowHeights=[100,100,100,100])
+    # -------------------------------
+    # Table layout
+    # -------------------------------
+    num_rows = len(lines)
+    row_heights = [50] * num_rows  # dynamic + consistent
 
-    table.setStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                    ('LINEABOVE', (0, 1), (-1, -1), 0.10, colors.grey),
-                    ('FONTSIZE',(0,0),(-1,-1),24)])
-    
-    width, height = A4
-    table.wrapOn(c, width, height)
+    table = Table(
+        lines,
+        colWidths=[150, 175, 80, 120, 160],
+        rowHeights=row_heights
+    )
 
-    #Draw table on canvas
-    table.drawOn(c, 1 * inch, 1.5 * inch)
+    table.setStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+        ("LINEABOVE", (0, 1), (-1, -1), 0.75, colors.grey),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke),
+    ])
 
+    # -------------------------------
+    # Center table on page
+    # -------------------------------
+    table_width, table_height = table.wrapOn(c, page_width, page_height)
+
+    x = (page_width - table_width) / 2
+    y = (page_height - table_height) / 2
+
+    table.drawOn(c, x, y)
+
+    # -------------------------------
+    # Finalize PDF
+    # -------------------------------
     c.save()
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename='safe_working_tension_%s.pdf' %date_time_filename)
+
+    return FileResponse(
+        buffer,
+        as_attachment=True,
+        filename=f"safe_working_tension_{date_filename}.pdf"
+    )
+
 
 """
 Maintenance
