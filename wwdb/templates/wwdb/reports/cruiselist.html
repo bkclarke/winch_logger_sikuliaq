@@ -1,12 +1,13 @@
 <!--template/cruiselist.html-->
 {% extends "wwdb/base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container p-5">
     <h2>Cruises</h2>
     <br />
-    <table id="table" class="display nowrap" style="width:100%">
-        <thead class="thead-light">
+    <table id="cruise-table" class="display nowrap" style="width:100%">
+        <thead>
             <tr>
                 <th>View report</th>
                 <th>Start date</th>
@@ -25,27 +26,11 @@
     </table>
 </div>
 <script>
-    $(document).ready(function () {
-
-        const navbarHeight = $('.navbar').outerHeight() || 0;
-
-        // Initialize DataTables
-        $('#table').DataTable({
-            responsive: true,
-            scrollX: true,
-            order: [[0, "desc"]],
-            fixedHeader: {
-                header: true,
-                headerOffset: navbarHeight
-            },    
+    $(function () {
+        window.initFixedHeaderTable('#cruise-table', {
+            order: [[1, 'desc']]
         });
-
-        $(window).on('resize', function () {
-            const newNavbarHeight = $('.navbar').outerHeight() || 0;
-            table.fixedHeader.headerOffset(newNavbarHeight);
-        });
-
-        $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
 {% endblock content %}
+
