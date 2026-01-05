@@ -26,15 +26,25 @@
 </div>
 <script>
     $(document).ready(function () {
+
+        const navbarHeight = $('.navbar').outerHeight() || 0;
+
         // Initialize DataTables
         $('#table').DataTable({
             responsive: true,
             scrollX: true,
-            order: [[0, "desc"]]
-            // Add more options as needed
+            order: [[0, "desc"]],
+            fixedHeader: {
+                header: true,
+                headerOffset: navbarHeight
+            },    
         });
 
-        // Initialize tooltips (assuming you're using Bootstrap tooltips)
+        $(window).on('resize', function () {
+            const newNavbarHeight = $('.navbar').outerHeight() || 0;
+            table.fixedHeader.headerOffset(newNavbarHeight);
+        });
+
         $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
