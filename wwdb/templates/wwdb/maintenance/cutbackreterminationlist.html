@@ -1,4 +1,4 @@
-﻿<!--template/wireinventory.html-->
+﻿<!--template/cutbackreterminationlist.html-->
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
 
@@ -66,20 +66,28 @@
 </div>
 
 <script>
-$(document).ready(function () {
+$(function () {
 
-    $('#table').DataTable({
-        responsive: true,
-        scrollX: true,
-        order: [[1, "desc"]]
+    /* -------------------------------
+       Initialize DataTable (shared core)
+    -------------------------------- */
+    window.wireInventoryTable = window.initFixedHeaderTable('#table', {
+        order: [[1, 'desc']]
     });
 
-    $('#cutbackreterminationadd').click(function () {
+    /* -------------------------------
+       Navigation button
+    -------------------------------- */
+    $('#cutbackreterminationadd').on('click', function () {
         window.location.href = "{% url 'cutbackreterminationadd' %}";
     });
 
-    const deleteModalEl = document.getElementById('deleteConfirmModal');
-    const deleteModal = new bootstrap.Modal(deleteModalEl);
+    /* -------------------------------
+       Delete modal + permissions
+    -------------------------------- */
+    const deleteModal = new bootstrap.Modal(
+        document.getElementById('deleteConfirmModal')
+    );
 
     $(document).on('click', '.delete-button', function (e) {
         e.preventDefault();
@@ -90,15 +98,12 @@ $(document).ready(function () {
             return;
         }
 
-        const deleteUrl = $(this).data('url');
-        $('#deleteForm').attr('action', deleteUrl);
+        $('#deleteForm').attr('action', $(this).data('url'));
         deleteModal.show();
     });
 
-    $('#deleteConfirmModal .btn-secondary').click(function () {
-        deleteModal.hide();
-    });
 });
 </script>
+
 {% endblock %}
 

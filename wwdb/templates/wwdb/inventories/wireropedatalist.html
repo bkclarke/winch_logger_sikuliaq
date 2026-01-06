@@ -1,4 +1,4 @@
-<!--template/wirelist.html / adapted for wireropes-->
+<!--template/wireropelist.html-->
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
 {% load static %}
@@ -7,8 +7,7 @@
 <h2>Wire Types</h2>
 <br>
 <button id="wireropedataadd" class="btn btn-secondary btn-sm">Add wire type</button>
-<br>
-<br>
+<br><br>
 
 <table id="table" class="display nowrap" style="width:100%">
     <thead>
@@ -46,12 +45,12 @@
 </table>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 Are you sure you want to delete this wire type?
@@ -67,47 +66,53 @@
     </div>
 </div>
 
-<!-- Feedback Modal for FK constraints or other errors -->
-<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="feedbackModalLabel">Notice</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">Notice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="feedbackMessage"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-
 <script>
-$(document).ready(function () {
-    // Initialize DataTables
-    $('#table').DataTable({
-        responsive: true,
-        scrollX: true,
-        order: [[1, "desc"]]
+$(function () {
+
+    /* -------------------------------
+       Initialize DataTable (shared core)
+    -------------------------------- */
+    window.wireRopeTable = window.initFixedHeaderTable('#table', {
+        order: [[1, 'desc']]
     });
 
-    // Initialize tooltips
+    /* -------------------------------
+       Tooltips
+    -------------------------------- */
     $('[data-toggle="tooltip"]').tooltip();
 
-    // Add button
-    $('#wireropedataadd').click(function () {
+    /* -------------------------------
+       Add button
+    -------------------------------- */
+    $('#wireropedataadd').on('click', function () {
         window.location.href = "{% url 'wireropedataadd' %}";
     });
 
-    // Delete modal logic
-    const deleteModalEl = document.getElementById('deleteConfirmModal');
-    const deleteModal = new bootstrap.Modal(deleteModalEl);
-    const feedbackModalEl = document.getElementById('feedbackModal');
-    const feedbackModal = new bootstrap.Modal(feedbackModalEl);
+    /* -------------------------------
+       Delete modals + permissions
+    -------------------------------- */
+    const deleteModal = new bootstrap.Modal(
+        document.getElementById('deleteConfirmModal')
+    );
+    const feedbackModal = new bootstrap.Modal(
+        document.getElementById('feedbackModal')
+    );
 
     $(document).on('click', '.delete-button', function () {
         const isSuperUser = '{{ user.is_superuser|yesno:"true,false" }}' === 'true';
@@ -115,13 +120,17 @@ $(document).ready(function () {
             alert('You must be logged in as an admin to delete this wire type.');
             return;
         }
-        const deleteUrl = $(this).data('url');
-        $('#deleteForm').attr('action', deleteUrl);
+
+        $('#deleteForm').attr('action', $(this).data('url'));
         deleteModal.show();
     });
 
-    $('#deleteForm').submit(function (event) {
-        event.preventDefault();
+    /* -------------------------------
+       AJAX delete submit
+    -------------------------------- */
+    $('#deleteForm').on('submit', function (e) {
+        e.preventDefault();
+
         const form = $(this);
         const url = form.attr('action');
 
@@ -130,18 +139,19 @@ $(document).ready(function () {
             method: 'POST',
             data: form.serialize(),
             success: function (response) {
-                if (response.success) {
-                    deleteModal.hide();
-                    location.reload();
-                } else {
-                    deleteModal.hide();
-                    $('#feedbackMessage').text(response.message);
+                deleteModal.hide();
+
+                if (response && response.success === false) {
+                    $('#feedbackMessage').text(response.message || 'Deletion not allowed.');
                     feedbackModal.show();
+                } else {
+                    location.reload();
                 }
             },
             error: function (xhr) {
                 deleteModal.hide();
-                let msg = "An unexpected error occurred.";
+
+                let msg = 'An unexpected error occurred.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }
@@ -150,7 +160,9 @@ $(document).ready(function () {
             }
         });
     });
+
 });
 </script>
 {% endblock %}
+
 

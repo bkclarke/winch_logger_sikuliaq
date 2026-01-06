@@ -64,19 +64,28 @@
 </div>
 
 <script>
-$(document).ready(function () {
-    $('#table').DataTable({
-        responsive: true,
-        scrollX: true,
-        order: [[0, "desc"]]
+$(function () {
+
+    /* -------------------------------
+       Initialize DataTable (shared core)
+    -------------------------------- */
+    window.lubricationTable = window.initFixedHeaderTable('#table', {
+        order: [[0, 'desc']]
     });
 
-    $('#lubricationadd').click(function () {
+    /* -------------------------------
+       Navigation button
+    -------------------------------- */
+    $('#lubricationadd').on('click', function () {
         window.location.href = "{% url 'lubricationadd' %}";
     });
 
-    const deleteModalEl = document.getElementById('deleteConfirmModal');
-    const deleteModal = new bootstrap.Modal(deleteModalEl);
+    /* -------------------------------
+       Delete modal + permissions
+    -------------------------------- */
+    const deleteModal = new bootstrap.Modal(
+        document.getElementById('deleteConfirmModal')
+    );
 
     $(document).on('click', '.delete-button', function (e) {
         e.preventDefault();
@@ -87,15 +96,12 @@ $(document).ready(function () {
             return;
         }
 
-        const deleteUrl = $(this).data('url');
-        $('#deleteForm').attr('action', deleteUrl);
+        $('#deleteForm').attr('action', $(this).data('url'));
         deleteModal.show();
     });
 
-    $('#deleteConfirmModal .btn-secondary').click(function () {
-        deleteModal.hide();
-    });
 });
 </script>
 {% endblock %}
+
 

@@ -1,35 +1,3 @@
-<!--template/safeworkingtension.html-->
-<!DOCTYPE html>
-{% extends "wwdb/base.html" %}
-
-
-{% block content %}
-<h1>Safe Working Tensions</h1>
-</br>
-<button id="safeworkingtensions_file" class="btn btn-primary btn-sm">Download</button>
-</br>
-</br>
-<table id="table" class="display nowrap" style="width:100%">
-    <thead class="thead-light">
-        <tr>
-            <th>Winch</th>
-            <th>NSF-ID</th>
-            <th>Length</th>
-            <th>Factor of Safety</th>
-            <th>Safe Working Tension</th>
-        </tr>
-    </thead>
-    {% for wire in wires %}
-    <tr>
-        <td height=: 100 font-size: 100>{{wire.active_winch}}</td>
-        <td>{{wire.nsfid}}</td>
-        <td>{{wire.active_length|floatformat:0}}</td>
-        <td>{{wire.factorofsafety}}</td>
-        <td>{{wire.safe_working_tension|floatformat:0}}</td>
-    </tr>
-    {% endfor %}
-</table>
-<p>Date posted: <span id="datetime"></span></p>
 <!-- template/safeworkingtension.html -->
 <!DOCTYPE html>
 {% extends "wwdb/base.html" %}
@@ -74,7 +42,7 @@
 $(function () {
 
     /* -------------------------------
-       Initialize DataTable (core)
+       Initialize DataTable (shared core)
     -------------------------------- */
     window.initFixedHeaderTable('#table', {
         order: [[0, 'desc']]
@@ -88,11 +56,6 @@ $(function () {
     });
 
     /* -------------------------------
-       Tooltips
-    -------------------------------- */
-    $('[data-toggle="tooltip"]').tooltip();
-
-    /* -------------------------------
        Date posted
     -------------------------------- */
     const dt = new Date();
@@ -101,10 +64,5 @@ $(function () {
 });
 </script>
 
-<br><br>
-
 {% endblock %}
 
-</br>
-</br>
-{% endblock %}
