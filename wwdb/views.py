@@ -1969,6 +1969,8 @@ class CutbackReterminationDetail(DetailView):
     template_name="wwdb/maintenance/cutbackreterminationdetail.html"
 
 def cutbackreterminationadd(request):
+    submitted = False
+
     if request.method == "POST":
         form = AddCutbackReterminationForm(request.POST, request.FILES)
         if form.is_valid():

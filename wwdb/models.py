@@ -477,9 +477,10 @@ class CutbackRetermination(models.Model):
 
     @property
     def format_date(self):
-        date=self.date
-        formatdate=date.strftime("%Y-%m-%d")
-        return formatdate
+        if self.date:
+            date=self.date
+            formatdate=date.strftime("%Y-%m-%d")
+            return formatdate
 
     def submit_length(self):
         if not self.wire_dry_end_tag and not self.wetendtag:

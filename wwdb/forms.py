@@ -6,6 +6,7 @@ from django.forms.widgets import HiddenInput
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.forms import modelformset_factory
+from django.utils import timezone
 
 
 class StartCastForm(ModelForm):
@@ -296,6 +297,17 @@ class AddCutbackReterminationForm(ModelForm):
         initial='m',
         widget=forms.Select(attrs={"class": "form-control", "style": "max-width: 150px;"})
     )
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+
+        if not date:
+            raise ValidationError("Please enter a valid date.")
+
+        if date > timezone.now().date():
+            raise ValidationError("Date cannot be in the future.")
+
+        return date
 
     class Meta:
         model = CutbackRetermination
