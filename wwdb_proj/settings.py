@@ -2,6 +2,8 @@
 
 from pathlib import Path
 import os
+import pymysql
+pymysql.install_as_MySQLdb()
 
 import django_stubs_ext
 
@@ -83,6 +85,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'context_processors.cast_context',
+                'context_processors.service_status',
             ],
         },
     },

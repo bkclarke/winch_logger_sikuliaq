@@ -238,3 +238,17 @@
         background-color: #ffd800;
         opacity: 1;
     }
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.service-error-banner {
+    width: 100%;
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 10px;
+    text-align: center;
+}

@@ -238,3 +238,15 @@
         background-color: #ffd800;
         opacity: 1;
     }
+
+.service-error-banner {
+    position: sticky;
+    top: 56px;
+    width: 100%;
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1020;
+}

@@ -31,40 +31,195 @@ import json
 import subprocess
 import random
 import time
-from math import ceil
+from math import ceil, sin
 from dateutil import parser
 import traceback
 from django.db import transaction
 from django.utils import timezone
 
+def parse_datetime_local(value):
+    """
+    Parse a datetime-local value.
+
+    Supports both:
+        YYYY-MM-DDTHH:MM
+    and:
+        YYYY-MM-DDTHH:MM:SS
+    """
+
+    for fmt in (
+        '%Y-%m-%dT%H:%M:%S',
+        '%Y-%m-%dT%H:%M',
+    ):
+
+        try:
+
+            return datetime.strptime(
+                value,
+                fmt
+            )
+
+        except ValueError:
+
+            continue
+
+    raise ValueError(
+        f"Invalid datetime format: {value}"
+    )
+
 
 def test_plots(request):
-    base_time = datetime.now() - timedelta(days=1)
-    timestamps = [base_time + timedelta(minutes=30 * i) for i in range(48)]  # 24h data
+    """
+    Test version of the charts view.
 
-    tension_data = [
-        {'date': t.isoformat(), 'value': None if i % 2 == 0 else i * 10}
-        for i, t in enumerate(timestamps)
-    ]
-    payout_data = [
-        {'date': t.isoformat(), 'value': i * 0.5}
-        for i, t in enumerate(timestamps)
-    ]
+    Uses generated data instead of the production MySQL database.
+    """
+
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    try:
+
+        if start_date_str and end_date_str:
+
+            start_date = parse_datetime_local(
+                start_date_str
+            )
+
+            end_date = parse_datetime_local(
+                end_date_str
+            )
+
+        else:
+
+            # Default to previous 24 hours.
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=1)
+
+
+    except ValueError:
+
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=1)
+
+
+    # -------------------------------------------------------------
+    # Validate date/time range
+    # -------------------------------------------------------------
+
+    if end_date <= start_date:
+
+        end_date = start_date + timedelta(days=1)
+
+
+    if (
+        end_date - start_date
+    ).total_seconds() > MAX_DAYS * 24 * 60 * 60:
+
+        end_date = (
+            start_date +
+            timedelta(days=MAX_DAYS)
+        )
+
+
+    # -------------------------------------------------------------
+    # Generate high-frequency dummy data
+    # -------------------------------------------------------------
+
+    data_points = get_fake_data_for_testing(
+        start_date,
+        end_date
+    )
+
+
+    print(
+        f"Generated {len(data_points):,} dummy points"
+    )
+
+
+    # -------------------------------------------------------------
+    # Same binning as production
+    # -------------------------------------------------------------
+
+    data_points = auto_bin_to_target(
+        data_points,
+        MAX_POINTS
+    )
+
+
+    print(
+        f"After binning: {len(data_points):,} points"
+    )
+
+
+    # -------------------------------------------------------------
+    # Convert to JSON
+    # -------------------------------------------------------------
+
+    data_tension = []
+
+    data_payout = []
+
+
+    for dt, vals in data_points:
+
+        data_tension.append({
+            'date': dt.strftime(
+                '%Y-%m-%d %H:%M:%S'
+            ),
+            'value': vals['max_tension']
+        })
+
+        data_payout.append({
+            'date': dt.strftime(
+                '%Y-%m-%d %H:%M:%S'
+            ),
+            'value': vals['max_payout']
+        })
+
+
+    # -------------------------------------------------------------
+    # IMPORTANT:
+    #
+    # datetime-local requires:
+    #
+    #     YYYY-MM-DDTHH:MM:SS
+    #
+    # -------------------------------------------------------------
 
     context = {
-        'data_json_tension': json.dumps(tension_data),
-        'data_json_payout': json.dumps(payout_data),
-        'form': {
-            'start_date': {'value': (base_time).date()},
-            'end_date': {'value': (base_time + timedelta(days=1)).date()},
-            'winch': '',  # If you have a winch field, you can pass it here
-        }
+
+        'data_json_tension':
+            json.dumps(data_tension),
+
+        'data_json_payout':
+            json.dumps(data_payout),
+
+        'start_date':
+            start_date.strftime(
+                '%Y-%m-%dT%H:%M:%S'
+            ),
+
+        'end_date':
+            end_date.strftime(
+                '%Y-%m-%dT%H:%M:%S'
+            ),
+
+        'max_points':
+            MAX_POINTS,
+
+        'max_days':
+            MAX_DAYS,
     }
 
-    return render(request, 'wwdb/tests/test_plots.html', context)
+
+    return render(
+        request,
+        'wwdb/reports/test_plots.html',
+        context
+    )
 
 
-logger = logging.getLogger(__name__)
 
 MAX_DAYS = 14
 MAX_PROCESS_SECONDS = 5  
@@ -73,25 +228,89 @@ MAX_CAP = 5000
 MIN_BIN_SEC = 1 
 
 def get_fake_data_for_testing(start_date, end_date, winch=None):
-    print("Generating fake data...")
-    simulated_delay = 6  # seconds to simulate slowness
+    """
+    Generate dummy high-frequency winch data.
 
-    import time
-    time.sleep(simulated_delay)
+    The returned structure intentionally matches
+    get_data_from_external_db().
+    """
 
     data_points = []
-    current = datetime.combine(start_date, datetime.min.time())
-    end = datetime.combine(end_date, datetime.min.time())
 
-    while current < end:
-        tension = random.randint(100, 800) if random.random() > 0.05 else None
-        payout = random.uniform(5.0, 30.0) if random.random() > 0.05 else None
+    if not isinstance(start_date, datetime):
+        start_date = datetime.combine(
+            start_date,
+            datetime.min.time()
+        )
 
-        data_points.append((current, {
-            'max_tension': tension,
-            'max_payout': payout
-        }))
-        current += timedelta(minutes=1)
+    if not isinstance(end_date, datetime):
+        end_date = datetime.combine(
+            end_date,
+            datetime.min.time()
+        )
+
+    current = start_date
+
+    payout = 0.0
+    i = 0
+
+    while current < end_date:
+
+        # ---------------------------------------------------------
+        # TENSION
+        # ---------------------------------------------------------
+
+        tension = 5000
+
+        # Slow variation.
+        tension += 800 * sin(i / 100)
+
+        # Faster variation.
+        tension += 250 * sin(i / 15)
+
+        # Random sensor noise.
+        tension += random.uniform(-200, 200)
+
+        # Occasional large spikes.
+        if random.random() < 0.005:
+            tension += random.uniform(2000, 5000)
+
+        # Occasionally simulate missing tension data.
+        if random.random() < 0.02:
+            tension = None
+
+
+        # ---------------------------------------------------------
+        # PAYOUT
+        # ---------------------------------------------------------
+
+        # Payout generally increases.
+        payout += random.uniform(0.01, 0.05)
+
+        payout_value = (
+            payout +
+            random.uniform(-0.5, 0.5)
+        )
+
+        # Occasionally simulate missing payout data.
+        if random.random() < 0.01:
+            payout_value = None
+
+
+        data_points.append(
+            (
+                current,
+                {
+                    'max_tension': tension,
+                    'max_payout': payout_value,
+                }
+            )
+        )
+
+        # One data point every second.
+        current += timedelta(seconds=1)
+
+        i += 1
 
     return data_points
 
@@ -99,6 +318,123 @@ from collections import defaultdict
 
 def _parse_iso(ts: str) -> datetime:
     return parser.isoparse(ts)
+
+def chart_data_zoom_test(request):
+    """
+    Test AJAX endpoint.
+
+    Behaves like chart_data_zoom(), but generates dummy data
+    instead of accessing MySQL.
+    """
+
+    try:
+
+        start = _parse_iso(
+            request.GET["start"]
+        )
+
+        end = _parse_iso(
+            request.GET["end"]
+        )
+
+        max_points = min(
+            int(
+                request.GET.get(
+                    "max_points",
+                    MAX_POINTS
+                )
+            ),
+            MAX_CAP
+        )
+
+
+        # ---------------------------------------------------------
+        # Generate dummy data for the requested zoom range
+        # ---------------------------------------------------------
+
+        data_pts = get_fake_data_for_testing(
+            start,
+            end
+        )
+
+
+        print(
+            f"Zoom test: generated "
+            f"{len(data_pts):,} raw points"
+        )
+
+
+        # ---------------------------------------------------------
+        # Bin exactly as production does
+        # ---------------------------------------------------------
+
+        data_pts = auto_bin_to_target(
+            data_pts,
+            max_points=max_points
+        )
+
+
+        print(
+            f"Zoom test: returning "
+            f"{len(data_pts):,} binned points"
+        )
+
+
+        # ---------------------------------------------------------
+        # Convert to JSON
+        # ---------------------------------------------------------
+
+        data_tension = [
+            {
+                "date":
+                    dt.strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+
+                "value":
+                    values["max_tension"]
+            }
+
+            for dt, values in data_pts
+        ]
+
+
+        data_payout = [
+            {
+                "date":
+                    dt.strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+
+                "value":
+                    values["max_payout"]
+            }
+
+            for dt, values in data_pts
+        ]
+
+
+        return JsonResponse({
+
+            "tension":
+                data_tension,
+
+            "payout":
+                data_payout
+
+        })
+
+
+    except Exception as e:
+
+        traceback.print_exc()
+
+        return JsonResponse(
+            {
+                "error": str(e)
+            },
+            status=400
+        )
 
 def chart_data_zoom(request):
     """AJAX endpoint that returns rebinned data for the visible range."""
@@ -218,7 +554,6 @@ def get_data_from_external_db(start_date, end_date, winch_table):
     except Exception as e:
         print(f"Error fetching data: {e}")
         return None
-
 
 def charts(request):
     db_connected = True
