@@ -37,36 +37,6 @@ import traceback
 from django.db import transaction
 from django.utils import timezone
 
-def parse_datetime_local(value):
-    """
-    Parse a datetime-local value.
-
-    Supports both:
-        YYYY-MM-DDTHH:MM
-    and:
-        YYYY-MM-DDTHH:MM:SS
-    """
-
-    for fmt in (
-        '%Y-%m-%dT%H:%M:%S',
-        '%Y-%m-%dT%H:%M',
-    ):
-
-        try:
-
-            return datetime.strptime(
-                value,
-                fmt
-            )
-
-        except ValueError:
-
-            continue
-
-    raise ValueError(
-        f"Invalid datetime format: {value}"
-    )
-
 
 def test_plots(request):
     """

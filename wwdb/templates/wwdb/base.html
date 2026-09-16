@@ -109,6 +109,7 @@
                             <a class="dropdown-item" href="{% url 'cruiselist' %}">Cruises</a>
                             <a class="dropdown-item" href="{% url 'safeworkingtensions' %}">Safe working tensions</a>
                             <a class="dropdown-item" href="{% url 'charts' %}">Winch plots</a>
+                            <a class="dropdown-item" href="{% url 'servicestatus' %}">Services</a>
                         </div>
                     </li>
 
@@ -143,11 +144,14 @@
                             <a class="dropdown-item" href="{% url 'wireropedatalist' %}">Wire data</a>
                         </div>
                     </li>
-
+                        <!-- ADMIN -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">
+                            Admin
+                        </a>
+                    </li>
                 </ul>
-
             </div>
-
         </nav>
 
 
@@ -159,7 +163,6 @@
                 </div> 
             </div> 
         {% endif %}
-
     </div>
 
 
