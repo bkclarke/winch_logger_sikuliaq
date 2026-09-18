@@ -55,6 +55,18 @@
 
 <br>
 
+
+<!-- =============================================================
+     TEST MODE MESSAGE
+     ============================================================= -->
+
+<div class="alert alert-info">
+    <strong>Test Mode:</strong>
+    This chart uses generated dummy data and does not access
+    the production database.
+</div>
+
+
 <!-- =============================================================
      ZOOM STATUS
      ============================================================= -->
@@ -88,7 +100,6 @@
 </div>
 
 <div id="container"
-     data-winch="{{ winch.id }}"
      style="width:100%; height:500px;">
 </div>
 
@@ -208,6 +219,8 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    console.log("Test plots page loaded.");
+
 
     /*
      * ============================================================
@@ -246,11 +259,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const zoomStatus =
         document.getElementById('zoomStatus');
 
-    const container =
-    document.getElementById('container');
-
-    const winchId =
-        container.dataset.winch;
 
     /*
      * ============================================================
@@ -291,6 +299,17 @@ document.addEventListener('DOMContentLoaded', function () {
             data_payout.map(
                 point => ({ ...point })
             );
+
+
+        console.log(
+            "Initial tension points:",
+            data_tension.length
+        );
+
+        console.log(
+            "Initial payout points:",
+            data_payout.length
+        );
 
     } catch (error) {
 
@@ -397,9 +416,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const xAxis =
             chart.xAxis[0];
 
-        if (data_tension.length === 0) {
-            return;
-        }
+        console.log("=== updateMaxTension DEBUG ===");
+        console.log("Axis min:", xAxis.min);
+        console.log("Axis max:", xAxis.max);
 
         const firstPointTime =
             new Date(
@@ -410,6 +429,9 @@ document.addEventListener('DOMContentLoaded', function () {
             new Date(
                 data_tension[data_tension.length - 1].date.replace(' ', 'T') + 'Z'
             ).getTime();
+
+        console.log("First data time:", firstPointTime);
+        console.log("Last data time:", lastPointTime);
 
         const min =
             xAxis.min;
@@ -810,20 +832,16 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 max
                                             ).toISOString(),
 
-                                        winch: winchId,
-
                                         max_points:
                                             maxPts
 
                                     });
 
 
-                                console.log("Zoom request", {
-                                    start: min,
-                                    end: max,
-                                    winch: winchId,
-                                    max_points: maxPts
-                                });
+                                console.log(
+                                    "TEST zoom request:",
+                                    params.toString()
+                                );
 
 
                                 /*
@@ -848,7 +866,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                  */
 
                                 fetch(
-                                    "{% url 'chart_data_zoom' %}?" +
+                                    "{% url 'chart_data_zoom_test' %}?" +
                                     params.toString()
                                 )
 
@@ -1689,5 +1707,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 {% endblock content %}
-
 

@@ -75,7 +75,7 @@
             {% for cast in casts %}
             <tr class="{% if cast.flagforreview or not cast.maxtension or not cast.maxpayout %}table-danger{% endif %}">
                 <td>
-                    <a href="{% url 'charts' %}?start_date={{ cast.format_startdate_url }}&end_date={{ cast.format_enddate_url }}&winch={{ cast.winch.id }}" class="btn btn-info btn-sm">View Plot</a>
+                    <a href="{% url 'charts' %}?start_date={{ cast.format_startdate_chart_url }}&end_date={{ cast.format_enddate_chart_url }}&winch={{ cast.winch.id }}" class="btn btn-info btn-sm">View Plot</a>
                 </td>
                 <td>{{cast.format_startdate_csv}}</td>
                 <td>{{cast.duration}}</td>

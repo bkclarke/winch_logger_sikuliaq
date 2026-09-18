@@ -63,13 +63,13 @@ def test_plots(request):
         else:
 
             # Default to previous 24 hours.
-            end_date = datetime.now()
+            end_date = datetime.utcnow()
             start_date = end_date - timedelta(days=1)
 
 
     except ValueError:
 
-        end_date = datetime.now()
+        end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=1)
 
 
@@ -532,48 +532,61 @@ def charts(request):
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
     winch_id = request.GET.get("winch")
-    if not winch_id:
-        winch = Winch.objects.last()     # fallback to any winch you like
-    else:
-        winch = Winch.objects.get(id=int(winch_id))
 
-    # Validate input and limit date range
+    # Get selected winch, or use the last one as a fallback
+    try:
+        winch = Winch.objects.get(id=int(winch_id)) if winch_id else Winch.objects.last()
+    except (Winch.DoesNotExist, ValueError, TypeError):
+        winch = Winch.objects.last()
+
+    # Parse and validate the exact datetime range
     try:
         if start_date_str and end_date_str:
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+            start_date = datetime.strptime(
+                start_date_str,
+                '%Y-%m-%dT%H:%M:%S'
+            )
+            end_date = datetime.strptime(
+                end_date_str,
+                '%Y-%m-%dT%H:%M:%S'
+            )
 
-            if (end_date - start_date).days > MAX_DAYS:
-                error_message = f"Please select a date range of {MAX_DAYS} days or less."
+            if end_date <= start_date:
+                end_date = start_date + timedelta(days=1)
 
-            # Include full day
-            end_date = end_date + timedelta(days=1)
+            if (end_date - start_date) > timedelta(days=MAX_DAYS):
+                error_message = (
+                    f"Please select a date range of {MAX_DAYS} days or less."
+                )
+                end_date = start_date + timedelta(days=MAX_DAYS)
+
         else:
+            # Default to the previous 24 hours
             end_date = datetime.utcnow()
             start_date = end_date - timedelta(days=1)
-            end_date = end_date + timedelta(days=1)
 
     except ValueError:
         error_message = "Invalid date format."
-
-
-
-    # Validate winch selection
-    try:
-        winch = Winch.objects.get(id=winch_id) if winch_id else Winch.objects.last()
-    except Winch.DoesNotExist:
-        winch = Winch.objects.last()
+        end_date = datetime.utcnow()
+        start_date = end_date - timedelta(days=1)
 
     data_tension = []
     data_payout = []
 
-    if not error_message:
-        data_points = get_data_from_external_db(start_date, end_date, winch.name)
+    if not error_message and winch:
+        data_points = get_data_from_external_db(
+            start_date,
+            end_date,
+            winch.name
+        )
 
         if data_points == 'timeout':
-            error_message = "Data processing timed out. Please select a smaller date range."
+            error_message = (
+                "Data processing timed out. Please select a smaller date range."
+            )
             db_connected = False
             data_points = []
+
         elif data_points is None:
             db_connected = False
             data_points = []
@@ -581,15 +594,22 @@ def charts(request):
         data_points = auto_bin_to_target(data_points, MAX_POINTS)
 
         for dt, vals in data_points:
-            data_tension.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_tension']})
-            data_payout.append({'date': dt.strftime('%Y-%m-%d %H:%M:%S'), 'value': vals['max_payout']})
+            data_tension.append({
+                'date': dt.strftime('%Y-%m-%d %H:%M:%S'),
+                'value': vals['max_tension']
+            })
+
+            data_payout.append({
+                'date': dt.strftime('%Y-%m-%d %H:%M:%S'),
+                'value': vals['max_payout']
+            })
 
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
 
     form = DataFilterForm(initial={
         'start_date': start_date.date() if start_date else None,
-        'end_date': (end_date - timedelta(days=1)).date() if end_date else None,
+        'end_date': end_date.date() if end_date else None,
         'winch': winch,
     })
 
@@ -599,6 +619,15 @@ def charts(request):
         'data_json_payout': data_json_payout,
         'db_connected': db_connected,
         'no_db_connection': not db_connected,
+
+        # Values for the datetime-local inputs in charts.html
+        'start_date': start_date.strftime('%Y-%m-%dT%H:%M:%S'),
+        'end_date': end_date.strftime('%Y-%m-%dT%H:%M:%S'),
+
+        'max_days': MAX_DAYS,
+        'max_points': MAX_POINTS,
+        'winch': winch,
+        'error_message': error_message,
     }
 
     return render(request, 'wwdb/reports/charts.html', context)

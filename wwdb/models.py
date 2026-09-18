@@ -290,6 +290,20 @@ class Cast(models.Model):
             return formatdate
 
     @property
+    def format_startdate_chart_url(self):
+        if self.startdate:
+            date = self.startdate
+            formatdate = date.strftime("%Y-%m-%dT%H:%M:%S")
+            return formatdate
+
+    @property
+    def format_enddate_chart_url(self):
+        if self.enddate:
+            date = self.enddate
+            formatdate = date.strftime("%Y-%m-%dT%H:%M:%S")
+            return formatdate
+
+    @property
     def format_timemaxtension(self):
         if not self.timemaxtension:
             return

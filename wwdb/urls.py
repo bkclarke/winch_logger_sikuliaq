@@ -136,8 +136,8 @@ urlpatterns = [
     path('reports/<int:pk>/wirereport/', views.wirereport, name='wirereport'),
     path('reports/castreport/', views.castreport, name='castreport'),
     path('reports/charts/', charts, name='charts'),
+    path('reports/test-plots/', views.test_plots, name='test_plots'),
+    path('reports/test-plots/zoom/', views.chart_data_zoom_test, name='chart_data_zoom_test'),
     path('reports/servicestatus/', views.servicestatus, name='servicestatus'),
-    path('tests/test_plots/', views.test_plots, name='test_plots'),
-
     path('zoom-data', views.chart_data_zoom, name='chart_data_zoom'),
 ]
