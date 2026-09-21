@@ -532,6 +532,7 @@ def charts(request):
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
     winch_id = request.GET.get("winch")
+    winches = Winch.objects.all()
 
     # Get selected winch, or use the last one as a fallback
     try:
@@ -627,6 +628,7 @@ def charts(request):
         'max_days': MAX_DAYS,
         'max_points': MAX_POINTS,
         'winch': winch,
+        'winches': winches,
         'error_message': error_message,
     }
 
@@ -910,6 +912,7 @@ def castreport(request):
         casts = Cast.objects.all()
         deploymenttype = form.cleaned_data.get('deploymenttype')
         winch = form.cleaned_data.get('winch')
+        winches = Winch.objects.all()
         startdate = form.cleaned_data.get('startdate')
         enddate = form.cleaned_data.get('enddate')
         wire = form.cleaned_data.get('wire')
@@ -930,6 +933,7 @@ def castreport(request):
     context = {
         'casts': casts,
         'form': form,
+        'winches': winches,
        }
     # Render the template with form and filtered products
     return render(request, 'wwdb/reports/castreport.html', context)

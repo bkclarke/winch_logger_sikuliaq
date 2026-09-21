@@ -42,6 +42,30 @@
     </div>
 
 
+    <div class="date-filter-group">
+
+    <label for="winch">
+        Winch:
+    </label>
+
+    <select id="winch"
+            name="winch"
+            class="form-control"
+            required>
+
+        {% for available_winch in winches %}
+
+            <option value="{{ available_winch.id }}"
+                    {% if available_winch.id == winch.id %}selected{% endif %}>
+                {{ available_winch }}
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+    </div>
+
     <div class="date-filter-action">
 
         <button type="submit"
