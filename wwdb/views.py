@@ -458,7 +458,7 @@ def bin_data(data_points, *, bin_minutes: float) -> list:
     bin_end     = bin_start + bin_delta
     bin_tens    = []
     bin_payouts = []
-    bin_speed = []
+    bin_speeds = []
 
     for dt, vals in data_points:
         while dt >= bin_end:                        # time to close the bin
