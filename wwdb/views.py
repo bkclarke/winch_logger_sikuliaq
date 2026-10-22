@@ -429,7 +429,17 @@ def chart_data_zoom(request):
             {"date": dt.strftime("%Y-%m-%d %H:%M:%S"), "value": v["max_payout"]}
             for dt, v in data_pts
         ]
-        return JsonResponse({"tension": data_t, "payout": data_p})
+        data_s = [
+            {"date": dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "value": v["speed"]}
+            for dt, v in data_pts
+        ]
+
+        return JsonResponse({
+            "tension": data_t,
+            "payout": data_p,
+            "speed": data_s,
+        })
 
     except Exception as e:
         traceback.print_exc()
@@ -448,29 +458,34 @@ def bin_data(data_points, *, bin_minutes: float) -> list:
     bin_end     = bin_start + bin_delta
     bin_tens    = []
     bin_payouts = []
+    bin_speed = []
 
     for dt, vals in data_points:
         while dt >= bin_end:                        # time to close the bin
             if bin_tens:                           # avoid /0
                 avg_t = sum(t for t in bin_tens    if t is not None) / len(bin_tens)
                 avg_p = sum(p for p in bin_payouts if p is not None) / len(bin_payouts)
+                avg_s = sum(s for s in bin_speeds  if s is not None) / len(bin_speeds)
             else:
-                avg_t = avg_p = None
+                avg_t = avg_p = avg_s = None
 
-            binned.append((bin_start, {'max_tension': avg_t, 'max_payout': avg_p}))
+            binned.append((bin_start, {'max_tension': avg_t, 'max_payout': avg_p, 'speed': avg_s}))
             bin_start   = bin_end
             bin_end     = bin_start + bin_delta
             bin_tens    = []
             bin_payouts = []
+            bin_speeds = []
 
         bin_tens.append(vals['max_tension'])
         bin_payouts.append(vals['max_payout'])
+        bin_speeds.append(vals['speed'])
 
     # final partially filled bin
     if bin_tens:
         avg_t = sum(t for t in bin_tens    if t is not None) / len(bin_tens)
         avg_p = sum(p for p in bin_payouts if p is not None) / len(bin_payouts)
-        binned.append((bin_start, {'max_tension': avg_t, 'max_payout': avg_p}))
+        avg_s = sum(s for s in bin_speeds  if s is not None) / len(bin_speeds) 
+        binned.append((bin_start, {'max_tension': avg_t, 'max_payout': avg_p, 'speed': avg_s}))
 
     return binned
 
@@ -508,7 +523,7 @@ def get_data_from_external_db(start_date, end_date, winch_table):
         cursor = conn.cursor()
 
         query = f"""
-            SELECT date_time, tension_load_cell, payout
+            SELECT date_time, tension_load_cell, payout, speed
             FROM {winch_table}
             WHERE date_time BETWEEN %s AND %s
             ORDER BY date_time
@@ -519,7 +534,7 @@ def get_data_from_external_db(start_date, end_date, winch_table):
         cursor.close()
         conn.close()
 
-        return [(row[0], {'max_tension': row[1], 'max_payout': row[2]}) for row in rows]
+        return [(row[0], {'max_tension': row[1], 'max_payout': row[2], 'speed': row[3]}) for row in rows]
 
     except Exception as e:
         print(f"Error fetching data: {e}")
@@ -573,6 +588,7 @@ def charts(request):
 
     data_tension = []
     data_payout = []
+    data_speed = []
 
     if not error_message and winch:
         data_points = get_data_from_external_db(
@@ -604,9 +620,14 @@ def charts(request):
                 'date': dt.strftime('%Y-%m-%d %H:%M:%S'),
                 'value': vals['max_payout']
             })
+            data_speed.append({
+                'date': date_str,
+                'value': vals['speed']
+            })
 
     data_json_tension = json.dumps(data_tension)
     data_json_payout = json.dumps(data_payout)
+    data_json_speed = json.dumps(data_speed)
 
     form = DataFilterForm(initial={
         'start_date': start_date.date() if start_date else None,
@@ -618,6 +639,7 @@ def charts(request):
         'form': form,
         'data_json_tension': data_json_tension,
         'data_json_payout': data_json_payout,
+        'data_json_speed': data_json_speed,
         'db_connected': db_connected,
         'no_db_connection': not db_connected,
 

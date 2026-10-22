@@ -284,9 +284,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let data_tension = [];
     let data_payout = [];
+    let data_speed = [];
 
     let original_data_tension = [];
     let original_data_payout = [];
+    let original_data_speed = [];
 
 
     try {
@@ -299,6 +301,9 @@ document.addEventListener('DOMContentLoaded', function () {
             "{{ data_json_payout|default:'[]'|escapejs }}"
         );
 
+        data_speed = JSON.parse(
+            "{{ data_json_speed|default:'[]'|escapejs }}"
+        );
 
         /*
          * Keep untouched copies.
@@ -315,6 +320,11 @@ document.addEventListener('DOMContentLoaded', function () {
             data_payout.map(
                 point => ({ ...point })
             );
+
+        original_data_speed = 
+            data_speed.map(
+            point => ({ ...point })
+        );
 
     } catch (error) {
 
@@ -930,6 +940,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                         data_payout =
                                             data.payout;
 
+                                        data_speed = 
+                                            data.speed;
 
                                         /*
                                          * Replace chart series.
@@ -950,6 +962,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                                             toSeries(
                                                 data_payout
+                                            ),
+
+                                            false
+
+                                        );
+
+                                        chart.series[2].setData(
+
+                                            toSeries(
+                                                data_speed
                                             ),
 
                                             false
@@ -1146,6 +1168,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         opposite:
                             true
 
+                    },
+
+                    {
+                        title: {
+                            text: 'Speed (m/s)'
+                        },
+
+                        opposite: true,
+                        offset: 70
                     }
 
                 ],
@@ -1234,6 +1265,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         color:
                             '#28a745'
 
+                    },
+
+                    {
+                        name: 'Speed',
+                        yAxis: 2,
+
+                        data: toSeries(
+                            data_speed
+                        ),
+
+                        color: '#ff9900',
+                        connectNulls: false
                     }
 
                 ]
@@ -1588,6 +1631,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     point => ({ ...point })
                 );
 
+            data_speed = 
+                original_data_speed.map(
+                    point => ({ ...point })
+                );
 
             console.log(
                 "Restored:",
@@ -1619,6 +1666,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 false
 
+            );
+
+            chart.series[2].setData(
+
+                toSeries(
+                    data_speed
+                ),
+
+                false
+                
             );
 
 
