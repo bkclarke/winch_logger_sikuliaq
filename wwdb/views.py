@@ -621,7 +621,7 @@ def charts(request):
                 'value': vals['max_payout']
             })
             data_speed.append({
-                'date': date_str,
+                'date': dt.strftime('%Y-%m-%d %H:%M:%S'),
                 'value': vals['speed']
             })
 
